@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>application</artifactId>
+    <artifactId>crow-application</artifactId>
 
     <properties>
         <start-class>com.blacklabelops.crow.application.CrowDemon</start-class>

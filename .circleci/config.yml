@@ -1,0 +1,30 @@
+version: 2
+jobs:
+  build:
+
+    working_directory: ~/crow
+
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+
+    steps:
+
+      - checkout
+
+      - restore_cache:
+          key: circleci-crow-{{ checksum "pom.xml" }}
+
+      - run: mvn clean install
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: circleci-crow-{{ checksum "pom.xml" }}
+
+      - run: mvn package
+
+      - store_test_results:
+          path: console/target/surefire-reports
+
+      - store_artifacts:
+          path: application/target/crow-application-1.0-SNAPSHOT.jar
