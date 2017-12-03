@@ -1,0 +1,13 @@
+---
+
+crow:
+  jobs:
+    - name: HelloWorld
+      cron: "* * * * *"
+      command: echo 'Hello World!'
+    - name: "HelloUniverse"
+      cron: "* * * * *"
+      command: "echo 'Hello Universe!'"
+      environments:
+        - key: MY_KEY
+          value: myvalue
