@@ -1,24 +1,29 @@
 package com.blacklabelops.crow.executor;
 
 import com.blacklabelops.crow.executor.console.*;
+import com.blacklabelops.crow.logger.IJobLogger;
+import com.blacklabelops.crow.reporter.DummyReporter;
+import com.blacklabelops.crow.reporter.IJobReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.util.function.Consumer;
 
 /**
  * Created by steffenbleul on 21.12.16.
  */
 public class SimpleConsole implements IExecutor {
 
-    public static final String MDC_JOBNAME = "jobname";
+    private IJobReporter jobReporter = new DummyReporter();
 
-    private Logger jobLogger;
+    private final IJobDefinition jobDefinition;
 
-    private final DefinitionConsole jobDefinition;
+    private IJobLogger jobLogger;
 
-    private final FileAccessor fileAccessor;
+    private final FileAccessor fileAccessor = new FileAccessor();
 
     private final String jobName;
 
@@ -34,34 +39,52 @@ public class SimpleConsole implements IExecutor {
 
     private Thread errorReaderThread;
 
-    public SimpleConsole(String name, DefinitionConsole definition, FileAccessor accessor) {
+    private LocalDateTime startingTime;
+
+    private LocalDateTime finishingTime;
+
+    public SimpleConsole(IJobDefinition definition, IJobReporter reporter, IJobLogger logger)  {
         super();
-        jobLogger = LoggerFactory.getLogger(name);
+        jobName = definition.getJobName();
         jobDefinition = definition;
-        fileAccessor = accessor;
-        jobName = name;
+        if (reporter != null) {
+            jobReporter = reporter;
+        }
+        jobLogger = logger;
     }
 
     @Override
     public void run() {
-        MDC.put(MDC_JOBNAME,jobName);
+        if (jobLogger != null) {
+            jobLogger.initializeLogger();
+        }
         try {
             ExecutorConsole executor = new ExecutorConsole();
-            createDefaultOutputFiles(executor);
-            startLogTrailing();
+            if (jobLogger != null) {
+                createDefaultOutputFiles(executor);
+                startLogTrailing();
+            }
+            this.setStartingTime(LocalDateTime.now());
+            jobReporter.startingJob(this);
             executor.execute(jobDefinition);
-            stopLogTrailing();
-            deleteOutputFiles();
+            this.setFinishingTime(LocalDateTime.now());
+            jobReporter.finishedJob(this);
+            if (jobLogger != null) {
+                stopLogTrailing();
+                deleteOutputFiles();
+            }
         } finally {
-            MDC.remove(MDC_JOBNAME);
+            if (jobLogger != null) {
+                jobLogger.finishLogger();
+            }
         }
     }
 
     private void startLogTrailing() {
-        outputFileReader = new OutputReader(outputFile, new LogInfoConsumer(jobLogger));
+        outputFileReader = new OutputReader(outputFile, jobLogger.getInfoLogConsumer());
         outputReaderThread = new Thread(outputFileReader);
         outputReaderThread.start();
-        errorFileReader = new OutputReader(errorFile, new LogErrorConsumer(jobLogger));
+        errorFileReader = new OutputReader(errorFile, jobLogger.getErrorLogConsumer());
         errorReaderThread = new Thread(errorFileReader);
         errorReaderThread.start();
     }
@@ -99,5 +122,21 @@ public class SimpleConsole implements IExecutor {
     @Override
     public ExecutionMode getExecutionMode() {
         return jobDefinition.getExecutionMode();
+    }
+
+    public LocalDateTime getStartingTime() {
+        return startingTime;
+    }
+
+    private void setStartingTime(LocalDateTime startingTime) {
+        this.startingTime = startingTime;
+    }
+
+    public LocalDateTime getFinishingTime() {
+        return finishingTime;
+    }
+
+    private void setFinishingTime(LocalDateTime finishingTime) {
+        this.finishingTime = finishingTime;
     }
 }

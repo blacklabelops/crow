@@ -1,6 +1,7 @@
 package com.blacklabelops.crow.executor.console;
 
 import com.blacklabelops.crow.executor.SimpleConsole;
+import com.blacklabelops.crow.logger.JobLogLogger;
 import com.blacklabelops.crow.suite.SlowTests;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
@@ -59,16 +60,17 @@ public class SimpleConsoleUnixIntegrationTest {
     }
 
     @Test
-    public void whenNoDefinitionThenExecutionException() {
-        exception.expect(ExecutorException.class);
-        simpleConsole = new SimpleConsole("test",null,new FileAccessor());
+    public void whenNoDefinitionThenNullpointerException() {
+        exception.expect(NullPointerException.class);
+        simpleConsole = new SimpleConsole(null, null,null);
         simpleConsole.run();
     }
 
     @Test
     public void whenEchoConsoleThenHelloOnLogs() {
         definitionConsole.setCommand("echo","hello world");
-        simpleConsole = new SimpleConsole("echoJob",definitionConsole, new FileAccessor());
+        definitionConsole.setJobName("echoJob");
+        simpleConsole = new SimpleConsole(definitionConsole, null, new JobLogLogger("echoJob"));
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
         assertEquals("Log output must be info level!",logCaptor.getValue().getLevel(), Level.INFO);
@@ -78,7 +80,8 @@ public class SimpleConsoleUnixIntegrationTest {
     @Test
     public void whenEchoErrorConsoleThenErrorOnLogs() {
         definitionConsole.setCommand("/bin/bash","-c",">&2 echo error");
-        simpleConsole = new SimpleConsole("errorJob",definitionConsole, new FileAccessor());
+        definitionConsole.setJobName("errorJob");
+        simpleConsole = new SimpleConsole(definitionConsole, null, new JobLogLogger("errorJob"));
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
         assertEquals("Log output must be error level!",logCaptor.getValue().getLevel(), Level.ERROR);

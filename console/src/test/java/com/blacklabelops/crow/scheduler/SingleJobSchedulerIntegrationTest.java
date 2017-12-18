@@ -34,7 +34,8 @@ public class SingleJobSchedulerIntegrationTest {
         String joName = "EchoJob";
         DefinitionConsole definition = new DefinitionConsole();
         definition.setCommand("echo","hello");
-        SimpleConsole executor = new SimpleConsole(joName,definition,new FileAccessor());
+        definition.setJobName(joName);
+        SimpleConsole executor = new SimpleConsole(definition, null, null);
         SimpleConsole spyExecutor = spy(executor);
         doAnswer(new Answer<Void>() {
             @Override

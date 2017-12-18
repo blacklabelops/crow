@@ -71,7 +71,8 @@ public class MultiJobSchedulerIntegrationTest {
     private Job createJob(final String name, String cronString,int latches) {
         DefinitionConsole defConsole = new DefinitionConsole();
         defConsole.setCommand("echo","Hello" + name);
-        SimpleConsole console = new SimpleConsole(name, defConsole,new FileAccessor());
+        defConsole.setJobName(name);
+        SimpleConsole console = new SimpleConsole(defConsole, null, null);
         latch.put(name,new CountDownLatch(latches));
         SimpleConsole spyConsole = spy(console);
         doAnswer(new Answer() {

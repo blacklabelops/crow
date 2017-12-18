@@ -20,12 +20,12 @@ public class ExecutorConsole {
         super();
     }
 
-    private void checkDefinition(DefinitionConsole executionDefinition) {
+    private void checkDefinition(IJobDefinition executionDefinition) {
         if (executionDefinition == null) throw new ExecutorException("Executor has no job definition!");
         if (executionDefinition.getCommand() == null) throw new ExecutorException("Executor has no command specified");
     }
 
-    public void execute(DefinitionConsole executionDefinition) {
+    public void execute(IJobDefinition executionDefinition) {
         checkDefinition(executionDefinition);
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command(executionDefinition.getCommand());
@@ -56,7 +56,7 @@ public class ExecutorConsole {
         }
     }
 
-    private void extendEnvironmentVariables(ProcessBuilder processBuilder, DefinitionConsole executionDefinition) {
+    private void extendEnvironmentVariables(ProcessBuilder processBuilder, IJobDefinition executionDefinition) {
         Map<String, String> environmentVariables = processBuilder.environment();
         if (executionDefinition.getEnvironmentVariables() != null && !executionDefinition.getEnvironmentVariables().isEmpty()) {
             environmentVariables.putAll(executionDefinition.getEnvironmentVariables());

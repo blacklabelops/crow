@@ -6,7 +6,7 @@ import com.blacklabelops.crow.config.Job;
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.executor.SimpleConsole;
 import com.blacklabelops.crow.executor.console.DefinitionConsole;
-import com.blacklabelops.crow.executor.console.FileAccessor;
+import com.blacklabelops.crow.logger.JobLogLogger;
 import com.blacklabelops.crow.scheduler.*;
 import org.apache.tools.ant.types.Commandline;
 import org.slf4j.Logger;
@@ -57,7 +57,8 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean {
         if (!job.getEnvironments().isEmpty()) {
             defConsole.setEnvironmentVariables(createEnvironmentVariables(job.getEnvironments()));
         }
-        IExecutor simepleConsole = new SimpleConsole(job.getName(),defConsole,new FileAccessor());
+        defConsole.setJobName(job.getName());
+        IExecutor simepleConsole = new SimpleConsole(defConsole,null, new JobLogLogger(job.getName()));
         IExecutionTime cronTime = new CronUtilsExecutionTime(job.getCron());
         com.blacklabelops.crow.scheduler.Job workJob = new com.blacklabelops.crow.scheduler.Job(simepleConsole, cronTime);
         jobScheduler.addJob(workJob);
