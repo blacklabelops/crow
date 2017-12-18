@@ -95,4 +95,9 @@ public class SimpleConsole implements IExecutor {
     public String getJobName() {
         return jobName;
     }
+
+    @Override
+    public ExecutionMode getExecutionMode() {
+        return jobDefinition.getExecutionMode();
+    }
 }

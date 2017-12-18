@@ -19,16 +19,21 @@ public class ExecutorPool {
         super();
     }
 
-    public void addExecution(IExecutor executor) {
-        boolean alreadyRunning = checkRunning(executor);
-        if (!alreadyRunning) {
+    public ExecutionResult addExecution(IExecutor executor) {
+        ExecutionMode executionMode = executor.getExecutionMode();
+        ExecutionResult result = null;
+        boolean canBeExecuted = ExecutionMode.PARALLEL.equals(executionMode) || !checkRunning(executor);
+        if (canBeExecuted) {
             LOG.debug("Starting new instance of  Job {}.", executor.getJobName());
             Thread execution = new Thread(executor);
             runningExecutors.put(executor.getJobName(), execution);
             execution.start();
+            result = ExecutionResult.EXECUTED;
         } else {
             LOG.debug("Skipping Job {}, already running!", executor.getJobName());
+            result = ExecutionResult.DROPPED_ALREADY_RUNNING;
         }
+        return result;
     }
 
     public boolean checkRunning(IExecutor executor) {

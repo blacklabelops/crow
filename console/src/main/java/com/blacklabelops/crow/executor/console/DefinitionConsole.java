@@ -1,5 +1,7 @@
 package com.blacklabelops.crow.executor.console;
 
+import com.blacklabelops.crow.executor.ExecutionMode;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +15,8 @@ public class DefinitionConsole {
     private List<String> command;
 
     private Map<String, String> environmentVariables;
+
+    private ExecutionMode executorMode = null;
 
     public DefinitionConsole() {
         super();
@@ -36,5 +40,13 @@ public class DefinitionConsole {
 
     public void setEnvironmentVariables(Map<String, String> environmentVariables) {
         this.environmentVariables = environmentVariables;
+    }
+
+    public ExecutionMode getExecutionMode() {
+        return executorMode;
+    }
+
+    public void setExecutionMode(ExecutionMode executorMode) {
+        this.executorMode = executorMode;
     }
 }

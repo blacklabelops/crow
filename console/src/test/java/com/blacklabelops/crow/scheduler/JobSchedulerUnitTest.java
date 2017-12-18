@@ -1,7 +1,10 @@
 package com.blacklabelops.crow.scheduler;
 
 import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.suite.FastTests;
+import com.blacklabelops.crow.suite.SlowTests;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.time.ZonedDateTime;
 
@@ -13,6 +16,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by steffenbleul on 22.12.16.
  */
+@Category(FastTests.class)
 public class JobSchedulerUnitTest {
 
     @Test

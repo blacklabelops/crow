@@ -1,7 +1,9 @@
 package com.blacklabelops.crow.executor.console;
 
+import com.blacklabelops.crow.suite.FastTests;
 import com.blacklabelops.crow.util.FileAsserter;
 import org.junit.*;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by steffenbleul on 19.12.16.
  */
+@Category(FastTests.class)
 public class ExecutorConsoleUnixIntegrationTest {
 
     public ExecutorConsole cli;
