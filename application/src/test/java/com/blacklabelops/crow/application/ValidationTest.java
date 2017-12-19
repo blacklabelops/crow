@@ -104,26 +104,9 @@ public class ValidationTest {
         job.setCron(VALID_CRON);
         job.setName("l");
         job.setCommand("l");
-        Environment env = new Environment();
-        env.setKey("l");
-        job.getEnvironments().add(env);
+        job.getEnvironments().put("l","");
         constraintViolations = localValidatorFactory.validate(job);
         assertEquals("No validation errors expected!",0,constraintViolations.size());
-    }
-
-    @Test
-    public void whenTwoEnvironmentIdenticalKeysThenValidationViolation() {
-        job.setCron(VALID_CRON);
-        job.setName("l");
-        job.setCommand("l");
-        Environment env = new Environment();
-        env.setKey("l");
-        job.getEnvironments().add(env);
-        Environment env2 = new Environment();
-        env2.setKey("l");
-        job.getEnvironments().add(env2);
-        constraintViolations = localValidatorFactory.validate(job);
-        assertEquals("Environment keys must be unique!",1,constraintViolations.size());
     }
 
     @Test

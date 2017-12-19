@@ -9,5 +9,4 @@ crow:
       cron: "* * * * *"
       command: "echo 'Hello Universe!'"
       environments:
-        - key: MY_KEY
-          value: myvalue
+        MY_KEY: myvalue

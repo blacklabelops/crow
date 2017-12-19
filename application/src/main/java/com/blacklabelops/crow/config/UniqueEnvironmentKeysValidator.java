@@ -9,12 +9,13 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by steffenbleul on 29.12.16.
  */
-public class UniqueEnvironmentKeysValidator implements ConstraintValidator<UniqueEnvironmentKeys, List<Environment>> {
+public class UniqueEnvironmentKeysValidator implements ConstraintValidator<UniqueEnvironmentKeys, Map<String, String>> {
 
     public UniqueEnvironmentKeysValidator() {
         super();
@@ -26,7 +27,7 @@ public class UniqueEnvironmentKeysValidator implements ConstraintValidator<Uniqu
     }
 
     @Override
-    public boolean isValid(List<Environment> environments, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(Map<String, String> environments, ConstraintValidatorContext constraintValidatorContext) {
         boolean isValid = true;
         if (environments != null && !environments.isEmpty()) {
             isValid = validateUniqueEnvironmentVariableKeys(environments);
@@ -34,9 +35,9 @@ public class UniqueEnvironmentKeysValidator implements ConstraintValidator<Uniqu
         return isValid;
     }
 
-    private boolean validateUniqueEnvironmentVariableKeys(List<Environment> environments) {
+    private boolean validateUniqueEnvironmentVariableKeys(Map<String, String> environments) {
         Set<String> envKeys = new HashSet<>();
-        environments.stream().forEach(s -> envKeys.add(s.getKey()));
+        environments.keySet().stream().forEach(s -> envKeys.add(s));
         return environments.size() == envKeys.size();
     }
 }

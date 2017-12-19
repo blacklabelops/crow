@@ -47,7 +47,7 @@ public class CrowConfigTest {
 
     @Test
     public void whenSecondJobLoadedThenCorrectEnvironmentVariables() {
-        assertEquals("Environment variable key must match!","MY_KEY",crow.getJobs().get(1).getEnvironments().get(0).getKey());
-        assertEquals("Environment variable value must match!","myvalue",crow.getJobs().get(1).getEnvironments().get(0).getValue());
+        assertEquals("Environment variable key must match!","MY_KEY",crow.getJobs().get(1).getEnvironments().keySet().stream().findFirst().orElse(""));
+        assertEquals("Environment variable value must match!","myvalue",crow.getJobs().get(1).getEnvironments().values().stream().findFirst().orElse(""));
     }
 }

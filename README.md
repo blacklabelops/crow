@@ -135,8 +135,8 @@ crow:
       cron: "* * * * *"
       command: /bin/bash -c "echo $MY_KEY"
       environments:
-        - key: MY_KEY
-          value: Hello Universe!
+        MY_KEY: Hello Universe!
+        MY_SECOND_KEY: My Second Value
 ~~~~
 
 > Will print `Hello Universe!` each minute on console.

@@ -4,8 +4,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by steffenbleul on 28.12.16.
@@ -23,7 +22,7 @@ public class Job implements IConfigModel {
 
     @Valid
     @UniqueEnvironmentKeys(message = "All environment variable keys must be unique for a Job!")
-    private List<Environment> environments = new ArrayList<>();;
+    private Map<String, String> environments = new LinkedHashMap<>();
 
     public Job() {
         super();
@@ -53,11 +52,11 @@ public class Job implements IConfigModel {
         this.command = command;
     }
 
-    public List<Environment> getEnvironments() {
+    public Map<String, String> getEnvironments() {
         return environments;
     }
 
-    public void setEnvironments(List<Environment> environments) {
+    public void setEnvironments(Map<String, String> environments) {
         this.environments = environments;
     }
 }

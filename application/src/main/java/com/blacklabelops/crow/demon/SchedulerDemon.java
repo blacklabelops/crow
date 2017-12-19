@@ -66,9 +66,9 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean {
         jobScheduler.addJob(workJob);
     }
 
-    private Map<String,String> createEnvironmentVariables(List<Environment> environments) {
+    private Map<String,String> createEnvironmentVariables(Map<String, String> environments) {
         Map<String, String> environmentVariables = new HashMap<>();
-        environments.stream().forEach(environment -> environmentVariables.put(environment.getKey(),environment.getValue() != null ? environment.getValue() : ""));
+        environments.keySet().stream().forEach(key -> environmentVariables.put(key,environments.get(key) != null ? environments.get(key) : ""));
         return environmentVariables;
     }
 
