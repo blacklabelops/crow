@@ -2,7 +2,6 @@ package com.blacklabelops.crow.scheduler;
 
 import com.blacklabelops.crow.executor.SimpleConsole;
 import com.blacklabelops.crow.executor.console.DefinitionConsole;
-import com.blacklabelops.crow.executor.console.FileAccessor;
 import com.blacklabelops.crow.suite.SlowTests;
 import org.junit.Before;
 import org.junit.Test;

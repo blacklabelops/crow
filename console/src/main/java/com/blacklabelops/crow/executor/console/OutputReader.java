@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -16,11 +17,11 @@ public class OutputReader implements Runnable {
 
     private final Path outputFile;
 
-    private final Consumer<String> lineConsumer;
+    private final List<Consumer<String>> lineConsumer;
 
     private boolean keepReading;
 
-    public OutputReader(Path file, Consumer<String> consumer) {
+    public OutputReader(Path file, List<Consumer<String>> consumer) {
         super();
         outputFile = file;
         lineConsumer = consumer;
@@ -53,11 +54,15 @@ public class OutputReader implements Runnable {
         String line;
         try {
             while ((line = reader.readLine()) != null) {
-                lineConsumer.accept(line);
+                pushLineToConsumer(line);
             }
         } catch (IOException e) {
             throw new RuntimeException("Error trailing file!",e);
         }
+    }
+
+    private void pushLineToConsumer(final String line) {
+        lineConsumer.forEach(consumer -> consumer.accept(line));
     }
 
     public void stop() {

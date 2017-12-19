@@ -2,14 +2,12 @@ package com.blacklabelops.crow.executor;
 
 import com.blacklabelops.crow.executor.console.*;
 import com.blacklabelops.crow.logger.IJobLogger;
-import com.blacklabelops.crow.reporter.DummyReporter;
 import com.blacklabelops.crow.reporter.IJobReporter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -17,15 +15,15 @@ import java.util.function.Consumer;
  */
 public class SimpleConsole implements IExecutor {
 
-    private IJobReporter jobReporter = new DummyReporter();
+    private final String jobName;
 
     private final IJobDefinition jobDefinition;
 
-    private IJobLogger jobLogger;
+    private final List<IJobReporter> jobReporter = new ArrayList<>();
+
+    private final List<IJobLogger> jobLogger = new ArrayList<>();
 
     private final FileAccessor fileAccessor = new FileAccessor();
-
-    private final String jobName;
 
     private Path outputFile;
 
@@ -43,20 +41,24 @@ public class SimpleConsole implements IExecutor {
 
     private LocalDateTime finishingTime;
 
-    public SimpleConsole(IJobDefinition definition, IJobReporter reporter, IJobLogger logger)  {
+    private Integer returnCode;
+
+    public SimpleConsole(IJobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
         super();
         jobName = definition.getJobName();
         jobDefinition = definition;
         if (reporter != null) {
-            jobReporter = reporter;
+            reporter.stream().filter(report -> report != null).forEach(report -> jobReporter.add(report));
         }
-        jobLogger = logger;
+        if (logger != null) {
+            logger.stream().filter(log -> log != null).forEach(log -> jobLogger.add(log));
+        }
     }
 
     @Override
     public void run() {
         if (jobLogger != null) {
-            jobLogger.initializeLogger();
+            jobLogger.forEach(logger -> logger.initializeLogger());
         }
         try {
             ExecutorConsole executor = new ExecutorConsole();
@@ -65,26 +67,32 @@ public class SimpleConsole implements IExecutor {
                 startLogTrailing();
             }
             this.setStartingTime(LocalDateTime.now());
-            jobReporter.startingJob(this);
+            jobReporter.forEach(reporter -> reporter.startingJob(this));
             executor.execute(jobDefinition);
+            returnCode = executor.getReturnCode();
             this.setFinishingTime(LocalDateTime.now());
-            jobReporter.finishedJob(this);
+            jobReporter.forEach(reporter -> reporter.finishedJob(this));
             if (jobLogger != null) {
                 stopLogTrailing();
                 deleteOutputFiles();
             }
         } finally {
             if (jobLogger != null) {
-                jobLogger.finishLogger();
+                jobLogger.forEach(logger -> logger.finishLogger());
             }
         }
     }
 
     private void startLogTrailing() {
-        outputFileReader = new OutputReader(outputFile, jobLogger.getInfoLogConsumer());
+        //jobLogger.getInfoLogConsumer()
+        List<Consumer<String>> infoLogger = new ArrayList<>(jobLogger.size());
+        jobLogger.stream().filter(logger -> logger.getInfoLogConsumer() != null).forEach(logger -> infoLogger.add(logger.getInfoLogConsumer()));
+        outputFileReader = new OutputReader(outputFile, infoLogger);
         outputReaderThread = new Thread(outputFileReader);
         outputReaderThread.start();
-        errorFileReader = new OutputReader(errorFile, jobLogger.getErrorLogConsumer());
+        List<Consumer<String>> errorLogger = new ArrayList<>(jobLogger.size());
+        jobLogger.stream().filter(logger -> logger.getErrorLogConsumer() != null).forEach(logger -> errorLogger.add(logger.getErrorLogConsumer()));
+        errorFileReader = new OutputReader(errorFile, errorLogger);
         errorReaderThread = new Thread(errorFileReader);
         errorReaderThread.start();
     }
@@ -124,6 +132,7 @@ public class SimpleConsole implements IExecutor {
         return jobDefinition.getExecutionMode();
     }
 
+    @Override
     public LocalDateTime getStartingTime() {
         return startingTime;
     }
@@ -132,11 +141,17 @@ public class SimpleConsole implements IExecutor {
         this.startingTime = startingTime;
     }
 
+    @Override
     public LocalDateTime getFinishingTime() {
         return finishingTime;
     }
 
     private void setFinishingTime(LocalDateTime finishingTime) {
         this.finishingTime = finishingTime;
+    }
+
+    @Override
+    public Integer getReturnCode() {
+        return this.returnCode;
     }
 }

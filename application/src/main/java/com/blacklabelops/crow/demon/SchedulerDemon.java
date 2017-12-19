@@ -21,6 +21,8 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by steffenbleul on 28.12.16.
@@ -58,7 +60,7 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean {
             defConsole.setEnvironmentVariables(createEnvironmentVariables(job.getEnvironments()));
         }
         defConsole.setJobName(job.getName());
-        IExecutor simepleConsole = new SimpleConsole(defConsole,null, new JobLogLogger(job.getName()));
+        IExecutor simepleConsole = new SimpleConsole(defConsole,null, Stream.of(new JobLogLogger(job.getName())).collect(Collectors.toList()));
         IExecutionTime cronTime = new CronUtilsExecutionTime(job.getCron());
         com.blacklabelops.crow.scheduler.Job workJob = new com.blacklabelops.crow.scheduler.Job(simepleConsole, cronTime);
         jobScheduler.addJob(workJob);

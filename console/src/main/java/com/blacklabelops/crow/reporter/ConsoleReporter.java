@@ -4,11 +4,17 @@ import com.blacklabelops.crow.executor.IExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.format.DateTimeFormatter;
+
 public class ConsoleReporter implements IJobReporter {
 
     private Logger logger = LoggerFactory.getLogger(ConsoleReporter.class);
 
-    private String startMessageFormat = "Starting job %s at ";
+    private String startMessageFormat = "Starting job %s at %s.";
+
+    private String finishMessageFormat = "Finished job %s with return code %d at %s.";
+
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public ConsoleReporter() {
         super();
@@ -16,11 +22,15 @@ public class ConsoleReporter implements IJobReporter {
 
     @Override
     public void startingJob(IExecutor pExecutingJob) {
-
+        String time = formatter.format(pExecutingJob.getStartingTime());
+        String message = String.format(startMessageFormat, pExecutingJob.getJobName(), time);
+        logger.info(message);
     }
 
     @Override
     public void finishedJob(IExecutor pExecutingJob) {
-
+        String time = formatter.format(pExecutingJob.getFinishingTime());
+        String message = String.format(finishMessageFormat, pExecutingJob.getJobName(), pExecutingJob.getReturnCode(), time);
+        logger.info(message);
     }
 }

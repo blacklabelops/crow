@@ -19,6 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -70,7 +73,7 @@ public class SimpleConsoleUnixIntegrationTest {
     public void whenEchoConsoleThenHelloOnLogs() {
         definitionConsole.setCommand("echo","hello world");
         definitionConsole.setJobName("echoJob");
-        simpleConsole = new SimpleConsole(definitionConsole, null, new JobLogLogger("echoJob"));
+        simpleConsole = new SimpleConsole(definitionConsole, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
         assertEquals("Log output must be info level!",logCaptor.getValue().getLevel(), Level.INFO);
@@ -81,7 +84,7 @@ public class SimpleConsoleUnixIntegrationTest {
     public void whenEchoErrorConsoleThenErrorOnLogs() {
         definitionConsole.setCommand("/bin/bash","-c",">&2 echo error");
         definitionConsole.setJobName("errorJob");
-        simpleConsole = new SimpleConsole(definitionConsole, null, new JobLogLogger("errorJob"));
+        simpleConsole = new SimpleConsole(definitionConsole, null, Stream.of(new JobLogLogger("errorJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
         assertEquals("Log output must be error level!",logCaptor.getValue().getLevel(), Level.ERROR);

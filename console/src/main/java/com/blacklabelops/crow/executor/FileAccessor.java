@@ -1,4 +1,6 @@
-package com.blacklabelops.crow.executor.console;
+package com.blacklabelops.crow.executor;
+
+import com.blacklabelops.crow.executor.console.ExecutorException;
 
 import java.io.IOException;
 import java.nio.file.Files;
