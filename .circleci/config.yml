@@ -5,7 +5,7 @@ jobs:
     working_directory: ~/crow
 
     docker:
-      - image: maven:3.5.0-jdk-9
+      - image: blacklabelops/swarm-jdk8
 
     steps:
 
