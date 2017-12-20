@@ -43,17 +43,6 @@ $ mvn clean install
 > Maven installation required.
 
 Docker:
- -
- -~~~~
- -$ docker run --rm \
- -    -v $(pwd):/crow \
- -    blacklabelops/swarm-jdk8 \
- -    mvn -f /crow/pom.xml clean install
- -~~~~
- -
- -> Running build inside Docker container, container will be removed after build.
-
-Docker:
 
 ~~~~
 $ docker run --rm \
@@ -145,7 +134,7 @@ crow:
 
 ## Parallel Job Execution
 
-By default, all jobs with the same name run purely sequential, overlapping jobs will be dropped as long as the previous job is executed. 
+By default, all jobs with the same name run purely sequential, overlapping jobs will be dropped as long as the previous job is executed.
 Jobs can also run in parallel.
 
 Each job can be configured with `execution` to run sequential or parallel:
@@ -189,5 +178,3 @@ crow:
 ~~~~
 
 > Job will not be run if an error has occured.
-
-
