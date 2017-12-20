@@ -1,14 +1,21 @@
 package com.blacklabelops.crow.scheduler;
 
+import com.blacklabelops.crow.executor.ErrorMode;
+import com.blacklabelops.crow.executor.ExecutionResult;
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.suite.FastTests;
 import com.blacklabelops.crow.suite.SlowTests;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.time.ZonedDateTime;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -18,6 +25,14 @@ import static org.mockito.Mockito.when;
  */
 @Category(FastTests.class)
 public class JobSchedulerUnitTest {
+
+    public JobScheduler scheduler = new JobScheduler();
+
+    @Rule
+    public MockitoRule mockito = MockitoJUnit.rule();
+
+    @Mock
+    public IExecutor executor;
 
     @Test
     public void whenFirstEntryTheNextThenReturnFirstJob() {
@@ -46,10 +61,71 @@ public class JobSchedulerUnitTest {
     }
 
     private Job createJob(String name, ZonedDateTime nextExecution) {
-        IExecutor executor = mock(IExecutor.class);
         when(executor.getJobName()).thenReturn(name);
         IExecutionTime executorTime = mock(IExecutionTime.class);
         when(executorTime.nextExecution(any())).thenReturn(nextExecution);
         return new Job(executor,executorTime);
     }
+
+    @Test
+    public void testNotifyFailingJob_WhenJobFaulty_UnscheduleJob() {
+        Job job = createJob("A",ZonedDateTime.now().plusMinutes(1));
+        IExecutor executorJob = job.getExecutor();
+        when(executorJob.getErrorMode()).thenReturn(ErrorMode.STOP);
+        scheduler.addJob(job);
+        scheduler.notifyFailingJob(executorJob, ExecutionResult.DROPPED_ALREADY_RUNNING);
+        assertNull(scheduler.getNextExecutableJob());
+    }
+
+    @Test
+    public void testNotifyFailingJob_WhenJobContinue_StillScheduleJob() {
+        Job job = createJob("A",ZonedDateTime.now().plusMinutes(1));
+        IExecutor executorJob = job.getExecutor();
+        when(executorJob.getErrorMode()).thenReturn(ErrorMode.CONTINUE);
+        scheduler.addJob(job);
+        scheduler.notifyFailingJob(executorJob, ExecutionResult.DROPPED_ALREADY_RUNNING);
+        assertEquals(job, scheduler.getNextExecutableJob());
+    }
+
+    @Test
+    public void testNotifyFailingJob_WhenNoErrorDefinition_StillScheduleJob() {
+        Job job = createJob("A",ZonedDateTime.now().plusMinutes(1));
+        IExecutor executorJob = job.getExecutor();
+        when(executorJob.getErrorMode()).thenReturn(null);
+        scheduler.addJob(job);
+        scheduler.notifyFailingJob(executorJob, ExecutionResult.DROPPED_ALREADY_RUNNING);
+        assertEquals(job, scheduler.getNextExecutableJob());
+    }
+
+    @Test
+    public void testNotifyExecutionError_WhenJobFaulty_UnscheduleJob() {
+        Job job = createJob("A",ZonedDateTime.now().plusMinutes(1));
+        IExecutor executorJob = job.getExecutor();
+        when(executorJob.getErrorMode()).thenReturn(ErrorMode.STOP);
+        scheduler.addJob(job);
+        scheduler.notifyExecutionError(executorJob, 1);
+        assertNull(scheduler.getNextExecutableJob());
+    }
+
+    @Test
+    public void testNotifyExecutionError_WhenJobContinue_StillScheduleJob() {
+        Job job = createJob("A",ZonedDateTime.now().plusMinutes(1));
+        IExecutor executorJob = job.getExecutor();
+        when(executorJob.getErrorMode()).thenReturn(ErrorMode.CONTINUE);
+        scheduler.addJob(job);
+        scheduler.notifyExecutionError(executorJob, 1);
+        assertEquals(job, scheduler.getNextExecutableJob());
+    }
+
+    @Test
+    public void testNotifyExecutionError_WhenNoErrorDefinition_StillScheduleJob() {
+        Job job = createJob("A",ZonedDateTime.now().plusMinutes(1));
+        IExecutor executorJob = job.getExecutor();
+        when(executorJob.getErrorMode()).thenReturn(null);
+        scheduler.addJob(job);
+        scheduler.notifyExecutionError(executorJob, 1);
+        assertEquals(job, scheduler.getNextExecutableJob());
+    }
+
+
 }

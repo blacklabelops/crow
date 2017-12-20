@@ -4,10 +4,11 @@ crow:
   jobs:
     - name: HelloWorld
       cron: "* * * * *"
+      execution: parallel
+      errorMode: stop
       command: echo 'Hello World!'
     - name: "HelloUniverse"
       cron: "* * * * *"
       command: "echo 'Hello Universe!'"
-      errorMode: continue
       environments:
         MY_KEY: myvalue

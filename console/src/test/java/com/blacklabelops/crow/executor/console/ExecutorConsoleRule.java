@@ -12,7 +12,7 @@ public class ExecutorConsoleRule extends ExternalResource {
 
     public ExecutorConsole executor;
 
-    public DefinitionConsole definition;
+    public JobDefinition definition;
 
     public ExecutorConsoleRule() {
         super();
@@ -22,7 +22,7 @@ public class ExecutorConsoleRule extends ExternalResource {
     protected void before() throws Throwable {
         super.before();
         executor = new ExecutorConsole();
-        definition = new DefinitionConsole();
+        definition = new JobDefinition();
     }
 
     @Override
@@ -36,7 +36,7 @@ public class ExecutorConsoleRule extends ExternalResource {
         return executor;
     }
 
-    public DefinitionConsole getDefinition() {
+    public JobDefinition getDefinition() {
         return definition;
     }
 }

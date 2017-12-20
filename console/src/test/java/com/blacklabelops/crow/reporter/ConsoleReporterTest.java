@@ -1,9 +1,11 @@
 package com.blacklabelops.crow.reporter;
 
 import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.suite.FastTests;
 import org.apache.log4j.AppenderSkeleton;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
+@Category(FastTests.class)
 public class ConsoleReporterTest {
 
     public ConsoleReporter reporter = new ConsoleReporter();
@@ -37,4 +40,6 @@ public class ConsoleReporterTest {
         when(executor.getReturnCode()).thenReturn(Integer.valueOf(5));
         reporter.finishedJob(executor);
     }
+
+
 }

@@ -8,5 +8,6 @@ crow:
     - name: "HelloUniverse"
       cron: "* * * * *"
       command: "echo 'Hello Universe!'"
+      execution: parallel
       environments:
         MY_KEY: myvalue

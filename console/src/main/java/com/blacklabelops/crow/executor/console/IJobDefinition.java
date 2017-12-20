@@ -1,5 +1,6 @@
 package com.blacklabelops.crow.executor.console;
 
+import com.blacklabelops.crow.executor.ErrorMode;
 import com.blacklabelops.crow.executor.ExecutionMode;
 
 import java.util.List;
@@ -24,4 +25,8 @@ public interface IJobDefinition {
     public String getJobName();
 
     public void setJobName(String jobName);
+
+    public ErrorMode getErrorMode();
+
+    public void setErrorMode(ErrorMode errorMode);
 }

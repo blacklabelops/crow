@@ -1,5 +1,6 @@
 package com.blacklabelops.crow.scheduler;
 
+import com.blacklabelops.crow.executor.ExecutionResult;
 import com.blacklabelops.crow.executor.ExecutorPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,10 @@ public class MultiJobScheduler implements Runnable {
                     long timeToNextExecution = chronoUnit.between(ZonedDateTime.now(), nextExecution);
                     if (timeToNextExecution <= 0) {
                         LOG.debug("Executing job {}.", nextJob.getJobName());
-                        executorPool.addExecution(nextJob.getExecutor());
+                        ExecutionResult executionResult = executorPool.addExecution(nextJob.getExecutor());
+                        if (!ExecutionResult.EXECUTED.equals(executionResult)) {
+                            jobScheduler.notifyFailingJob(nextJob.getExecutor(),executionResult);
+                        }
                         nextJob.setLastExecution(ZonedDateTime.now());
                         waitFornextExecution = false;
                     } else {

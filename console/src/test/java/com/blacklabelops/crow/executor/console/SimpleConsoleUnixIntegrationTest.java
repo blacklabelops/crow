@@ -35,7 +35,7 @@ public class SimpleConsoleUnixIntegrationTest {
 
     public SimpleConsole simpleConsole;
 
-    public DefinitionConsole definitionConsole;
+    public JobDefinition jobDefinition;
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -52,13 +52,13 @@ public class SimpleConsoleUnixIntegrationTest {
     @Before
     public void setup() {
         assert !System.getProperty("os.name").startsWith("Windows");
-        definitionConsole = new DefinitionConsole();
+        jobDefinition = new JobDefinition();
         Logger.getRootLogger().addAppender(appender);
     }
 
     @After
     public void tearDown() {
-        definitionConsole = null;
+        jobDefinition = null;
         Logger.getRootLogger().removeAppender(appender);
     }
 
@@ -71,9 +71,9 @@ public class SimpleConsoleUnixIntegrationTest {
 
     @Test
     public void whenEchoConsoleThenHelloOnLogs() {
-        definitionConsole.setCommand("echo","hello world");
-        definitionConsole.setJobName("echoJob");
-        simpleConsole = new SimpleConsole(definitionConsole, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
+        jobDefinition.setCommand("echo","hello world");
+        jobDefinition.setJobName("echoJob");
+        simpleConsole = new SimpleConsole(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
         assertEquals("Log output must be info level!",logCaptor.getValue().getLevel(), Level.INFO);
@@ -82,9 +82,9 @@ public class SimpleConsoleUnixIntegrationTest {
 
     @Test
     public void whenEchoErrorConsoleThenErrorOnLogs() {
-        definitionConsole.setCommand("/bin/bash","-c",">&2 echo error");
-        definitionConsole.setJobName("errorJob");
-        simpleConsole = new SimpleConsole(definitionConsole, null, Stream.of(new JobLogLogger("errorJob")).collect(Collectors.toList()));
+        jobDefinition.setCommand("/bin/bash","-c",">&2 echo error");
+        jobDefinition.setJobName("errorJob");
+        simpleConsole = new SimpleConsole(jobDefinition, null, Stream.of(new JobLogLogger("errorJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
         assertEquals("Log output must be error level!",logCaptor.getValue().getLevel(), Level.ERROR);

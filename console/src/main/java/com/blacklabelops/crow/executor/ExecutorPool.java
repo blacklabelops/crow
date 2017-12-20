@@ -11,9 +11,9 @@ import java.util.Map;
  */
 public class ExecutorPool {
 
-    public static Logger LOG = LoggerFactory.getLogger(ExecutorPool.class);
+    private static Logger LOG = LoggerFactory.getLogger(ExecutorPool.class);
 
-    public Map<String, Thread> runningExecutors = new HashMap<>();
+    private Map<String, Thread> runningExecutors = new HashMap<>();
 
     public ExecutorPool() {
         super();
@@ -21,14 +21,13 @@ public class ExecutorPool {
 
     public ExecutionResult addExecution(IExecutor executor) {
         ExecutionMode executionMode = executor.getExecutionMode();
-        ExecutionResult result = null;
+        ExecutionResult result = ExecutionResult.EXECUTED;
         boolean canBeExecuted = ExecutionMode.PARALLEL.equals(executionMode) || !checkRunning(executor);
         if (canBeExecuted) {
             LOG.debug("Starting new instance of  Job {}.", executor.getJobName());
             Thread execution = new Thread(executor);
             runningExecutors.put(executor.getJobName(), execution);
             execution.start();
-            result = ExecutionResult.EXECUTED;
         } else {
             LOG.debug("Skipping Job {}, already running!", executor.getJobName());
             result = ExecutionResult.DROPPED_ALREADY_RUNNING;

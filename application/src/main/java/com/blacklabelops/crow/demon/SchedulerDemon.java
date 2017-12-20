@@ -1,12 +1,16 @@
 package com.blacklabelops.crow.demon;
 
 import com.blacklabelops.crow.config.Crow;
-import com.blacklabelops.crow.config.Environment;
 import com.blacklabelops.crow.config.Job;
+import com.blacklabelops.crow.executor.ErrorMode;
+import com.blacklabelops.crow.executor.ExecutionMode;
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.executor.SimpleConsole;
-import com.blacklabelops.crow.executor.console.DefinitionConsole;
+import com.blacklabelops.crow.executor.console.JobDefinition;
 import com.blacklabelops.crow.logger.JobLogLogger;
+import com.blacklabelops.crow.reporter.ConsoleReporter;
+import com.blacklabelops.crow.reporter.ExecutionErrorReporter;
+import com.blacklabelops.crow.reporter.IJobReporter;
 import com.blacklabelops.crow.scheduler.*;
 import org.apache.tools.ant.types.Commandline;
 import org.slf4j.Logger;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,16 +59,27 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean {
 
     private void createJob(Job job) {
         LOG.info("Adding job '{}' to scheduler. Cron schedule '{}'", job.getName(), job.getCron());
-        DefinitionConsole defConsole = new DefinitionConsole();
+        JobDefinition defConsole = new JobDefinition();
+        List<IJobReporter> reporter = new ArrayList<>();
+        reporter.add(new ConsoleReporter());
         defConsole.setCommand(Commandline.translateCommandline(job.getCommand()));
         if (!job.getEnvironments().isEmpty()) {
             defConsole.setEnvironmentVariables(createEnvironmentVariables(job.getEnvironments()));
         }
         defConsole.setJobName(job.getName());
-        IExecutor simepleConsole = new SimpleConsole(defConsole,null, Stream.of(new JobLogLogger(job.getName())).collect(Collectors.toList()));
+        defConsole.setExecutionMode(ExecutionMode.getMode(job.getExecution()));
+        takeOverErrorMode(job, defConsole, reporter);
+        IExecutor simepleConsole = new SimpleConsole(defConsole,reporter, Stream.of(new JobLogLogger(job.getName())).collect(Collectors.toList()));
         IExecutionTime cronTime = new CronUtilsExecutionTime(job.getCron());
         com.blacklabelops.crow.scheduler.Job workJob = new com.blacklabelops.crow.scheduler.Job(simepleConsole, cronTime);
         jobScheduler.addJob(workJob);
+    }
+
+    private void takeOverErrorMode(Job job, JobDefinition defConsole, List<IJobReporter> reporter) {
+        defConsole.setErrorMode(ErrorMode.getMode(job.getErrorMode()));
+        if (!ErrorMode.CONTINUE.equals(defConsole.getErrorMode())) {
+            reporter.add(new ExecutionErrorReporter(jobScheduler));
+        }
     }
 
     private Map<String,String> createEnvironmentVariables(Map<String, String> environments) {

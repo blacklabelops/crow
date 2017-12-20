@@ -6,14 +6,16 @@ import com.blacklabelops.crow.reporter.IJobReporter;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
+import java.util.*;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * Created by steffenbleul on 21.12.16.
  */
 public class SimpleConsole implements IExecutor {
+
+    private final static int RETURN_CODE_OKAY = 0;
 
     private final String jobName;
 
@@ -47,52 +49,46 @@ public class SimpleConsole implements IExecutor {
         super();
         jobName = definition.getJobName();
         jobDefinition = definition;
-        if (reporter != null) {
-            reporter.stream().filter(report -> report != null).forEach(report -> jobReporter.add(report));
-        }
-        if (logger != null) {
-            logger.stream().filter(log -> log != null).forEach(log -> jobLogger.add(log));
-        }
+        Optional.ofNullable(reporter)
+                .stream()
+                .flatMap(List::stream)
+                .filter(Objects::nonNull)
+                .forEach(report -> jobReporter.add(report));
+        Optional.ofNullable(logger)
+                .stream()
+                .flatMap(List::stream)
+                .filter(Objects::nonNull)
+                .forEach(log -> jobLogger.add(log));
     }
 
     @Override
     public void run() {
-        if (jobLogger != null) {
-            jobLogger.forEach(logger -> logger.initializeLogger());
-        }
+        jobLogger.forEach(IJobLogger::initializeLogger);
         try {
             ExecutorConsole executor = new ExecutorConsole();
-            if (jobLogger != null) {
-                createDefaultOutputFiles(executor);
-                startLogTrailing();
-            }
+            createDefaultOutputFiles(executor);
+            startLogTrailing();
             this.setStartingTime(LocalDateTime.now());
             jobReporter.forEach(reporter -> reporter.startingJob(this));
             executor.execute(jobDefinition);
             returnCode = executor.getReturnCode();
             this.setFinishingTime(LocalDateTime.now());
             jobReporter.forEach(reporter -> reporter.finishedJob(this));
-            if (jobLogger != null) {
-                stopLogTrailing();
-                deleteOutputFiles();
+            if (RETURN_CODE_OKAY != returnCode) {
+                jobReporter.forEach(reporter -> reporter.failingJob(this));
             }
+            stopLogTrailing();
+            deleteOutputFiles();
         } finally {
-            if (jobLogger != null) {
-                jobLogger.forEach(logger -> logger.finishLogger());
-            }
+            jobLogger.forEach(IJobLogger::finishLogger);
         }
     }
 
     private void startLogTrailing() {
-        //jobLogger.getInfoLogConsumer()
-        List<Consumer<String>> infoLogger = new ArrayList<>(jobLogger.size());
-        jobLogger.stream().filter(logger -> logger.getInfoLogConsumer() != null).forEach(logger -> infoLogger.add(logger.getInfoLogConsumer()));
-        outputFileReader = new OutputReader(outputFile, infoLogger);
+        outputFileReader = new OutputReader(outputFile, jobLogger.stream().map(IJobLogger::getInfoLogConsumer).filter(Objects::nonNull).collect(toList()));
         outputReaderThread = new Thread(outputFileReader);
         outputReaderThread.start();
-        List<Consumer<String>> errorLogger = new ArrayList<>(jobLogger.size());
-        jobLogger.stream().filter(logger -> logger.getErrorLogConsumer() != null).forEach(logger -> errorLogger.add(logger.getErrorLogConsumer()));
-        errorFileReader = new OutputReader(errorFile, errorLogger);
+        errorFileReader = new OutputReader(errorFile, jobLogger.stream().map(IJobLogger::getErrorLogConsumer).filter(Objects::nonNull).collect(toList()));
         errorReaderThread = new Thread(errorFileReader);
         errorReaderThread.start();
     }
@@ -153,5 +149,17 @@ public class SimpleConsole implements IExecutor {
     @Override
     public Integer getReturnCode() {
         return this.returnCode;
+    }
+
+    @Override
+    public List<IJobReporter> getReporter() {
+        List<IJobReporter> copy = new ArrayList<>();
+        Collections.copy(jobReporter, copy);
+        return copy;
+    }
+
+    @Override
+    public ErrorMode getErrorMode() {
+        return jobDefinition.getErrorMode();
     }
 }

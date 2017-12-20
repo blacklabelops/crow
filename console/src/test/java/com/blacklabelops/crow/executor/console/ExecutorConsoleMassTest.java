@@ -14,7 +14,7 @@ public class ExecutorConsoleMassTest {
 
     public ExecutorConsole cli;
 
-    public DefinitionConsole definition;
+    public JobDefinition definition;
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();

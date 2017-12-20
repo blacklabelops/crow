@@ -18,8 +18,6 @@ import org.junit.runners.Suite;
         ExecutorConsoleUnixIntegrationTest.class,
         SimpleConsoleUnixIntegrationTest.class,
         CronUtilsExecutionTimeTest.class,
-        JobSchedulerUnitTest.class,
-        SingleJobSchedulerIntegrationTest.class,
-        SingleJobSchedulerTest.class})
+        JobSchedulerUnitTest.class } )
 public class FastTestSuite {
 }

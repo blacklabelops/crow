@@ -23,7 +23,7 @@ public class ExecutorConsoleUnixIntegrationTest {
 
     public ExecutorConsole cli;
 
-    public DefinitionConsole definition;
+    public JobDefinition definition;
 
     public String newLine = System.getProperty("line.separator");
 

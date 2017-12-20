@@ -1,7 +1,7 @@
 package com.blacklabelops.crow.scheduler;
 
 import com.blacklabelops.crow.executor.SimpleConsole;
-import com.blacklabelops.crow.executor.console.DefinitionConsole;
+import com.blacklabelops.crow.executor.console.JobDefinition;
 import com.blacklabelops.crow.suite.SlowTests;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,7 +68,7 @@ public class MultiJobSchedulerIntegrationTest {
     }
 
     private Job createJob(final String name, String cronString,int latches) {
-        DefinitionConsole defConsole = new DefinitionConsole();
+        JobDefinition defConsole = new JobDefinition();
         defConsole.setCommand("echo","Hello" + name);
         defConsole.setJobName(name);
         SimpleConsole console = new SimpleConsole(defConsole, null, null);

@@ -1,6 +1,8 @@
 package com.blacklabelops.crow.application;
 
 import com.blacklabelops.crow.config.Crow;
+import com.blacklabelops.crow.executor.ErrorMode;
+import com.blacklabelops.crow.executor.ExecutionMode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * Created by steffenbleul on 28.12.16.
@@ -49,5 +52,26 @@ public class CrowConfigTest {
     public void whenSecondJobLoadedThenCorrectEnvironmentVariables() {
         assertEquals("Environment variable key must match!","MY_KEY",crow.getJobs().get(1).getEnvironments().keySet().stream().findFirst().orElse(""));
         assertEquals("Environment variable value must match!","myvalue",crow.getJobs().get(1).getEnvironments().values().stream().findFirst().orElse(""));
+    }
+
+    @Test
+    public void testGetExecution_WhenNoExecutionDefined_ExecutionSequential() {
+        String executionMode = crow.getJobs().get(0).getExecution();
+        assertNull("Execution mode is not set in config",executionMode);
+        assertEquals("Default execution mode must be sequential!", ExecutionMode.SEQUENTIAL, ExecutionMode.getMode(executionMode));
+    }
+
+    @Test
+    public void testGetErrorMode_WhenNoErrorModenDefined_ErrorModeContinue() {
+        String errorMode = crow.getJobs().get(0).getErrorMode();
+        assertNull("Error mode must not be set in config", errorMode);
+        assertEquals("Default error mode must be continuing!", ErrorMode.CONTINUE, ErrorMode.getMode(errorMode));
+    }
+
+    @Test
+    public void testGetErrorMode_WhenContinueDefined_ErrorModeContinue() {
+        String errorMode = crow.getJobs().get(1).getErrorMode();
+        assertNotNull("Error mode must be set in config", errorMode);
+        assertEquals("Default error mode must be continuing!", ErrorMode.CONTINUE, ErrorMode.getMode(errorMode));
     }
 }

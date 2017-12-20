@@ -17,8 +17,6 @@ import org.junit.runners.Suite;
         SimpleConsoleUnixIntegrationTest.class,
         CronUtilsExecutionTimeTest.class,
         JobSchedulerUnitTest.class,
-        SingleJobSchedulerIntegrationTest.class,
-        SingleJobSchedulerTest.class,
         MultiJobSchedulerTest.class,
         MultiJobSchedulerIntegrationTest.class
 })

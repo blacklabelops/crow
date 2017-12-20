@@ -3,7 +3,6 @@ package com.blacklabelops.crow.config;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
 /**
@@ -20,9 +19,12 @@ public class Job implements IConfigModel {
     @NotEmpty(message = "Your command is not allowed to be empty!")
     private String command;
 
+    private String execution;
+
+    private String errorMode;
+
     @Valid
-    @UniqueEnvironmentKeys(message = "All environment variable keys must be unique for a Job!")
-    private Map<String, String> environments = new LinkedHashMap<>();
+    private Map<String, String> environments = new HashMap<>();
 
     public Job() {
         super();
@@ -58,5 +60,21 @@ public class Job implements IConfigModel {
 
     public void setEnvironments(Map<String, String> environments) {
         this.environments = environments;
+    }
+
+    public String getExecution() {
+        return execution;
+    }
+
+    public void setExecution(String execution) {
+        this.execution = execution;
+    }
+
+    public String getErrorMode() {
+        return errorMode;
+    }
+
+    public void setErrorMode(String errorMode) {
+        this.errorMode = errorMode;
     }
 }

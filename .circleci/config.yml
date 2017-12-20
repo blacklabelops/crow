@@ -5,7 +5,7 @@ jobs:
     working_directory: ~/crow
 
     docker:
-      - image: circleci/openjdk:8-jdk-browsers
+      - image: maven:3.5.0-jdk-9
 
     steps:
 

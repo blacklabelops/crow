@@ -1,6 +1,9 @@
 package com.blacklabelops.crow.executor;
 
+import com.blacklabelops.crow.reporter.IJobReporter;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Created by steffenbleul on 22.12.16.
@@ -18,4 +21,8 @@ public interface IExecutor extends Runnable {
     public LocalDateTime getFinishingTime();
 
     public Integer getReturnCode();
+
+    public List<IJobReporter> getReporter();
+
+    public ErrorMode getErrorMode();
 }

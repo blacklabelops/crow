@@ -140,3 +140,52 @@ crow:
 ~~~~
 
 > Will print `Hello Universe!` each minute on console.
+
+## Parallel Job Execution
+
+By default, all jobs with the same name run purely sequential, overlapping jobs will be dropped as long as the previous job is executed. 
+Jobs can also run in parallel.
+
+Each job can be configured with `execution` to run sequential or parallel:
+
+*  `execution`: Possible values `sequential` or `parallel`. Default is `sequential`
+
+Example:
+
+~~~~
+--
+
+crow:
+  jobs:
+    - name: "HelloParallelJob"
+      cron: "* * * * *"
+      command: /bin/bash -c "echo Hello"
+      execution: parallel
+~~~~
+
+> Multiple instances of job `HelloParallelJob` can run parallel.
+
+## Job Error Mode
+
+By default, all jobs will remain running even is several instances broke down with an error.
+
+Each job can be configured with `errorMode` to run at all when an error occured.
+
+* `errorMode`: Possible values `stop`, `continue`. Default is `continue`
+
+Example:
+
+~~~~
+--
+
+crow:
+  jobs:
+    - name: "HelloParallelJob"
+      cron: "* * * * *"
+      command: /bin/bash -c "echo Hello"
+      errorMode: stop
+~~~~
+
+> Job will not be run if an error has occured.
+
+

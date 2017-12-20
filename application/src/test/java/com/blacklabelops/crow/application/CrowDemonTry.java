@@ -31,14 +31,8 @@ public class CrowDemonTry {
     @Autowired
     SchedulerDemon scheduler;
 
-    @Test
-    public void testInstance() {
-
-    }
-
     @Test(timeout = 70000)
     public void testRunning() throws InterruptedException {
         Thread.sleep(65000);
-        ((ConfigurableApplicationContext)demon).close();
     }
 }
