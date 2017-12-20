@@ -21,6 +21,7 @@ public class CrowDemon {
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(CrowDemon.class);
         app.setBannerMode(Banner.Mode.OFF);
+        app.setWebEnvironment(false);
         app.run(args);
     }
 }
