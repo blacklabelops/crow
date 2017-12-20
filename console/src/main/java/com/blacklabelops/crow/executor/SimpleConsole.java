@@ -49,16 +49,18 @@ public class SimpleConsole implements IExecutor {
         super();
         jobName = definition.getJobName();
         jobDefinition = definition;
-        Optional.ofNullable(reporter)
-                .stream()
-                .flatMap(List::stream)
-                .filter(Objects::nonNull)
-                .forEach(report -> jobReporter.add(report));
-        Optional.ofNullable(logger)
-                .stream()
-                .flatMap(List::stream)
-                .filter(Objects::nonNull)
-                .forEach(log -> jobLogger.add(log));
+        if (reporter != null) {
+            reporter
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .forEach(report -> jobReporter.add(report));
+        }
+        if (logger != null) {
+                logger
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .forEach(log -> jobLogger.add(log));
+        }
     }
 
     @Override

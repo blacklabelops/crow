@@ -42,6 +42,28 @@ $ mvn clean install
 
 > Maven installation required.
 
+Docker:
+ -
+ -~~~~
+ -$ docker run --rm \
+ -    -v $(pwd):/crow \
+ -    blacklabelops/swarm-jdk8 \
+ -    mvn -f /crow/pom.xml clean install
+ -~~~~
+ -
+ -> Running build inside Docker container, container will be removed after build.
+
+Docker:
+
+~~~~
+$ docker run --rm \
+    -v $(pwd):/crow \
+    blacklabelops/swarm-jdk8 \
+    mvn -f /crow/pom.xml clean install
+~~~~
+
+> Running build inside Docker container, container will be removed after build.
+
 Running The Project:
 
 Maven:
@@ -52,12 +74,21 @@ $ mvn spring-boot:run
 
 # Running The jar
 
-You need at least Java 9 to run this project!
+You need at least Java 8 to run this project!
 
 Java startup command:
 
 ~~~~
 $ java -jar crow-application.jar
+~~~~
+
+Running the jar inside Docker:
+
+~~~~
+$ docker run --rm \
+    -v $(pwd):/crow \
+    blacklabelops/java \
+    java -jar crow-application.jar
 ~~~~
 
 # The Configuration File
