@@ -3,6 +3,7 @@ package com.blacklabelops.crow.executor.console;
 import com.blacklabelops.crow.executor.ErrorMode;
 import com.blacklabelops.crow.executor.ExecutionMode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +16,8 @@ public class JobDefinition implements IJobDefinition {
 
     private List<String> command;
 
+    private List<String> shellCommand;
+
     private Map<String, String> environmentVariables;
 
     private ExecutionMode executorMode = null;
@@ -22,6 +25,8 @@ public class JobDefinition implements IJobDefinition {
     private ErrorMode errorMode = null;
 
     private String jobName;
+
+    private File workingDir;
 
     public JobDefinition() {
         super();
@@ -72,11 +77,38 @@ public class JobDefinition implements IJobDefinition {
         this.jobName = jobName;
     }
 
+    @Override
     public ErrorMode getErrorMode() {
         return errorMode;
     }
 
+    @Override
     public void setErrorMode(ErrorMode errorMode) {
         this.errorMode = errorMode;
+    }
+
+    @Override
+    public File getWorkingDir() {
+        return workingDir;
+    }
+
+    @Override
+    public void setWorkingDir(File workingDir) {
+        this.workingDir = workingDir;
+    }
+
+    @Override
+    public List<String> getShellCommand() {
+        return shellCommand;
+    }
+
+    @Override
+    public void setShellCommand(List<String> shellCommand) {
+        this.shellCommand = shellCommand;
+    }
+
+    @Override
+    public void setShellCommand(String... shellCommand) {
+        this.shellCommand = new ArrayList<String>(Arrays.asList(shellCommand));
     }
 }

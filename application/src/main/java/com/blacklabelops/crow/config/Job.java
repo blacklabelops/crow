@@ -19,6 +19,10 @@ public class Job implements IConfigModel {
     @NotEmpty(message = "Your command is not allowed to be empty!")
     private String command;
 
+    private String shellCommand;
+
+    private String workingDirectory;
+
     private String execution;
 
     private String errorMode;
@@ -76,5 +80,21 @@ public class Job implements IConfigModel {
 
     public void setErrorMode(String errorMode) {
         this.errorMode = errorMode;
+    }
+
+    public String getShellCommand() {
+        return shellCommand;
+    }
+
+    public void setShellCommand(String shellCommand) {
+        this.shellCommand = shellCommand;
+    }
+
+    public String getWorkingDirectory() {
+        return workingDirectory;
+    }
+
+    public void setWorkingDirectory(String workingDirectory) {
+        this.workingDirectory = workingDirectory;
     }
 }

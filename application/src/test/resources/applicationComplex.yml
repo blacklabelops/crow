@@ -6,6 +6,8 @@ crow:
       cron: "* * * * *"
       execution: parallel
       errorMode: stop
+      shellCommand: /bin/bash -c
+      workingDirectory: /tmp
       command: echo 'Hello World!'
     - name: "HelloUniverse"
       cron: "* * * * *"

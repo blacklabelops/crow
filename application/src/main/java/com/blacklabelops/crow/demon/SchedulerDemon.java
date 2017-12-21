@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
 import javax.validation.Valid;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +64,15 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean {
         List<IJobReporter> reporter = new ArrayList<>();
         reporter.add(new ConsoleReporter());
         defConsole.setCommand(Commandline.translateCommandline(job.getCommand()));
+        if (job.getShellCommand() != null && !job.getShellCommand().isEmpty()) {
+            defConsole.setShellCommand(Commandline.translateCommandline(job.getShellCommand()));
+        }
+        if (job.getWorkingDirectory() != null && !job.getWorkingDirectory().isEmpty()) {
+            File workingDirectory = new File(job.getWorkingDirectory());
+            if (workingDirectory.exists() && workingDirectory.isDirectory()) {
+                defConsole.setWorkingDir(workingDirectory);
+            }
+        }
         if (!job.getEnvironments().isEmpty()) {
             defConsole.setEnvironmentVariables(createEnvironmentVariables(job.getEnvironments()));
         }

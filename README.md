@@ -95,6 +95,7 @@ You can define an arbitrary number of jobs, each job consists of:
 Minimum example configuration file containing one job:
 
 ~~~~
+
 ---
 
 crow:
@@ -118,6 +119,7 @@ Each environment variable consists of:
 Example:
 
 ~~~~
+
 --
 
 crow:
@@ -144,6 +146,7 @@ Each job can be configured with `execution` to run sequential or parallel:
 Example:
 
 ~~~~
+
 --
 
 crow:
@@ -167,6 +170,7 @@ Each job can be configured with `errorMode` to run at all when an error occured.
 Example:
 
 ~~~~
+
 --
 
 crow:
@@ -178,3 +182,45 @@ crow:
 ~~~~
 
 > Job will not be run if an error has occured.
+
+## Shell Command
+
+You can set a separate command for entering your shell, e.g. `/bin/bash -c`. This way any command will be executed inside bash shell.
+
+Each job's shell can be configured with `shellCommand`.
+
+* `shellCommand`: Command for executing the command inside the shell.
+
+Example:
+
+~~~~
+
+--
+
+crow:
+  jobs:
+    - name: "HelloShellCommand"
+      cron: "* * * * *"
+      command: echo Hello
+      shellCommand: /bin/bash -c 
+~~~~
+
+## Working Directory
+
+You can set the working directory for your job with `workingDirectory``
+
+* `workingDirectory`: Full path to your jobs working directory.
+
+Example:
+
+~~~~
+
+--
+
+crow:
+  jobs:
+    - name: "HelloShellCommand"
+      cron: "* * * * *"
+      command: echo Hello
+      workingDirectory: /tmp 
+~~~~

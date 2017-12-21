@@ -1,7 +1,10 @@
 package com.blacklabelops.crow.executor.console;
 
 import java.io.*;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by steffenbleul on 19.12.16.
@@ -28,10 +31,24 @@ public class ExecutorConsole {
     public void execute(IJobDefinition executionDefinition) {
         checkDefinition(executionDefinition);
         ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command(executionDefinition.getCommand());
+        processBuilder.command(takeOverCommands(executionDefinition));
         extendEnvironmentVariables(processBuilder,executionDefinition);
+        processBuilder.directory(executionDefinition.getWorkingDir());
         prepareRedirects(processBuilder);
         executeCommand(processBuilder);
+    }
+
+    private List<String> takeOverCommands(IJobDefinition executionDefinition) {
+        if (executionDefinition.getShellCommand() != null && !executionDefinition.getShellCommand().isEmpty()) {
+            return Stream.concat(executionDefinition
+                    .getShellCommand()
+                    .stream(), executionDefinition
+                    .getCommand()
+                    .stream())
+                    .collect(Collectors.toList());
+        } else {
+            return executionDefinition.getCommand();
+        }
     }
 
     private void executeCommand(ProcessBuilder processBuilder) {

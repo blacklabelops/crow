@@ -3,6 +3,7 @@ package com.blacklabelops.crow.executor.console;
 import com.blacklabelops.crow.executor.ErrorMode;
 import com.blacklabelops.crow.executor.ExecutionMode;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -29,4 +30,14 @@ public interface IJobDefinition {
     public ErrorMode getErrorMode();
 
     public void setErrorMode(ErrorMode errorMode);
+
+    public File getWorkingDir();
+
+    public void setWorkingDir(File workingDir);
+
+    List<String> getShellCommand();
+
+    void setShellCommand(List<String> shellCommand);
+
+    void setShellCommand(String... shellCommand);
 }

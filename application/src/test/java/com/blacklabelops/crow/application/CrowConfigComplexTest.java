@@ -40,4 +40,18 @@ public class CrowConfigComplexTest {
         assertEquals("Config set to stop", ErrorMode.STOP.toString().toLowerCase(), errorMode);
         assertEquals("Error mode must result in stop!", ErrorMode.STOP, ErrorMode.getMode(errorMode));
     }
+
+    @Test
+    public void testGetShellCommand_WhenSet_ThenRead() {
+        String shellCommand = crow.getJobs().get(0).getShellCommand();
+        assertNotNull("Shellcommand must be set!", shellCommand);
+        assertEquals("Should be bash command!","/bin/bash -c", shellCommand);
+    }
+
+    @Test
+    public void testGetWorkingDirectory_WhenSet_ThenRead() {
+        String workingDirectory = crow.getJobs().get(0).getWorkingDirectory();
+        assertNotNull("Working directory must be set!", workingDirectory);
+        assertEquals("Should be temp directory!","/tmp", workingDirectory);
+    }
 }
