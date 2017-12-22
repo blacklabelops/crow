@@ -8,8 +8,6 @@ import java.util.function.Consumer;
 
 public class JobLogLogger implements IJobLogger {
 
-    public static final String MDC_JOBNAME = "jobname";
-
     private final Logger jobLogger;
 
     private final LogInfoConsumer loginfoConsumer;
@@ -27,12 +25,10 @@ public class JobLogLogger implements IJobLogger {
 
     @Override
     public void initializeLogger() {
-        MDC.put(MDC_JOBNAME, jobName);
     }
 
     @Override
     public void finishLogger() {
-        MDC.remove(MDC_JOBNAME);
     }
 
     @Override

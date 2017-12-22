@@ -27,7 +27,6 @@ public class Job implements IConfigModel {
 
     private String errorMode;
 
-    @Valid
     private Map<String, String> environments = new HashMap<>();
 
     public Job() {

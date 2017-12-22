@@ -1,5 +1,7 @@
 package com.blacklabelops.crow.executor.console;
 
+import org.slf4j.MDC;
+
 import java.io.*;
 import java.util.List;
 import java.util.Map;
