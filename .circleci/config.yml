@@ -27,4 +27,4 @@ jobs:
           path: console/target/surefire-reports
 
       - store_artifacts:
-          path: application/target/crow-application-1.0-SNAPSHOT.jar
+          path: application/target/crow-application-0.5-SNAPSHOT.jar
