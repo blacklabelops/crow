@@ -91,7 +91,7 @@ public class SimpleConsoleUnixIntegrationTest {
 
     @Test
     @Ignore
-    public void testRun_WhenWorkingDirectoryIsDefined_ExecuteInWorkdDirectory() {
+    public void testRun_WhenWorkingDirectoryIsDefined_ExecuteInWorkDirectory() {
         String tempDirectory = System.getProperty("java.io.tmpdir");
         File tempDir = new File(tempDirectory);
         jobDefinition.setCommand("pwd");
@@ -101,27 +101,6 @@ public class SimpleConsoleUnixIntegrationTest {
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
         assertEquals("Must match working directory",tempDir.getAbsolutePath(),logCaptor.getValue().getMessage());
-    }
-
-    @Test
-    public void testRun_WhenShellCommandBashProvided_ExecuteCommandInBashShell() {
-        jobDefinition.setCommand("echo $SHELL");
-        jobDefinition.setShellCommand("/bin/bash","-c","-l");
-        jobDefinition.setJobName("shellCommandTest");
-        simpleConsole = new SimpleConsole(jobDefinition, null, Stream.of(new JobLogLogger("workdirJob")).collect(Collectors.toList()));
-        simpleConsole.run();
-        verify(appender).doAppend(logCaptor.capture());
-        assertEquals("Shell command for bash must deliver bash shell","/bin/bash",logCaptor.getValue().getMessage());
-    }
-
-    @Test
-    @Ignore
-    public void testRun_WhenShellCommandShProvided_ExecuteCommandInShShell() {
-        jobDefinition.setCommand("echo $SHELL");
-        jobDefinition.setShellCommand("/bin/sh","-c");
-        jobDefinition.setJobName("shellCommandTest");
-        simpleConsole = new SimpleConsole(jobDefinition, null, Stream.of(new JobLogLogger("workdirJob")).collect(Collectors.toList()));
-        simpleConsole.run();
     }
 
 

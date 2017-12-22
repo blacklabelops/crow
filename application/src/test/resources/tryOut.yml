@@ -9,5 +9,10 @@ crow:
       cron: "* * * * *"
       command: bash -c "echo $MY_KEY"
       environments:
-        - key: MY_KEY
-          value: Hello Universe!
+        MY_KEY: Hello Universe!
+    - name: "ShellCommand"
+      cron: "* * * * *"
+      command: echo $MY_MESSAGE
+      environments:
+        MY_MESSAGE: Your Message
+      shellCommand: bash -c

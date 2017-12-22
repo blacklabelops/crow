@@ -97,18 +97,4 @@ public class JobDefinition implements IJobDefinition {
         this.workingDir = workingDir;
     }
 
-    @Override
-    public List<String> getShellCommand() {
-        return shellCommand;
-    }
-
-    @Override
-    public void setShellCommand(List<String> shellCommand) {
-        this.shellCommand = shellCommand;
-    }
-
-    @Override
-    public void setShellCommand(String... shellCommand) {
-        this.shellCommand = new ArrayList<String>(Arrays.asList(shellCommand));
-    }
 }

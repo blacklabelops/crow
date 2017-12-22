@@ -34,10 +34,4 @@ public interface IJobDefinition {
     public File getWorkingDir();
 
     public void setWorkingDir(File workingDir);
-
-    List<String> getShellCommand();
-
-    void setShellCommand(List<String> shellCommand);
-
-    void setShellCommand(String... shellCommand);
 }

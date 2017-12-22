@@ -63,10 +63,7 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean {
         JobDefinition defConsole = new JobDefinition();
         List<IJobReporter> reporter = new ArrayList<>();
         reporter.add(new ConsoleReporter());
-        defConsole.setCommand(Commandline.translateCommandline(job.getCommand()));
-        if (job.getShellCommand() != null && !job.getShellCommand().isEmpty()) {
-            defConsole.setShellCommand(Commandline.translateCommandline(job.getShellCommand()));
-        }
+        takeOverCommand(job, defConsole);
         if (job.getWorkingDirectory() != null && !job.getWorkingDirectory().isEmpty()) {
             File workingDirectory = new File(job.getWorkingDirectory());
             if (workingDirectory.exists() && workingDirectory.isDirectory()) {
@@ -83,6 +80,18 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean {
         IExecutionTime cronTime = new CronUtilsExecutionTime(job.getCron());
         com.blacklabelops.crow.scheduler.Job workJob = new com.blacklabelops.crow.scheduler.Job(simepleConsole, cronTime);
         jobScheduler.addJob(workJob);
+    }
+
+    private void takeOverCommand(Job job, JobDefinition defConsole) {
+        Commandline commandLine = null;
+        defConsole.setCommand(Commandline.translateCommandline(job.getCommand()));
+        if (job.getShellCommand() != null && !job.getShellCommand().isEmpty()) {
+            commandLine = new Commandline(job.getShellCommand());
+            commandLine.addArguments(new String[] {job.getCommand()});
+        } else {
+            commandLine = new Commandline(job.getCommand());
+        }
+        defConsole.setCommand(commandLine.getCommandline());
     }
 
     private void takeOverErrorMode(Job job, JobDefinition defConsole, List<IJobReporter> reporter) {

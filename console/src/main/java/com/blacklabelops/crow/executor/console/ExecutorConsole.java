@@ -39,16 +39,7 @@ public class ExecutorConsole {
     }
 
     private List<String> takeOverCommands(IJobDefinition executionDefinition) {
-        if (executionDefinition.getShellCommand() != null && !executionDefinition.getShellCommand().isEmpty()) {
-            return Stream.concat(executionDefinition
-                    .getShellCommand()
-                    .stream(), executionDefinition
-                    .getCommand()
-                    .stream())
-                    .collect(Collectors.toList());
-        } else {
-            return executionDefinition.getCommand();
-        }
+        return executionDefinition.getCommand();
     }
 
     private void executeCommand(ProcessBuilder processBuilder) {
