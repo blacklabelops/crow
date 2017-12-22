@@ -5,7 +5,7 @@
     <parent>
         <artifactId>crow</artifactId>
         <groupId>com.blacklabelops</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -101,7 +101,7 @@
         <dependency>
             <groupId>com.blacklabelops</groupId>
             <artifactId>console</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.5-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
