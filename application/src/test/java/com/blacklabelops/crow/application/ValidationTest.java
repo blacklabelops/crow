@@ -20,9 +20,7 @@ import java.util.Set;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by steffenbleul on 29.12.16.
- */
+
 public class ValidationTest {
 
     public static final String VALID_CRON = "* * * * *";

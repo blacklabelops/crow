@@ -9,9 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by steffenbleul on 19.12.16.
- */
+
 public class JobDefinition implements IJobDefinition {
 
     private List<String> command;

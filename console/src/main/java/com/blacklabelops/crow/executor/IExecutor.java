@@ -5,9 +5,6 @@ import com.blacklabelops.crow.reporter.IJobReporter;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Created by steffenbleul on 22.12.16.
- */
 public interface IExecutor extends Runnable {
 
     public void run();

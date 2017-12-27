@@ -8,9 +8,6 @@ import java.nio.file.Path;
 
 import static java.nio.file.Files.createTempFile;
 
-/**
- * Created by steffenbleul on 21.12.16.
- */
 public class FileAccessor {
 
     public FileAccessor() {

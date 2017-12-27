@@ -6,9 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created by steffenbleul on 29.12.16.
- */
+
 public class UniqueJobNamesValidator implements ConstraintValidator<UniqueJobNames, List<Job>> {
 
     public UniqueJobNamesValidator() {

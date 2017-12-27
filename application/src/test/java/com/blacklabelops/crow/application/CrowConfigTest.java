@@ -15,9 +15,6 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-/**
- * Created by steffenbleul on 28.12.16.
- */
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes=CrowDemon.class)

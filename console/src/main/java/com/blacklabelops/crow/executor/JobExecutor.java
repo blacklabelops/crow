@@ -10,10 +10,7 @@ import java.util.*;
 
 import static java.util.stream.Collectors.*;
 
-/**
- * Created by steffenbleul on 21.12.16.
- */
-public class SimpleConsole implements IExecutor {
+public class JobExecutor implements IExecutor {
 
     private final static int RETURN_CODE_OKAY = 0;
 
@@ -45,7 +42,7 @@ public class SimpleConsole implements IExecutor {
 
     private Integer returnCode;
 
-    public SimpleConsole(IJobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
+    public JobExecutor(IJobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
         super();
         jobName = definition.getJobName();
         jobDefinition = definition;

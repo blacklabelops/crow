@@ -11,9 +11,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 
-/**
- * Created by steffenbleul on 29.12.16.
- */
+
 public class CronValidator implements ConstraintValidator<Cron, String> {
 
     public static final Logger LOG = LoggerFactory.getLogger(CronValidator.class);

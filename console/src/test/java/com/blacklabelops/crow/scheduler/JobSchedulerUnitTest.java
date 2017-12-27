@@ -3,6 +3,7 @@ package com.blacklabelops.crow.scheduler;
 import com.blacklabelops.crow.executor.ErrorMode;
 import com.blacklabelops.crow.executor.ExecutionResult;
 import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.executor.IExecutorTemplate;
 import com.blacklabelops.crow.suite.FastTests;
 import com.blacklabelops.crow.suite.SlowTests;
 import org.junit.Rule;
@@ -64,7 +65,10 @@ public class JobSchedulerUnitTest {
         when(executor.getJobName()).thenReturn(name);
         IExecutionTime executorTime = mock(IExecutionTime.class);
         when(executorTime.nextExecution(any())).thenReturn(nextExecution);
-        return new Job(executor,executorTime);
+        IExecutorTemplate template = mock(IExecutorTemplate.class);
+        when(template.createExecutor()).thenReturn(executor);
+        when(template.getJobName()).thenReturn(name);
+        return new Job(template,executorTime);
     }
 
     @Test

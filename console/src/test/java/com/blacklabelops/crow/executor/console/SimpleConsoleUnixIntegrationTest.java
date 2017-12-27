@@ -1,6 +1,6 @@
 package com.blacklabelops.crow.executor.console;
 
-import com.blacklabelops.crow.executor.SimpleConsole;
+import com.blacklabelops.crow.executor.JobExecutor;
 import com.blacklabelops.crow.logger.JobLogLogger;
 import com.blacklabelops.crow.suite.SlowTests;
 import org.apache.log4j.AppenderSkeleton;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.verify;
 public class SimpleConsoleUnixIntegrationTest {
 
 
-    public SimpleConsole simpleConsole;
+    public JobExecutor simpleConsole;
 
     public JobDefinition jobDefinition;
 
@@ -63,7 +63,7 @@ public class SimpleConsoleUnixIntegrationTest {
     @Test
     public void whenNoDefinitionThenNullpointerException() {
         exception.expect(NullPointerException.class);
-        simpleConsole = new SimpleConsole(null, null,null);
+        simpleConsole = new JobExecutor(null, null,null);
         simpleConsole.run();
     }
 
@@ -71,7 +71,7 @@ public class SimpleConsoleUnixIntegrationTest {
     public void whenEchoConsoleThenHelloOnLogs() {
         jobDefinition.setCommand("echo","hello world");
         jobDefinition.setJobName("echoJob");
-        simpleConsole = new SimpleConsole(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
+        simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
         assertEquals("Log output must be info level!",logCaptor.getValue().getLevel(), Level.INFO);
@@ -82,7 +82,7 @@ public class SimpleConsoleUnixIntegrationTest {
     public void whenEchoErrorConsoleThenErrorOnLogs() {
         jobDefinition.setCommand("/bin/bash","-c",">&2 echo error");
         jobDefinition.setJobName("errorJob");
-        simpleConsole = new SimpleConsole(jobDefinition, null, Stream.of(new JobLogLogger("errorJob")).collect(Collectors.toList()));
+        simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("errorJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
         assertEquals("Log output must be error level!",logCaptor.getValue().getLevel(), Level.ERROR);
@@ -97,7 +97,7 @@ public class SimpleConsoleUnixIntegrationTest {
         jobDefinition.setCommand("pwd");
         jobDefinition.setJobName("workdirJob");
         jobDefinition.setWorkingDir(tempDir);
-        simpleConsole = new SimpleConsole(jobDefinition, null, Stream.of(new JobLogLogger("workdirJob")).collect(Collectors.toList()));
+        simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("workdirJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
         assertEquals("Must match working directory",tempDir.getAbsolutePath(),logCaptor.getValue().getMessage());

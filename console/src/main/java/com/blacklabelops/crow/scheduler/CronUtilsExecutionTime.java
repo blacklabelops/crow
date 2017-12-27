@@ -9,9 +9,7 @@ import com.cronutils.parser.CronParser;
 
 import java.time.ZonedDateTime;
 
-/**
- * Created by steffenbleul on 22.12.16.
- */
+
 public class CronUtilsExecutionTime implements IExecutionTime {
 
     private final String cronString;

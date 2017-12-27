@@ -8,9 +8,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 
-/**
- * Created by steffenbleul on 21.12.16.
- */
+
 public class OutputReader implements Runnable {
 
     final Logger logger = LoggerFactory.getLogger(OutputReader.class);

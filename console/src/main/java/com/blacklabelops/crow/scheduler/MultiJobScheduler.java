@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
-/**
- * Created by steffenbleul on 20.12.16.
- */
+
 public class MultiJobScheduler implements Runnable {
 
     public static final int MINIMAL_TIME_STEP = 500;

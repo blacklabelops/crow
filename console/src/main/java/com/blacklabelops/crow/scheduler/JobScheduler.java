@@ -6,9 +6,7 @@ import com.blacklabelops.crow.executor.IExecutor;
 
 import java.util.*;
 
-/**
- * Created by steffenbleul on 22.12.16.
- */
+
 public class JobScheduler implements IScheduler {
 
     private List<Job> jobs = Collections.synchronizedList(new ArrayList<Job>());

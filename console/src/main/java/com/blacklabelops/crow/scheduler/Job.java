@@ -1,28 +1,27 @@
 package com.blacklabelops.crow.scheduler;
 
 import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.executor.IExecutorTemplate;
+import com.blacklabelops.crow.executor.JobExecutorTemplate;
 
 import java.time.ZonedDateTime;
 
-/**
- * Created by steffenbleul on 22.12.16.
- */
 public class Job {
 
-    private final IExecutor jobExecutor;
+    private final IExecutorTemplate jobExecutorTemplate;
 
     private final IExecutionTime jobExcutionTime;
 
     private ZonedDateTime lastExecution = ZonedDateTime.now();
 
-    public Job(IExecutor executor, IExecutionTime executionTime) {
+    public Job(IExecutorTemplate executorTemplate, IExecutionTime executionTime) {
         super();
-        jobExecutor = executor;
+        jobExecutorTemplate = executorTemplate;
         jobExcutionTime = executionTime;
     }
 
     public String getJobName() {
-        return jobExecutor.getJobName();
+        return jobExecutorTemplate.getJobName();
     }
 
     public ZonedDateTime getNextExecution() {
@@ -30,7 +29,7 @@ public class Job {
     }
 
     public IExecutor getExecutor() {
-        return jobExecutor;
+        return jobExecutorTemplate.createExecutor();
     }
 
     public void setLastExecution(ZonedDateTime theLastExecution) {

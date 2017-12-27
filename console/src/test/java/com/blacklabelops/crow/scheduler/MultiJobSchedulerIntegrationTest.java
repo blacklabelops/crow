@@ -1,6 +1,7 @@
 package com.blacklabelops.crow.scheduler;
 
-import com.blacklabelops.crow.executor.SimpleConsole;
+import com.blacklabelops.crow.executor.IExecutorTemplate;
+import com.blacklabelops.crow.executor.JobExecutor;
 import com.blacklabelops.crow.executor.console.JobDefinition;
 import com.blacklabelops.crow.suite.SlowTests;
 import org.junit.Before;
@@ -15,8 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by steffenbleul on 28.12.16.
@@ -71,9 +71,9 @@ public class MultiJobSchedulerIntegrationTest {
         JobDefinition defConsole = new JobDefinition();
         defConsole.setCommand("echo","Hello" + name);
         defConsole.setJobName(name);
-        SimpleConsole console = new SimpleConsole(defConsole, null, null);
+        JobExecutor console = new JobExecutor(defConsole, null, null);
         latch.put(name,new CountDownLatch(latches));
-        SimpleConsole spyConsole = spy(console);
+        JobExecutor spyConsole = spy(console);
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -82,6 +82,9 @@ public class MultiJobSchedulerIntegrationTest {
                 return null;
             }
         }).when(spyConsole).run();
-        return new Job(spyConsole, new CronUtilsExecutionTime(cronString));
+        IExecutorTemplate template = mock(IExecutorTemplate.class);
+        when(template.createExecutor()).thenReturn(console);
+        when(template.getJobName()).thenReturn(name);
+        return new Job(template, new CronUtilsExecutionTime(cronString));
     }
 }

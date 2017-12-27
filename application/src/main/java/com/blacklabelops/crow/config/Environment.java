@@ -5,9 +5,7 @@ import org.hibernate.validator.internal.util.Version;
 
 import javax.validation.constraints.NotNull;
 
-/**
- * Created by steffenbleul on 28.12.16.
- */
+
 public class Environment implements IConfigModel {
 
     @NotEmpty(message = "Each environment variable must have at least a key!")

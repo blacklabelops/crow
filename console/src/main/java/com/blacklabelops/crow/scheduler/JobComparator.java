@@ -4,9 +4,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 
-/**
- * Created by steffenbleul on 22.12.16.
- */
+
 public class JobComparator implements Comparator<Job> {
 
     private ChronoUnit chronoUnit = ChronoUnit.MILLIS;

@@ -1,6 +1,7 @@
 package com.blacklabelops.crow.scheduler;
 
 import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.executor.IExecutorTemplate;
 import com.blacklabelops.crow.suite.SlowTests;
 import org.junit.Before;
 import org.junit.Rule;
@@ -116,6 +117,9 @@ public class MultiJobSchedulerTest {
                 return time.plusSeconds(seconds);
             }
         });
-        return new Job(executor,executorTime);
+        IExecutorTemplate template = mock(IExecutorTemplate.class);
+        when(template.createExecutor()).thenReturn(executor);
+        when(template.getJobName()).thenReturn(name);
+        return new Job(template,executorTime);
     }
 }

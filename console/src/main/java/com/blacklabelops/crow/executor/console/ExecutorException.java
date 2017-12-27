@@ -1,8 +1,5 @@
 package com.blacklabelops.crow.executor.console;
 
-/**
- * Created by steffenbleul on 19.12.16.
- */
 public class ExecutorException extends RuntimeException {
 
     public ExecutorException() {

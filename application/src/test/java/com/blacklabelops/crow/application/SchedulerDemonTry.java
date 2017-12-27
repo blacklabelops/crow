@@ -11,9 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertNotNull;
 
-/**
- * Created by steffenbleul on 29.12.16.
- */
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes=CrowDemon.class)

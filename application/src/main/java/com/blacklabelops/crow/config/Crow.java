@@ -6,9 +6,7 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by steffenbleul on 28.12.16.
- */
+
 @ConfigurationProperties(prefix="crow")
 public class Crow implements IConfigModel {
 

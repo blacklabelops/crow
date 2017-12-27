@@ -6,9 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by steffenbleul on 23.12.16.
- */
 public class ExecutorPool {
 
     private static Logger LOG = LoggerFactory.getLogger(ExecutorPool.class);

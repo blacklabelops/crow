@@ -8,9 +8,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Created by steffenbleul on 19.12.16.
- */
 public class ExecutorConsole {
 
     private File inputFile;

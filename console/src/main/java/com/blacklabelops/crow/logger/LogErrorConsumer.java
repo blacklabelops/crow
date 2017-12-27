@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 
 import java.util.function.Consumer;
 
-/**
- * Created by steffenbleul on 22.12.16.
- */
+
 public class LogErrorConsumer implements Consumer<String> {
 
     private Logger logger;

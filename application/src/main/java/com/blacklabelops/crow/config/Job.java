@@ -5,9 +5,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.Valid;
 import java.util.*;
 
-/**
- * Created by steffenbleul on 28.12.16.
- */
+
 public class Job implements IConfigModel {
 
     @NotEmpty(message = "A unique name for each job has to be defined!")
