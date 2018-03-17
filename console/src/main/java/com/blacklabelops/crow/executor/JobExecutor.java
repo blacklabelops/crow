@@ -74,17 +74,17 @@ public class JobExecutor implements IExecutor {
             jobReporter.forEach(reporter -> reporter.startingJob(this));
             executor.execute(jobDefinition);
             timedOut = executor.isTimedOut();
+            returnCode = executor.getReturnCode();
             this.setFinishingTime(LocalDateTime.now());
+            stopLogTrailing();
             jobReporter.forEach(reporter -> reporter.finishedJob(this));
             if (!timedOut) {
-        			returnCode = executor.getReturnCode();
         			if (RETURN_CODE_OKAY != returnCode) {
         				jobReporter.forEach(reporter -> reporter.failingJob(this));
                  }
             } else {
             		jobReporter.forEach(reporter -> reporter.failingJob(this));
             }
-            stopLogTrailing();
             deleteOutputFiles();
         } finally {
             jobLogger.forEach(IJobLogger::finishLogger);
