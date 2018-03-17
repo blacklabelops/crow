@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.executor.JobExecutor;
 import com.blacklabelops.crow.logger.JobLogLogger;
 import com.blacklabelops.crow.suite.SlowTests;

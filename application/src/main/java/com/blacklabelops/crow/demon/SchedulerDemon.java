@@ -21,11 +21,11 @@ import org.springframework.stereotype.Component;
 
 import com.blacklabelops.crow.config.Crow;
 import com.blacklabelops.crow.config.Job;
+import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.executor.ErrorMode;
 import com.blacklabelops.crow.executor.ExecutionMode;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
 import com.blacklabelops.crow.executor.JobExecutorTemplate;
-import com.blacklabelops.crow.executor.console.JobDefinition;
 import com.blacklabelops.crow.logger.JobLoggerFactory;
 import com.blacklabelops.crow.reporter.ConsoleReporterFactory;
 import com.blacklabelops.crow.reporter.ExecutionErrorReporterFactory;

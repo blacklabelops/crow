@@ -17,9 +17,9 @@ import org.junit.experimental.categories.Category;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
 import com.blacklabelops.crow.executor.JobExecutor;
-import com.blacklabelops.crow.executor.console.JobDefinition;
 import com.blacklabelops.crow.suite.SlowTests;
 
 /**

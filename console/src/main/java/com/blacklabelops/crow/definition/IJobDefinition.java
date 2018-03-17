@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.executor.console;
+package com.blacklabelops.crow.definition;
 
 import com.blacklabelops.crow.executor.ErrorMode;
 import com.blacklabelops.crow.executor.ExecutionMode;

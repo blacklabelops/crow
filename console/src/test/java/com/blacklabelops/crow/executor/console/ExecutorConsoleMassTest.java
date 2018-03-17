@@ -1,5 +1,6 @@
 package com.blacklabelops.crow.executor.console;
 
+import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.suite.SlowTests;
 import com.blacklabelops.crow.util.FileAsserter;
 import org.junit.*;

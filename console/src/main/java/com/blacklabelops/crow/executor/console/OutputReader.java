@@ -43,7 +43,7 @@ public class OutputReader implements Runnable {
 
     private void waitforNewInput() {
         try {
-            Thread.sleep(10);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             throw new RuntimeException("Cannot initialise wait!",e);
         }

@@ -1,6 +1,6 @@
 package com.blacklabelops.crow.executor;
 
-import com.blacklabelops.crow.executor.console.IJobDefinition;
+import com.blacklabelops.crow.definition.IJobDefinition;
 import com.blacklabelops.crow.logger.IJobLogger;
 import com.blacklabelops.crow.logger.IJobLoggerFactory;
 import com.blacklabelops.crow.reporter.IJobReporter;
