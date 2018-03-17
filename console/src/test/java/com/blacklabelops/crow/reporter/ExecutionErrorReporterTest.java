@@ -1,22 +1,23 @@
 package com.blacklabelops.crow.reporter;
 
-import com.blacklabelops.crow.executor.IExecutor;
-import com.blacklabelops.crow.scheduler.IScheduler;
-import com.blacklabelops.crow.suite.FastTests;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.scheduler.IScheduler;
+import com.blacklabelops.crow.suite.FastTests;
 
 @Category(FastTests.class)
 public class ExecutionErrorReporterTest {

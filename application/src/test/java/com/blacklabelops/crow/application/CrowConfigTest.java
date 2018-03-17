@@ -71,4 +71,22 @@ public class CrowConfigTest {
         assertNotNull("Error mode must be set in config", errorMode);
         assertEquals("Default error mode must be continuing!", ErrorMode.CONTINUE, ErrorMode.getMode(errorMode));
     }
+    
+    @Test
+    public void testGetTimeOutMinutes_WhenNoTimeoutDefined_TimeoutMustBeNull() {
+    		Integer timeoutMinutes = crow.getJobs().get(1).getTimeOutMinutes();
+    		assertNull("Timeout must be null in config", timeoutMinutes);
+    }
+    
+    @Test
+    public void testGetPreCommand_WhenNoPreCommandDefined_PreCommandMustBeNull() {
+		String preCommand = crow.getJobs().get(1).getPreCommand();
+		assertNull("Precommand must be null in config", preCommand);
+    }
+    
+    @Test
+    public void testGetPostCommand_WhenNoPostCommandDefined_PostCommandMustBeNull() {
+		String postCommand = crow.getJobs().get(1).getPostCommand();
+		assertNull("Postcommand must be null in config", postCommand);
+    }
 }

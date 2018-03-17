@@ -1,22 +1,26 @@
 package com.blacklabelops.crow.scheduler;
 
-import com.blacklabelops.crow.executor.IExecutorTemplate;
-import com.blacklabelops.crow.executor.JobExecutor;
-import com.blacklabelops.crow.executor.console.JobDefinition;
-import com.blacklabelops.crow.suite.SlowTests;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import com.blacklabelops.crow.executor.IExecutorTemplate;
+import com.blacklabelops.crow.executor.JobExecutor;
+import com.blacklabelops.crow.executor.console.JobDefinition;
+import com.blacklabelops.crow.suite.SlowTests;
 
 /**
  * Created by steffenbleul on 28.12.16.

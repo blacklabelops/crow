@@ -8,7 +8,10 @@ crow:
       errorMode: stop
       shellCommand: /bin/bash -c
       workingDirectory: /tmp
+      preCommand: echo PreCommand
       command: echo 'Hello World!'
+      postCommand: echo PostCommand
+      timeOutMinutes: 5
     - name: "HelloUniverse"
       cron: "* * * * *"
       command: "echo 'Hello Universe!'"

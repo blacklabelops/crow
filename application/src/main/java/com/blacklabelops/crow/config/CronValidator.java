@@ -1,15 +1,15 @@
 package com.blacklabelops.crow.config;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.cronutils.model.CronType;
 import com.cronutils.model.definition.CronDefinition;
 import com.cronutils.model.definition.CronDefinitionBuilder;
 import com.cronutils.parser.CronParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-import java.util.List;
 
 
 public class CronValidator implements ConstraintValidator<Cron, String> {

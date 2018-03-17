@@ -1,16 +1,12 @@
 package com.blacklabelops.crow.scheduler;
 
-import com.blacklabelops.crow.suite.FastTests;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 
-import static junit.framework.TestCase.assertNotNull;
+import com.blacklabelops.crow.suite.FastTests;
 
-/**
- * Created by steffenbleul on 22.12.16.
- */
 @Category(FastTests.class)
 public class CronUtilsExecutionTimeTest {
 
@@ -20,13 +16,13 @@ public class CronUtilsExecutionTimeTest {
     @Test
     public void whenEmptyCronStringThenNullpointerException() {
         exception.expect(NullPointerException.class);
-        CronUtilsExecutionTime cronHandler = new CronUtilsExecutionTime(null);
+        new CronUtilsExecutionTime(null);
     }
 
     @Test
     public void whenIncorrectCronStringThenArgumentException() {
         exception.expect(IllegalArgumentException.class);
-        CronUtilsExecutionTime cronHandler = new CronUtilsExecutionTime("qwd");
+        new CronUtilsExecutionTime("qwd");
     }
 
  }

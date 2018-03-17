@@ -1,12 +1,11 @@
 package com.blacklabelops.crow.executor.console;
 
-import org.slf4j.MDC;
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.concurrent.TimeUnit;
 
 public class ExecutorConsole {
 
@@ -17,6 +16,8 @@ public class ExecutorConsole {
     private File outputErrorFile;
 
     private Integer returnCode;
+    
+    private boolean timedOut;
 
     public ExecutorConsole() {
         super();
@@ -29,15 +30,66 @@ public class ExecutorConsole {
 
     public void execute(IJobDefinition executionDefinition) {
         checkDefinition(executionDefinition);
-        ProcessBuilder processBuilder = new ProcessBuilder();
+        boolean preResult = true;
+        if (executionDefinition.getPreCommand() != null && !executionDefinition.getPreCommand().isEmpty()) {
+        		preResult = executePreCommands(executionDefinition);
+        }
+        boolean result = preResult ? executeCommands(executionDefinition) : preResult;
+        	if (result && executionDefinition.getPostCommand() != null && !executionDefinition.getPostCommand().isEmpty()) {
+        		executePostCommands(executionDefinition);
+        	}        
+    }
+
+    private void executePostCommands(IJobDefinition executionDefinition) {
+		ProcessBuilder processBuilder = new ProcessBuilder();
+	    processBuilder.command(executionDefinition.getPostCommand());
+	    extendEnvironmentVariables(processBuilder,executionDefinition);
+	    processBuilder.directory(executionDefinition.getWorkingDir());
+	    prepareRedirects(processBuilder);
+	    if (executionDefinition.getTimeoutMinutes() != null) {
+	    		executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes());
+	    } else {
+	    		executeCommand(processBuilder);
+	    }
+	}
+
+	private boolean executePreCommands(IJobDefinition executionDefinition) {
+	    	boolean result = false;
+		ProcessBuilder processBuilder = new ProcessBuilder();
+	    processBuilder.command(executionDefinition.getPreCommand());
+	    extendEnvironmentVariables(processBuilder,executionDefinition);
+	    processBuilder.directory(executionDefinition.getWorkingDir());
+	    prepareRedirects(processBuilder);
+	    if (executionDefinition.getTimeoutMinutes() != null) {
+	    		executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes());
+	    } else {
+	    		executeCommand(processBuilder);
+	    }
+	    if (!timedOut && Integer.valueOf(0).equals(returnCode)) {
+	    		result = true;
+	    }
+	    return result; 
+	}
+    
+    private boolean executeCommands(IJobDefinition executionDefinition) {
+    		boolean result = false;
+    		ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command(takeOverCommands(executionDefinition));
         extendEnvironmentVariables(processBuilder,executionDefinition);
         processBuilder.directory(executionDefinition.getWorkingDir());
         prepareRedirects(processBuilder);
-        executeCommand(processBuilder);
-    }
+        if (executionDefinition.getTimeoutMinutes() != null) {
+        		executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes());
+        } else {
+        		executeCommand(processBuilder);
+        }
+        if (!timedOut && Integer.valueOf(0).equals(returnCode)) {
+        		result = true;
+        }
+        return result; 
+	}
 
-    private List<String> takeOverCommands(IJobDefinition executionDefinition) {
+	private List<String> takeOverCommands(IJobDefinition executionDefinition) {
         return executionDefinition.getCommand();
     }
 
@@ -50,13 +102,26 @@ public class ExecutorConsole {
             throw new ExecutorException("Error executing job", e);
         }
     }
+    
+    private void executeCommandWithTimeout(ProcessBuilder processBuilder, int minutes) {
+    		Process process = null;
+        try {
+            process = processBuilder.start();
+            this.timedOut = !process.waitFor(minutes, TimeUnit.MINUTES);
+            if (!timedOut) {
+            		this.returnCode = process.exitValue();
+            }
+        } catch (IOException |InterruptedException e) {
+            throw new ExecutorException("Error executing job", e);
+        }
+    }
 
     private void prepareRedirects(ProcessBuilder processBuilder) {
         if (outputFile != null) {
-            processBuilder.redirectOutput(outputFile);
+            processBuilder.redirectOutput(Redirect.appendTo(outputFile));
         }
         if (outputErrorFile != null) {
-            processBuilder.redirectError(outputErrorFile);
+            processBuilder.redirectError(Redirect.appendTo(outputErrorFile));
         }
         if (inputFile != null) {
             processBuilder.redirectInput(inputFile);
@@ -83,6 +148,12 @@ public class ExecutorConsole {
     }
 
     public Integer getReturnCode() {
-        return returnCode;
+        return this.returnCode;
     }
+
+	public boolean isTimedOut() {
+		return this.timedOut;
+	}
+    
+    
 }

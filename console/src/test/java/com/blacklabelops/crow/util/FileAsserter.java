@@ -1,16 +1,13 @@
 package com.blacklabelops.crow.util;
 
-import org.junit.rules.ExternalResource;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Scanner;
 
-/**
- * Created by steffenbleul on 20.12.16.
- */
+import org.junit.rules.ExternalResource;
+
 public class FileAsserter extends ExternalResource {
 
     private Path file;
@@ -53,17 +50,22 @@ public class FileAsserter extends ExternalResource {
         Scanner scanner = null;
         try {
             scanner = new Scanner(file);
+            String currentLine;
+            while(scanner.hasNextLine()) {
+                currentLine = scanner.nextLine();
+                if(currentLine.contains(expected)) {
+                    found = true;
+                    break;
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException("Unable to assert file by lines!",e);
+        } finally {
+        		if (scanner != null) {
+        			scanner.close();
+        		}
         }
-        String currentLine;
-        while(scanner.hasNextLine()) {
-            currentLine = scanner.nextLine();
-            if(currentLine.contains(expected)) {
-                found = true;
-                break;
-            }
-        }
+        
         assert found;
     }
 

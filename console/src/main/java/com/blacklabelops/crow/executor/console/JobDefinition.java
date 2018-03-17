@@ -1,20 +1,22 @@
 package com.blacklabelops.crow.executor.console;
 
-import com.blacklabelops.crow.executor.ErrorMode;
-import com.blacklabelops.crow.executor.ExecutionMode;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.blacklabelops.crow.executor.ErrorMode;
+import com.blacklabelops.crow.executor.ExecutionMode;
+
 
 public class JobDefinition implements IJobDefinition {
 
     private List<String> command;
-
-    private List<String> shellCommand;
+    
+    private List<String> preCommand;
+    
+    private List<String> postCommand;
 
     private Map<String, String> environmentVariables;
 
@@ -25,6 +27,8 @@ public class JobDefinition implements IJobDefinition {
     private String jobName;
 
     private File workingDir;
+    
+    private Integer timeoutMinutes;
 
     public JobDefinition() {
         super();
@@ -43,6 +47,36 @@ public class JobDefinition implements IJobDefinition {
     @Override
     public void setCommand(String... command) {
         this.command = new ArrayList<String>(Arrays.asList(command));
+    }
+    
+    @Override
+    public List<String> getPreCommand() {
+        return preCommand;
+    }
+
+    @Override
+    public void setPreCommand(List<String> command) {
+        this.preCommand = command;
+    }
+
+    @Override
+    public void setPreCommand(String... command) {
+        this.preCommand = new ArrayList<String>(Arrays.asList(command));
+    }
+    
+    @Override
+    public List<String> getPostCommand() {
+        return postCommand;
+    }
+
+    @Override
+    public void setPostCommand(List<String> command) {
+        this.postCommand = command;
+    }
+
+    @Override
+    public void setPostCommand(String... command) {
+        this.postCommand = new ArrayList<String>(Arrays.asList(command));
     }
 
     @Override
@@ -94,5 +128,17 @@ public class JobDefinition implements IJobDefinition {
     public void setWorkingDir(File workingDir) {
         this.workingDir = workingDir;
     }
+    
+    @Override
+	public Integer getTimeoutMinutes() {
+		return timeoutMinutes;
+	}
+    
+    @Override
+	public void setTimeoutMinutes(Integer minutes) {
+		this.timeoutMinutes = minutes;
+	}
+    
+    
 
 }

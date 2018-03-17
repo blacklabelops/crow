@@ -22,4 +22,6 @@ public interface IExecutor extends Runnable {
     public List<IJobReporter> getReporter();
 
     public ErrorMode getErrorMode();
+
+	boolean isTimedOut();
 }

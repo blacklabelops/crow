@@ -1,12 +1,10 @@
 package com.blacklabelops.crow.executor;
 
-import com.blacklabelops.crow.executor.console.ExecutorException;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static java.nio.file.Files.createTempFile;
+import com.blacklabelops.crow.executor.console.ExecutorException;
 
 public class FileAccessor {
 

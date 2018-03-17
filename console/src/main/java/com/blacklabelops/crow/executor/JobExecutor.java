@@ -41,6 +41,8 @@ public class JobExecutor implements IExecutor {
     private LocalDateTime finishingTime;
 
     private Integer returnCode;
+    
+    private boolean timedOut;
 
     public JobExecutor(IJobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
         super();
@@ -70,11 +72,16 @@ public class JobExecutor implements IExecutor {
             this.setStartingTime(LocalDateTime.now());
             jobReporter.forEach(reporter -> reporter.startingJob(this));
             executor.execute(jobDefinition);
-            returnCode = executor.getReturnCode();
+            timedOut = executor.isTimedOut();
             this.setFinishingTime(LocalDateTime.now());
             jobReporter.forEach(reporter -> reporter.finishedJob(this));
-            if (RETURN_CODE_OKAY != returnCode) {
-                jobReporter.forEach(reporter -> reporter.failingJob(this));
+            if (!timedOut) {
+        			returnCode = executor.getReturnCode();
+        			if (RETURN_CODE_OKAY != returnCode) {
+        				jobReporter.forEach(reporter -> reporter.failingJob(this));
+                 }
+            } else {
+            		jobReporter.forEach(reporter -> reporter.failingJob(this));
             }
             stopLogTrailing();
             deleteOutputFiles();
@@ -149,8 +156,13 @@ public class JobExecutor implements IExecutor {
     public Integer getReturnCode() {
         return this.returnCode;
     }
-
+    
     @Override
+    public boolean isTimedOut() {
+		return timedOut;
+	}
+
+	@Override
     public List<IJobReporter> getReporter() {
         List<IJobReporter> copy = new ArrayList<>();
         Collections.copy(jobReporter, copy);

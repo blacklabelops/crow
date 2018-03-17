@@ -52,4 +52,25 @@ public class CrowConfigComplexTest {
         assertNotNull("Working directory must be set!", workingDirectory);
         assertEquals("Should be temp directory!","/tmp", workingDirectory);
     }
+    
+    @Test
+    public void testGetTimeOutMinutes_WhenNoTimeoutDefined_TimeoutMustBeNull() {
+    		Integer timeoutMinutes = crow.getJobs().get(0).getTimeOutMinutes();
+    		assertNotNull("Timeout must be found in config", timeoutMinutes);
+    		assertEquals("Should be defined timeout!",Integer.valueOf(5), timeoutMinutes);
+    }
+    
+    @Test
+    public void testGetPreCommand_WhenNoPreCommandDefined_PreCommandMustBeNull() {
+		String preCommand = crow.getJobs().get(0).getPreCommand();
+		assertNotNull("Precommand must be found in config", preCommand);
+		assertEquals("Should be defined PreCommand!","echo PreCommand", preCommand);
+    }
+    
+    @Test
+    public void testGetPostCommand_WhenNoPostCommandDefined_PostCommandMustBeNull() {
+		String postCommand = crow.getJobs().get(0).getPostCommand();
+		assertNotNull("Postcommand must be found in config", postCommand);
+		assertEquals("Should be defined PostCommand!","echo PostCommand", postCommand);
+    }
 }

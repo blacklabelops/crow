@@ -107,6 +107,43 @@ crow:
 
 > One job named `HelloWorld` printing `Hello World!` each minute.
 
+## Pre- and Post-Commands
+
+You specify Pre- and Post-Command which will be excuted before and after the specified main command.
+
+Example:
+
+~~~~
+
+---
+
+crow:
+  jobs:
+    - name: HelloWorld
+      cron: "* * * * *"
+      preCommand: echo 'Pre Command'
+      command: echo 'Hello World!'
+      postCommand: echo 'Post Command'
+~~~~
+
+## Timeout
+
+You can specify a timeout in minutes for your command:
+
+~~~~
+
+---
+
+crow:
+  jobs:
+    - name: HelloWorld
+      cron: "* * * * *"
+      command: yourExpensiveCommand
+      timeOutMinutes: 5
+~~~~
+
+> Will stop the job when it's not finished after 5 minutes.
+
 ## Environment variables
 
 You can define an arbitrary amount of environment variables for each job.

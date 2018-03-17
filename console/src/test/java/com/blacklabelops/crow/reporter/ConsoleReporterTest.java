@@ -1,8 +1,9 @@
 package com.blacklabelops.crow.reporter;
 
-import com.blacklabelops.crow.executor.IExecutor;
-import com.blacklabelops.crow.suite.FastTests;
-import org.apache.log4j.AppenderSkeleton;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -10,10 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import java.time.LocalDateTime;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
+import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.suite.FastTests;
 
 @Category(FastTests.class)
 public class ConsoleReporterTest {

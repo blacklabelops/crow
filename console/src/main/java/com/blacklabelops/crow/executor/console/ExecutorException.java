@@ -2,7 +2,9 @@ package com.blacklabelops.crow.executor.console;
 
 public class ExecutorException extends RuntimeException {
 
-    public ExecutorException() {
+	private static final long serialVersionUID = 1L;
+
+	public ExecutorException() {
     }
 
     public ExecutorException(String message) {

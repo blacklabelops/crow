@@ -1,9 +1,6 @@
 package com.blacklabelops.crow.config;
 
 import org.hibernate.validator.constraints.NotEmpty;
-import org.hibernate.validator.internal.util.Version;
-
-import javax.validation.constraints.NotNull;
 
 
 public class Environment implements IConfigModel {

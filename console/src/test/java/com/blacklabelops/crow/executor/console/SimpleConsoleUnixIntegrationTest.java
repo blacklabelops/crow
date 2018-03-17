@@ -1,13 +1,23 @@
 package com.blacklabelops.crow.executor.console;
 
-import com.blacklabelops.crow.executor.JobExecutor;
-import com.blacklabelops.crow.logger.JobLogLogger;
-import com.blacklabelops.crow.suite.SlowTests;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
+
+import java.io.File;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
@@ -16,17 +26,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import java.io.File;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.blacklabelops.crow.executor.JobExecutor;
+import com.blacklabelops.crow.logger.JobLogLogger;
+import com.blacklabelops.crow.suite.SlowTests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.verify;
-
-/**
- * Created by steffenbleul on 21.12.16.
- */
 @Category(SlowTests.class)
 public class SimpleConsoleUnixIntegrationTest {
 
@@ -88,7 +91,28 @@ public class SimpleConsoleUnixIntegrationTest {
         assertEquals("Log output must be error level!",logCaptor.getValue().getLevel(), Level.ERROR);
         assertEquals("Must have same message as in echo directive!","error",logCaptor.getValue().getMessage());
     }
-
+    
+    @Test(timeout = 120000)
+    public void testRun_WhenTimeOutDefined_ProcessTimedout() {
+    		jobDefinition.setCommand("sleep","200");
+    		jobDefinition.setTimeoutMinutes(1);
+        jobDefinition.setJobName("echoJob");
+        simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
+        simpleConsole.run();
+        assertTrue(simpleConsole.isTimedOut());
+    }
+    
+    @Test(timeout = 5000)
+    public void testRun_WhenTimeOutDefinedShortJob_JobIsNotTimedOut() {
+    		jobDefinition.setCommand("sleep","2");
+    		jobDefinition.setTimeoutMinutes(1);
+        jobDefinition.setJobName("echoJob");
+        simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
+        simpleConsole.run();
+        assertFalse(simpleConsole.isTimedOut());
+        assertEquals(Integer.valueOf(0), simpleConsole.getReturnCode());
+    }
+    
     @Test
     @Ignore
     public void testRun_WhenWorkingDirectoryIsDefined_ExecuteInWorkDirectory() {
@@ -103,5 +127,13 @@ public class SimpleConsoleUnixIntegrationTest {
         assertEquals("Must match working directory",tempDir.getAbsolutePath(),logCaptor.getValue().getMessage());
     }
 
-
+    @Test
+    @Ignore
+    public void testRun_WhenPreCommandDefined_ExecutePreCommandsAndCommands() {
+    		jobDefinition.setCommand("echo","hello world");
+    		jobDefinition.setPreCommand("echo","hello preCommand");
+    		jobDefinition.setPostCommand("echo","hello postCommand");
+    		simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
+        simpleConsole.run();
+    }
 }

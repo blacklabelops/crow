@@ -1,9 +1,9 @@
 package com.blacklabelops.crow.config;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.validation.Valid;
-import java.util.*;
+import org.hibernate.validator.constraints.NotEmpty;
 
 
 public class Job implements IConfigModel {
@@ -16,7 +16,11 @@ public class Job implements IConfigModel {
 
     @NotEmpty(message = "Your command is not allowed to be empty!")
     private String command;
-
+    
+    private String preCommand;
+    
+    private String postCommand;
+    
     private String shellCommand;
 
     private String workingDirectory;
@@ -24,6 +28,8 @@ public class Job implements IConfigModel {
     private String execution;
 
     private String errorMode;
+    
+    private Integer timeOutMinutes;
 
     private Map<String, String> environments = new HashMap<>();
 
@@ -94,4 +100,29 @@ public class Job implements IConfigModel {
     public void setWorkingDirectory(String workingDirectory) {
         this.workingDirectory = workingDirectory;
     }
+
+	public String getPreCommand() {
+		return preCommand;
+	}
+
+	public void setPreCommand(String preCommand) {
+		this.preCommand = preCommand;
+	}
+
+	public String getPostCommand() {
+		return postCommand;
+	}
+
+	public void setPostCommand(String postCommand) {
+		this.postCommand = postCommand;
+	}
+
+	public Integer getTimeOutMinutes() {
+		return timeOutMinutes;
+	}
+
+	public void setTimeOutMinutes(Integer timeOutMinutes) {
+		this.timeOutMinutes = timeOutMinutes;
+	}
+    
 }

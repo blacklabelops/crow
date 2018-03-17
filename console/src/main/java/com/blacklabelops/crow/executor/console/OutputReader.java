@@ -1,12 +1,14 @@
 package com.blacklabelops.crow.executor.console;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class OutputReader implements Runnable {
@@ -28,7 +30,6 @@ public class OutputReader implements Runnable {
     @Override
     public void run() {
         try (BufferedReader reader = new BufferedReader(new FileReader(outputFile.toFile()))) {
-            String line;
             keepReading = true;
             while (keepReading) {
                 readOutputFully(reader);
@@ -42,7 +43,7 @@ public class OutputReader implements Runnable {
 
     private void waitforNewInput() {
         try {
-            Thread.sleep(500);
+            Thread.sleep(10);
         } catch (InterruptedException e) {
             throw new RuntimeException("Cannot initialise wait!",e);
         }

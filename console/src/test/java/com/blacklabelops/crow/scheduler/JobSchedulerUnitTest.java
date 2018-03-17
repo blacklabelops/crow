@@ -1,11 +1,13 @@
 package com.blacklabelops.crow.scheduler;
 
-import com.blacklabelops.crow.executor.ErrorMode;
-import com.blacklabelops.crow.executor.ExecutionResult;
-import com.blacklabelops.crow.executor.IExecutor;
-import com.blacklabelops.crow.executor.IExecutorTemplate;
-import com.blacklabelops.crow.suite.FastTests;
-import com.blacklabelops.crow.suite.SlowTests;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.time.ZonedDateTime;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -13,13 +15,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import java.time.ZonedDateTime;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.blacklabelops.crow.executor.ErrorMode;
+import com.blacklabelops.crow.executor.ExecutionResult;
+import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.executor.IExecutorTemplate;
+import com.blacklabelops.crow.suite.FastTests;
 
 /**
  * Created by steffenbleul on 22.12.16.

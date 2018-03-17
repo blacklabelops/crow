@@ -1,13 +1,13 @@
 package com.blacklabelops.crow.scheduler;
 
+import java.time.ZonedDateTime;
+
 import com.cronutils.model.Cron;
 import com.cronutils.model.CronType;
 import com.cronutils.model.definition.CronDefinition;
 import com.cronutils.model.definition.CronDefinitionBuilder;
 import com.cronutils.model.time.ExecutionTime;
 import com.cronutils.parser.CronParser;
-
-import java.time.ZonedDateTime;
 
 
 public class CronUtilsExecutionTime implements IExecutionTime {
@@ -35,7 +35,7 @@ public class CronUtilsExecutionTime implements IExecutionTime {
     public static void validate() {
         CronDefinition cronD =
                 CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX);
-        CronParser parser = new CronParser(cronD);
+        new CronParser(cronD);
     }
 
     @Override

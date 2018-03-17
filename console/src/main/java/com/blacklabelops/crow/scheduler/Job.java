@@ -1,10 +1,9 @@
 package com.blacklabelops.crow.scheduler;
 
+import java.time.ZonedDateTime;
+
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
-import com.blacklabelops.crow.executor.JobExecutorTemplate;
-
-import java.time.ZonedDateTime;
 
 public class Job {
 

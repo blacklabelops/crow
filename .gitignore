@@ -1,3 +1,6 @@
 application/target
 console/target
+application/.settings
+console/.settings
+.settings
 *.jar
