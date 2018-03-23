@@ -68,8 +68,12 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean {
         List<IJobReporterFactory> reporter = new ArrayList<>();
         reporter.add(new ConsoleReporterFactory());
         defConsole.setCommand(takeOverCommand(job.getCommand(), job.getShellCommand()));
-        defConsole.setPreCommand(takeOverCommand(job.getPreCommand(), job.getShellCommand()));
-        defConsole.setPostCommand(takeOverCommand(job.getPostCommand(), job.getShellCommand()));
+        if (job.getPreCommand() != null && !job.getPreCommand().isEmpty()) {
+        		defConsole.setPreCommand(takeOverCommand(job.getPreCommand(), job.getShellCommand()));
+        }
+        if (job.getPostCommand() != null && !job.getPostCommand().isEmpty()) {
+        		defConsole.setPostCommand(takeOverCommand(job.getPostCommand(), job.getShellCommand()));
+        }
         if (job.getWorkingDirectory() != null && !job.getWorkingDirectory().isEmpty()) {
             File workingDirectory = new File(job.getWorkingDirectory());
             if (workingDirectory.exists() && workingDirectory.isDirectory()) {
