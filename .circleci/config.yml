@@ -11,8 +11,8 @@ jobs:
 
       - checkout
 
-      - restore_cache:
-          key: circleci-crow-{{ checksum "pom.xml" }}
+      #- restore_cache:
+      #    key: circleci-crow-{{ checksum "pom.xml" }}
 
       - run: mvn clean install
 
