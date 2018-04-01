@@ -4,8 +4,11 @@ import com.blacklabelops.crow.executor.IExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class ConsoleReporter implements IJobReporter {
 
@@ -17,7 +20,10 @@ public class ConsoleReporter implements IJobReporter {
 
     private String failingMessageFormat = "Failed executing job %s at %s.";
 
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private DateTimeFormatter formatter = DateTimeFormatter
+    		.ofPattern("uuuu-MM-dd HH:mm:ss")
+    		.withLocale(Locale.getDefault())
+    		.withZone(ZoneId.systemDefault());
 
     public ConsoleReporter() {
         super();
@@ -39,7 +45,7 @@ public class ConsoleReporter implements IJobReporter {
 
     @Override
     public void failingJob(IExecutor executingJob) {
-        String time = formatter.format(LocalTime.now());
+        String time = formatter.format(LocalDateTime.now());
         String message = String.format(failingMessageFormat, executingJob.getJobName(), time);
         logger.info(message);
     }
