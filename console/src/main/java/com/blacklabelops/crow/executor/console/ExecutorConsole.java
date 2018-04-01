@@ -7,9 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.blacklabelops.crow.definition.IJobDefinition;
+import com.blacklabelops.crow.scheduler.MultiJobScheduler;
 
 public class ExecutorConsole {
+	
+	public static final Logger LOG = LoggerFactory.getLogger(ExecutorConsole.class);
 
     private File inputFile;
 
@@ -92,7 +98,9 @@ public class ExecutorConsole {
 	}
 
 	private List<String> takeOverCommands(IJobDefinition executionDefinition) {
-        return executionDefinition.getCommand();
+		List<String> command = executionDefinition.getCommand();
+		LOG.debug("Executing command: {}", command);
+        return command;
     }
 
     private void executeCommand(ProcessBuilder processBuilder) {
