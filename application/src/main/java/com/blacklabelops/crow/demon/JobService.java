@@ -1,6 +1,8 @@
 package com.blacklabelops.crow.demon;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +13,8 @@ import org.springframework.stereotype.Component;
 import com.blacklabelops.crow.config.Job;
 import com.blacklabelops.crow.rest.JobDescription;
 import com.blacklabelops.crow.rest.JobInformation;
+import com.blacklabelops.crow.scheduler.CronUtilsExecutionTime;
+import com.cronutils.utils.StringUtils;
 
 @Component
 public class JobService implements IJobService {
@@ -30,6 +34,12 @@ public class JobService implements IJobService {
 		for (Job job : jobs) {
 			JobInformation description = new JobInformation();
 			BeanUtils.copyProperties(job, description);
+			if (!StringUtils.isEmpty(job.getCron())) {
+				CronUtilsExecutionTime time = new CronUtilsExecutionTime(job.getCron());
+				ZonedDateTime nextExecution = time.nextExecution(ZonedDateTime.now());
+				Date nextDateExecution = Date.from(nextExecution.toInstant());
+				description.setNextExecution(nextDateExecution);
+			}
 			descriptions.add(description);
 		}
 		return descriptions;

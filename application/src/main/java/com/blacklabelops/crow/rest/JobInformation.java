@@ -8,7 +8,7 @@ public class JobInformation {
 
     private String cron;
     
-    private String nextExecution;
+    private Date nextExecution;
     
     private String execution;
 
@@ -34,11 +34,11 @@ public class JobInformation {
 		this.cron = cron;
 	}
 
-	public String getNextExecution() {
+	public Date getNextExecution() {
 		return nextExecution;
 	}
 
-	public void setNextExecution(String nextExecution) {
+	public void setNextExecution(Date nextExecution) {
 		this.nextExecution = nextExecution;
 	}
 
