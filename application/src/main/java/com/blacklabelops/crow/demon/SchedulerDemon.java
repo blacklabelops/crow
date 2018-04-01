@@ -30,6 +30,7 @@ import com.blacklabelops.crow.logger.JobLoggerFactory;
 import com.blacklabelops.crow.reporter.ConsoleReporterFactory;
 import com.blacklabelops.crow.reporter.ExecutionErrorReporterFactory;
 import com.blacklabelops.crow.reporter.IJobReporterFactory;
+import com.blacklabelops.crow.rest.JobDescription;
 import com.blacklabelops.crow.scheduler.CronUtilsExecutionTime;
 import com.blacklabelops.crow.scheduler.IExecutionTime;
 import com.blacklabelops.crow.scheduler.IScheduler;
@@ -142,4 +143,9 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean {
     @Override
     public void destroy() throws Exception {
     }
+
+	public List<com.blacklabelops.crow.config.Job> listJobs() {
+		return crowConfig.getJobs();
+	}
+
 }

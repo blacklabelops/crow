@@ -1,0 +1,31 @@
+package com.blacklabelops.crow.rest;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.blacklabelops.crow.demon.IJobService;
+
+@RestController
+public class JobController {
+	
+	private final IJobService jobService;
+	
+	@Autowired
+	public JobController(IJobService jobService) {
+		this.jobService = jobService;
+	}
+	
+	@RequestMapping("/jobs")
+	public List<JobInformation> listJobs() {
+		return jobService.listJobs();
+	}
+	
+	@RequestMapping("/jobs/{jobName}")
+	public JobDescription getJobDescription(@PathVariable String jobName) {
+		return jobService.getJobDescription(jobName);
+	}
+}

@@ -100,7 +100,7 @@
 
         <dependency>
             <groupId>com.blacklabelops</groupId>
-            <artifactId>console</artifactId>
+            <artifactId>crow-console</artifactId>
             <version>0.5-SNAPSHOT</version>
             <exclusions>
                 <exclusion>

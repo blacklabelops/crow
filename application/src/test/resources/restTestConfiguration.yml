@@ -1,0 +1,18 @@
+---
+
+crow:
+  jobs:
+    - name: HelloWorld
+      cron: "* * * * *"
+      command: echo 'Hello World!'
+    - name: "HelloUniverse"
+      cron: "* * * * *"
+      command: bash -c "echo $MY_KEY"
+      environments:
+        MY_KEY: Hello Universe!
+    - name: "ShellCommand"
+      cron: "* * * * *"
+      command: echo $MY_MESSAGE
+      environments:
+        MY_MESSAGE: Your Message
+      shellCommand: bash -c
