@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application;
+package com.blacklabelops.crow.rest;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -25,6 +25,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
+
+import com.blacklabelops.crow.application.CrowDemon;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

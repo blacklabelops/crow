@@ -1,6 +1,5 @@
 package com.blacklabelops.crow.application;
 
-import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,7 +19,6 @@ public class CrowDemon {
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(CrowDemon.class);
-        app.setBannerMode(Banner.Mode.OFF);
         app.run(args);
     }
 }

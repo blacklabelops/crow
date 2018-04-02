@@ -16,13 +16,13 @@ public class CrowCli {
     		context.register(CliConfig.class);
     		context.refresh();
     		CommandLineConfiguration config = context.getBean("cliConfiguration",CommandLineConfiguration.class);
-    		log.debug("Configuration base URL: {}", config.getBaseUrl());
+    		log.debug("Configuration base URL: {}", config.evaluateBaseURL());
     		CommandParser parser = new CommandParser(args);
     		CliCommand command = parser.getCommand();
     		switch (command) {
 	    		case LIST: {
 	    			RestTemplate restTemplate = new RestTemplate();
-				JobInformation[] jobs = restTemplate.getForObject(config.getBaseUrl() + "/crow/jobs", JobInformation[].class);
+				JobInformation[] jobs = restTemplate.getForObject(config.evaluateBaseURL() + "/crow/jobs", JobInformation[].class);
 	    	        PrintConsole consolePrinter = new PrintConsole();
 	    	        consolePrinter.printJobs(jobs);
 	    			break;

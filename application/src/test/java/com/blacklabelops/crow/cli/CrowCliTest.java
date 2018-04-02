@@ -14,6 +14,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.blacklabelops.crow.application.CrowDemon;
 import com.blacklabelops.crow.rest.JobInformation;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -48,5 +52,16 @@ public class CrowCliTest {
 		JobInformation[] jobs = this.restTemplate.getForObject("/crow/jobs", JobInformation[].class);
 		PrintConsole console = new PrintConsole();
 		console.printJobs(jobs);
+	}
+	
+	@Test
+	@Ignore
+	public void testMain_PrintJsonList() {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String jobs = this.restTemplate.getForObject("/crow/jobs", String.class);
+		JsonParser jp = new JsonParser();
+		JsonElement je = jp.parse(jobs);
+		String prettyJsonString = gson.toJson(je);
+		System.out.println(prettyJsonString);
 	}
 }
