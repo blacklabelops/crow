@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.blacklabelops.crow.config.Job;
+import com.blacklabelops.crow.executor.ErrorMode;
+import com.blacklabelops.crow.executor.ExecutionMode;
 import com.blacklabelops.crow.rest.JobDescription;
 import com.blacklabelops.crow.rest.JobInformation;
 import com.blacklabelops.crow.scheduler.CronUtilsExecutionTime;
@@ -39,6 +41,16 @@ public class JobService implements IJobService {
 				ZonedDateTime nextExecution = time.nextExecution(ZonedDateTime.now());
 				Date nextDateExecution = Date.from(nextExecution.toInstant());
 				description.setNextExecution(nextDateExecution);
+				if (job.getErrorMode() != null) {
+					description.setErrorMode(job.getErrorMode().toString().toLowerCase());
+				} else {
+					description.setErrorMode(ErrorMode.CONTINUE.toString().toLowerCase());
+				}
+				if (job.getExecution() != null ) {
+					description.setExecution(job.getExecution().toString().toLowerCase());
+				} else {
+					description.setExecution(ExecutionMode.SEQUENTIAL.toString().toLowerCase());
+				}
 			}
 			descriptions.add(description);
 		}

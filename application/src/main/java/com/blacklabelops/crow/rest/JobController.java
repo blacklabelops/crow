@@ -19,12 +19,12 @@ public class JobController {
 		this.jobService = jobService;
 	}
 	
-	@RequestMapping("/jobs")
+	@RequestMapping("/crow/jobs")
 	public List<JobInformation> listJobs() {
 		return jobService.listJobs();
 	}
 	
-	@RequestMapping("/jobs/{jobName}")
+	@RequestMapping("/crow/jobs/{jobName}")
 	public JobDescription getJobDescription(@PathVariable String jobName) {
 		return jobService.getJobDescription(jobName);
 	}

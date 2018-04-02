@@ -62,7 +62,7 @@ public class JobControllerTest {
     
     @Test
     public void testListJobs_ListConfiguredJobs_JobsSizeAndNameFromConfig() throws Exception {
-    		mockMvc.perform(get("/jobs"))
+    		mockMvc.perform(get("/crow/jobs"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$", hasSize(3)))
@@ -71,7 +71,7 @@ public class JobControllerTest {
     
     @Test
     public void testFetJobDescription_GetHelloWorldJob_GetJobFromConfig() throws Exception {
-    		mockMvc.perform(get("/jobs/HelloWorld"))
+    		mockMvc.perform(get("/crow/jobs/HelloWorld"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.name", is("HelloWorld")));

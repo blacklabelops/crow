@@ -30,7 +30,6 @@ import com.blacklabelops.crow.logger.JobLoggerFactory;
 import com.blacklabelops.crow.reporter.ConsoleReporterFactory;
 import com.blacklabelops.crow.reporter.ExecutionErrorReporterFactory;
 import com.blacklabelops.crow.reporter.IJobReporterFactory;
-import com.blacklabelops.crow.rest.JobDescription;
 import com.blacklabelops.crow.scheduler.CronUtilsExecutionTime;
 import com.blacklabelops.crow.scheduler.IExecutionTime;
 import com.blacklabelops.crow.scheduler.IScheduler;
