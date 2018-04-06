@@ -40,7 +40,8 @@ public class JobControllerTest {
 
     private MockMvc mockMvc;
     
-    private HttpMessageConverter mappingJackson2HttpMessageConverter;
+    @SuppressWarnings("rawtypes")
+	private HttpMessageConverter mappingJackson2HttpMessageConverter;
     
     @Autowired
     private WebApplicationContext webApplicationContext;

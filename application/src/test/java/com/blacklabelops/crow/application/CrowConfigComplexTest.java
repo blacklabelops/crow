@@ -1,8 +1,8 @@
 package com.blacklabelops.crow.application;
 
-import com.blacklabelops.crow.config.Crow;
-import com.blacklabelops.crow.executor.ErrorMode;
-import com.blacklabelops.crow.executor.ExecutionMode;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +11,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertNull;
+import com.blacklabelops.crow.config.Crow;
+import com.blacklabelops.crow.executor.ErrorMode;
+import com.blacklabelops.crow.executor.ExecutionMode;
 
 
 @RunWith(SpringRunner.class)

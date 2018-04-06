@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.demon;
+package com.blacklabelops.crow.rest;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -10,30 +10,29 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.blacklabelops.crow.config.Job;
+import com.blacklabelops.crow.config.JobConfiguration;
 import com.blacklabelops.crow.executor.ErrorMode;
 import com.blacklabelops.crow.executor.ExecutionMode;
-import com.blacklabelops.crow.rest.JobDescription;
-import com.blacklabelops.crow.rest.JobInformation;
+import com.blacklabelops.crow.repository.JobRepository;
 import com.blacklabelops.crow.scheduler.CronUtilsExecutionTime;
 import com.cronutils.utils.StringUtils;
 
 @Component
 public class JobService implements IJobService {
 	
-	private final SchedulerDemon demon;
+	private final JobRepository repository;
 	
 	@Autowired
-	public JobService(SchedulerDemon demon) {
+	public JobService(JobRepository repository) {
 		super();
-		this.demon = demon;
+		this.repository = repository;
 	}
 
 	@Override
 	public List<JobInformation> listJobs() {
-		List<Job> jobs = demon.listJobs();
+		List<JobConfiguration> jobs = repository.listJobs();
 		List<JobInformation> descriptions = new ArrayList<>(jobs.size());
-		for (Job job : jobs) {
+		for (JobConfiguration job : jobs) {
 			JobInformation description = new JobInformation();
 			BeanUtils.copyProperties(job, description);
 			if (!StringUtils.isEmpty(job.getCron())) {
@@ -60,7 +59,7 @@ public class JobService implements IJobService {
 	@Override
 	public JobDescription getJobDescription(String jobName) {
 		JobDescription foundJob = new JobDescription();
-		Optional<Job> job = demon.listJobs().stream().filter(found -> found.getName().equals(jobName)).findFirst();
+		Optional<JobConfiguration> job = repository.findJob(jobName);
 		job.ifPresent(j -> BeanUtils.copyProperties(j, foundJob));
 		return foundJob;
 	}

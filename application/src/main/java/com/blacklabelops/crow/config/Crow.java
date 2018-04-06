@@ -12,17 +12,17 @@ public class Crow implements IConfigModel {
 
     @Valid
     @UniqueJobNames
-    private List<Job> jobs = new ArrayList<>();
+    private List<JobConfiguration> jobs = new ArrayList<>();
 
     public Crow() {
         super();
     }
 
-    public List<Job> getJobs() {
+    public List<JobConfiguration> getJobs() {
         return jobs;
     }
 
-    public void setJobs(List<Job> jobs) {
+    public void setJobs(List<JobConfiguration> jobs) {
         this.jobs = jobs;
     }
 }

@@ -1,9 +1,11 @@
 package com.blacklabelops.crow.application;
 
-import com.blacklabelops.crow.config.Crow;
-import com.blacklabelops.crow.config.Environment;
-import com.blacklabelops.crow.config.IConfigModel;
-import com.blacklabelops.crow.config.Job;
+import static org.junit.Assert.assertEquals;
+
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+
 import org.hibernate.validator.HibernateValidator;
 import org.junit.After;
 import org.junit.Before;
@@ -14,11 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import javax.validation.ConstraintViolation;
-import java.util.Set;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
+import com.blacklabelops.crow.config.Crow;
+import com.blacklabelops.crow.config.Environment;
+import com.blacklabelops.crow.config.IConfigModel;
+import com.blacklabelops.crow.config.JobConfiguration;
 
 
 public class ValidationTest {
@@ -28,7 +29,7 @@ public class ValidationTest {
 
     public LocalValidatorFactoryBean localValidatorFactory;
 
-    public Job job;
+    public JobConfiguration job;
 
     Set<ConstraintViolation<IConfigModel>> constraintViolations;
 
@@ -37,7 +38,7 @@ public class ValidationTest {
 
     @Before
     public void setup() {
-        job = new Job();
+        job = new JobConfiguration();
         localValidatorFactory = new LocalValidatorFactoryBean();
         localValidatorFactory.setProviderClass(HibernateValidator.class);
         localValidatorFactory.afterPropertiesSet();
@@ -128,12 +129,12 @@ public class ValidationTest {
     @Test
     public void whenCrowConfigJobNamesNotUnqiqueThenViolation() {
         Crow crow = new Crow();
-        Job job1 = new Job();
+        JobConfiguration job1 = new JobConfiguration();
         job1.setName("1");
         job1.setCron(VALID_CRON);
         job1.setCommand("1");
         crow.getJobs().add(job1);
-        Job job2 = new Job();
+        JobConfiguration job2 = new JobConfiguration();
         job2.setName("1");
         job2.setCron(VALID_CRON);
         job2.setCommand("1");
@@ -145,12 +146,12 @@ public class ValidationTest {
     @Test
     public void whenCrowConfigJobNamesUnqiqueThenNoViolation() {
         Crow crow = new Crow();
-        Job job1 = new Job();
+        JobConfiguration job1 = new JobConfiguration();
         job1.setName("1");
         job1.setCron(VALID_CRON);
         job1.setCommand("1");
         crow.getJobs().add(job1);
-        Job job2 = new Job();
+        JobConfiguration job2 = new JobConfiguration();
         job2.setName("2");
         job2.setCron(VALID_CRON);
         job2.setCommand("1");

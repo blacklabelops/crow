@@ -6,7 +6,7 @@ import java.util.Map;
 import org.hibernate.validator.constraints.NotEmpty;
 
 
-public class Job implements IConfigModel {
+public class JobConfiguration implements IConfigModel {
 
     @NotEmpty(message = "A unique name for each job has to be defined!")
     private String name;
@@ -32,8 +32,8 @@ public class Job implements IConfigModel {
     private Integer timeOutMinutes;
 
     private Map<String, String> environments = new HashMap<>();
-
-    public Job() {
+    
+    public JobConfiguration() {
         super();
     }
 
@@ -62,11 +62,19 @@ public class Job implements IConfigModel {
     }
 
     public Map<String, String> getEnvironments() {
-        return environments;
+    		if (environments != null) {
+    			return new HashMap<>(this.environments);
+    		} else {
+    			return null;
+    		}
     }
 
     public void setEnvironments(Map<String, String> environments) {
-        this.environments = environments;
+    		if (environments != null) {
+    			this.environments = new HashMap<>(environments);
+    		} else {
+    			this.environments = null;
+    		}
     }
 
     public String getExecution() {
@@ -123,6 +131,14 @@ public class Job implements IConfigModel {
 
 	public void setTimeOutMinutes(Integer timeOutMinutes) {
 		this.timeOutMinutes = timeOutMinutes;
+	}
+
+	@Override
+	public String toString() {
+		return String.format(
+				"JobConfiguration\n[ name=%s\n, cron=%s\n, command=%s\n, preCommand=%s\n, postCommand=%s\n, shellCommand=%s\n, workingDirectory=%s\n, execution=%s\n, errorMode=%s\n, timeOutMinutes=%s\n, environments=%s]",
+				name, cron, command, preCommand, postCommand, shellCommand, workingDirectory, execution, errorMode,
+				timeOutMinutes, environments);
 	}
     
 }

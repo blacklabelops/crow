@@ -50,4 +50,8 @@ public interface IJobDefinition {
 	public void setPostCommand(List<String> command);
 
 	public void setPostCommand(String... command);
+
+	String getCron();
+
+	void setCron(String cron);
 }
