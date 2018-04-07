@@ -1,19 +1,26 @@
 package com.blacklabelops.crow.definition;
 
-import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.blacklabelops.crow.executor.ErrorMode;
 import com.blacklabelops.crow.executor.ExecutionMode;
 
-
-public class JobDefinition implements IJobDefinition {
+public class JobDefinition {
+	
+	private static Logger LOG = LoggerFactory.getLogger(JobDefinition.class);
 	
 	private String cron;
+	
+	private String shellCommand;
 	
     private List<String> command;
     
@@ -29,7 +36,7 @@ public class JobDefinition implements IJobDefinition {
 
     private String jobName;
 
-    private File workingDir;
+    private String workingDir;
     
     private Integer timeoutMinutes;
 
@@ -37,17 +44,31 @@ public class JobDefinition implements IJobDefinition {
         super();
     }
     
-    @Override
+    public JobDefinition(JobDefinition anotherJobdefinition) {
+        super();
+        try {
+			BeanUtils.copyProperties(this, anotherJobdefinition);
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			LOG.error("JobDefinition konnte nicht geclont werden!");
+		}
+    }
+    
     public String getCron() {
 		return cron;
 	}
     
-    @Override
 	public void setCron(String cron) {
 		this.cron = cron;
 	}
+    
+    public String getShellCommand() {
+        return shellCommand;
+    }
 
-	@Override
+    public void setShellCommand(String shellCommand) {
+        this.shellCommand = shellCommand;
+    }
+    
     public List<String> getCommand() {
 		if (command != null) {
 			return new ArrayList<String>(command);
@@ -57,7 +78,6 @@ public class JobDefinition implements IJobDefinition {
         
     }
 
-    @Override
     public void setCommand(List<String> command) {
     		if (command != null) {
     			this.command = new ArrayList<String>(command);
@@ -66,7 +86,6 @@ public class JobDefinition implements IJobDefinition {
     		}
     }
 
-    @Override
     public void setCommand(String... command) {
     		if (command != null) {
     			this.command = new ArrayList<String>(Arrays.asList(command));
@@ -75,7 +94,6 @@ public class JobDefinition implements IJobDefinition {
     		}
     }
     
-    @Override
     public List<String> getPreCommand() {
     		if (this.preCommand != null) {
     			return new ArrayList<String>(preCommand);
@@ -84,7 +102,6 @@ public class JobDefinition implements IJobDefinition {
     		}
     }
 
-    @Override
     public void setPreCommand(List<String> command) {
     		if (command != null) {
     			this.preCommand = new ArrayList<String>(command);
@@ -94,7 +111,6 @@ public class JobDefinition implements IJobDefinition {
     		
     }
 
-    @Override
     public void setPreCommand(String... command) {
     		if (command != null) {
     			this.preCommand = new ArrayList<String>(Arrays.asList(command));
@@ -103,7 +119,6 @@ public class JobDefinition implements IJobDefinition {
     		}
     }
     
-    @Override
     public List<String> getPostCommand() {
     		if (postCommand != null) {
     			return new ArrayList<String>(postCommand);
@@ -112,7 +127,6 @@ public class JobDefinition implements IJobDefinition {
     		}
     }
 
-    @Override
     public void setPostCommand(List<String> command) {
     		if (postCommand != null) {
     			this.postCommand = new ArrayList<String>(command);
@@ -121,7 +135,6 @@ public class JobDefinition implements IJobDefinition {
     		}
     }
 
-    @Override
     public void setPostCommand(String... command) {
     		if (postCommand != null) {
     			this.postCommand = new ArrayList<String>(Arrays.asList(command));
@@ -130,7 +143,6 @@ public class JobDefinition implements IJobDefinition {
     		}
     }
 
-    @Override
     public Map<String, String> getEnvironmentVariables() {
     		if (environmentVariables != null) {
     			return new HashMap<>(this.environmentVariables);
@@ -139,7 +151,6 @@ public class JobDefinition implements IJobDefinition {
     		}
     }
 
-    @Override
     public void setEnvironmentVariables(Map<String, String> environmentVariables) {
     		if (environmentVariables != null) {
     			this.environmentVariables = new HashMap<>(environmentVariables);
@@ -148,60 +159,42 @@ public class JobDefinition implements IJobDefinition {
     		}
     }
 
-    @Override
     public ExecutionMode getExecutionMode() {
         return executorMode;
     }
 
-    @Override
     public void setExecutionMode(ExecutionMode executorMode) {
         this.executorMode = executorMode;
     }
 
-    @Override
     public String getJobName() {
         return jobName;
     }
 
-    @Override
     public void setJobName(String jobName) {
         this.jobName = jobName;
     }
 
-    @Override
     public ErrorMode getErrorMode() {
         return errorMode;
     }
 
-    @Override
     public void setErrorMode(ErrorMode errorMode) {
         this.errorMode = errorMode;
     }
 
-    @Override
-    public File getWorkingDir() {
-    		if (workingDir!= null) {
-    			return new File(workingDir.getAbsolutePath());
-    		} else {
-    			return null;
-    		}
+    public String getWorkingDir() {
+    		return this.workingDir;
     }
 
-    @Override
-    public void setWorkingDir(File workingDir) {
-    		if (workingDir != null) {
-    			this.workingDir = new File(workingDir.getAbsolutePath());
-    		} else {
-    			this.workingDir = null;
-    		}
+    public void setWorkingDir(String workingDir) {
+    		this.workingDir = workingDir;
     }
     
-    @Override
 	public Integer getTimeoutMinutes() {
 		return timeoutMinutes;
 	}
     
-    @Override
 	public void setTimeoutMinutes(Integer minutes) {
 		this.timeoutMinutes = minutes;
 	}

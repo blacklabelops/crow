@@ -3,9 +3,9 @@ package com.blacklabelops.crow.executor.console;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
-import java.io.File;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -29,11 +28,8 @@ import org.mockito.junit.MockitoRule;
 import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.executor.JobExecutor;
 import com.blacklabelops.crow.logger.JobLogLogger;
-import com.blacklabelops.crow.suite.SlowTests;
 
-@Category(SlowTests.class)
-public class SimpleConsoleUnixIntegrationTest {
-
+public class SimpleConsoleUnixIntegrationIT {
 
     public JobExecutor simpleConsole;
 
@@ -77,7 +73,7 @@ public class SimpleConsoleUnixIntegrationTest {
         jobDefinition.setJobName("echoJob");
         simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
         simpleConsole.run();
-        verify(appender).doAppend(logCaptor.capture());
+        verify(appender, atLeastOnce()).doAppend(logCaptor.capture());
         assertEquals("Log output must be info level!",logCaptor.getValue().getLevel(), Level.INFO);
         assertEquals("Message must match echo directive message!","hello world",logCaptor.getValue().getMessage());
     }
@@ -88,7 +84,7 @@ public class SimpleConsoleUnixIntegrationTest {
         jobDefinition.setJobName("errorJob");
         simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("errorJob")).collect(Collectors.toList()));
         simpleConsole.run();
-        verify(appender).doAppend(logCaptor.capture());
+        verify(appender, atLeastOnce()).doAppend(logCaptor.capture());
         assertEquals("Log output must be error level!",logCaptor.getValue().getLevel(), Level.ERROR);
         assertEquals("Must have same message as in echo directive!","error",logCaptor.getValue().getMessage());
     }
@@ -118,14 +114,13 @@ public class SimpleConsoleUnixIntegrationTest {
     @Ignore
     public void testRun_WhenWorkingDirectoryIsDefined_ExecuteInWorkDirectory() {
         String tempDirectory = System.getProperty("java.io.tmpdir");
-        File tempDir = new File(tempDirectory);
         jobDefinition.setCommand("pwd");
         jobDefinition.setJobName("workdirJob");
-        jobDefinition.setWorkingDir(tempDir);
+        jobDefinition.setWorkingDir(tempDirectory);
         simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("workdirJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
-        assertEquals("Must match working directory",tempDir.getAbsolutePath(),logCaptor.getValue().getMessage());
+        assertEquals("Must match working directory",tempDirectory,logCaptor.getValue().getMessage());
     }
 
     @Test

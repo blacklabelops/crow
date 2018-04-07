@@ -6,16 +6,13 @@ import java.time.LocalDateTime;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import com.blacklabelops.crow.executor.IExecutor;
-import com.blacklabelops.crow.suite.FastTests;
 
-@Category(FastTests.class)
-public class ConsoleReporterTest {
+public class ConsoleReporterUT {
 
     public ConsoleReporter reporter = new ConsoleReporter();
 

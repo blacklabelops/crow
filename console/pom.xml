@@ -14,10 +14,8 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.11</version>
+                <artifactId>maven-surefire-plugin</artifactId>               
                 <configuration>
-                    <groups>com.blacklabelops.crow.suite.FastTests</groups>
                     <parallel>methods</parallel>
                     <threadCount>10</threadCount>
                 </configuration>
@@ -25,9 +23,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.20.1</version>
                 <configuration>
-                    <groups>com.blacklabelops.crow.suite.SlowTests</groups>
                     <parallel>methods</parallel>
                     <threadCount>10</threadCount>
                 </configuration>
@@ -38,15 +34,8 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.22</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.7</version>
             <scope>test</scope>
         </dependency>
 
@@ -56,20 +45,6 @@
             <version>2.7</version>
             <scope>test</scope>
             <type>test-jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>2.3.11</version>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>

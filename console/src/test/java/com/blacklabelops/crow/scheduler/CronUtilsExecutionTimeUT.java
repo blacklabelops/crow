@@ -2,13 +2,9 @@ package com.blacklabelops.crow.scheduler;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 
-import com.blacklabelops.crow.suite.FastTests;
-
-@Category(FastTests.class)
-public class CronUtilsExecutionTimeTest {
+public class CronUtilsExecutionTimeUT {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();

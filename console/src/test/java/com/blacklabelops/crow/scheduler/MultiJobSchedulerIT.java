@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
@@ -27,13 +26,8 @@ import org.mockito.stubbing.Answer;
 
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
-import com.blacklabelops.crow.suite.SlowTests;
 
-/**
- * Created by steffenbleul on 28.12.16.
- */
-@Category(SlowTests.class)
-public class MultiJobSchedulerTest {
+public class MultiJobSchedulerIT {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();

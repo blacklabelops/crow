@@ -10,8 +10,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blacklabelops.crow.definition.IJobDefinition;
-import com.blacklabelops.crow.scheduler.MultiJobScheduler;
+import com.blacklabelops.crow.definition.JobDefinition;
+import com.cronutils.utils.StringUtils;
 
 public class ExecutorConsole {
 	
@@ -31,12 +31,12 @@ public class ExecutorConsole {
         super();
     }
 
-    private void checkDefinition(IJobDefinition executionDefinition) {
+    private void checkDefinition(JobDefinition executionDefinition) {
         if (executionDefinition == null) throw new ExecutorException("Executor has no job definition!");
         if (executionDefinition.getCommand() == null) throw new ExecutorException("Executor has no command specified");
     }
 
-    public void execute(IJobDefinition executionDefinition) {
+    public void execute(JobDefinition executionDefinition) {
         checkDefinition(executionDefinition);
         boolean preResult = true;
         if (executionDefinition.getPreCommand() != null && !executionDefinition.getPreCommand().isEmpty()) {
@@ -48,11 +48,11 @@ public class ExecutorConsole {
         	}        
     }
 
-    private void executePostCommands(IJobDefinition executionDefinition) {
+    private void executePostCommands(JobDefinition executionDefinition) {
 		ProcessBuilder processBuilder = new ProcessBuilder();
 	    processBuilder.command(executionDefinition.getPostCommand());
 	    extendEnvironmentVariables(processBuilder,executionDefinition);
-	    processBuilder.directory(executionDefinition.getWorkingDir());
+	    setWorkingDirectory(executionDefinition, processBuilder);
 	    prepareRedirects(processBuilder);
 	    if (executionDefinition.getTimeoutMinutes() != null) {
 	    		executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes());
@@ -61,12 +61,21 @@ public class ExecutorConsole {
 	    }
 	}
 
-	private boolean executePreCommands(IJobDefinition executionDefinition) {
+	private void setWorkingDirectory(JobDefinition executionDefinition, ProcessBuilder processBuilder) {
+		if (!StringUtils.isEmpty(executionDefinition.getWorkingDir())) {
+			File workingDirectory = new File(executionDefinition.getWorkingDir());
+			if (workingDirectory.exists() && workingDirectory.isDirectory()) {
+				processBuilder.directory(workingDirectory);
+			}
+		}
+	}
+
+	private boolean executePreCommands(JobDefinition executionDefinition) {
 	    	boolean result = false;
 		ProcessBuilder processBuilder = new ProcessBuilder();
 	    processBuilder.command(executionDefinition.getPreCommand());
 	    extendEnvironmentVariables(processBuilder,executionDefinition);
-	    processBuilder.directory(executionDefinition.getWorkingDir());
+	    setWorkingDirectory(executionDefinition, processBuilder);
 	    prepareRedirects(processBuilder);
 	    if (executionDefinition.getTimeoutMinutes() != null) {
 	    		executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes());
@@ -79,12 +88,12 @@ public class ExecutorConsole {
 	    return result; 
 	}
     
-    private boolean executeCommands(IJobDefinition executionDefinition) {
+    private boolean executeCommands(JobDefinition executionDefinition) {
     		boolean result = false;
     		ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command(takeOverCommands(executionDefinition));
         extendEnvironmentVariables(processBuilder,executionDefinition);
-        processBuilder.directory(executionDefinition.getWorkingDir());
+        setWorkingDirectory(executionDefinition, processBuilder);
         prepareRedirects(processBuilder);
         if (executionDefinition.getTimeoutMinutes() != null) {
         		executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes());
@@ -97,7 +106,7 @@ public class ExecutorConsole {
         return result; 
 	}
 
-	private List<String> takeOverCommands(IJobDefinition executionDefinition) {
+	private List<String> takeOverCommands(JobDefinition executionDefinition) {
 		List<String> command = executionDefinition.getCommand();
 		LOG.debug("Executing command: {}", command);
         return command;
@@ -138,7 +147,7 @@ public class ExecutorConsole {
         }
     }
 
-    private void extendEnvironmentVariables(ProcessBuilder processBuilder, IJobDefinition executionDefinition) {
+    private void extendEnvironmentVariables(ProcessBuilder processBuilder, JobDefinition executionDefinition) {
         Map<String, String> environmentVariables = processBuilder.environment();
         if (executionDefinition.getEnvironmentVariables() != null && !executionDefinition.getEnvironmentVariables().isEmpty()) {
             environmentVariables.putAll(executionDefinition.getEnvironmentVariables());

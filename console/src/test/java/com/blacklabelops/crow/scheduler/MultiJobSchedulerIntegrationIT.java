@@ -12,21 +12,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
 import com.blacklabelops.crow.executor.JobExecutor;
-import com.blacklabelops.crow.suite.SlowTests;
 
-/**
- * Created by steffenbleul on 28.12.16.
- */
-@Category(SlowTests.class)
-public class MultiJobSchedulerIntegrationTest {
+public class MultiJobSchedulerIntegrationIT {
 
     public Map<String,CountDownLatch> latch;
 
@@ -35,7 +30,7 @@ public class MultiJobSchedulerIntegrationTest {
         latch = new HashMap<>();
     }
 
-    @Test(timeout = 70000)
+    @Test(timeout = 80000)
     public void whenJobByMinutwThenExecute() throws InterruptedException {
         IScheduler scheduler = new JobScheduler();
         MultiJobScheduler multischeduler = new MultiJobScheduler(scheduler);
@@ -78,16 +73,15 @@ public class MultiJobSchedulerIntegrationTest {
         JobExecutor console = new JobExecutor(defConsole, null, null);
         latch.put(name,new CountDownLatch(latches));
         JobExecutor spyConsole = spy(console);
-        doAnswer(new Answer() {
+        doAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 latch.get(name).countDown();
-                console.run();
-                return null;
+                return invocationOnMock.callRealMethod();
             }
         }).when(spyConsole).run();
         IExecutorTemplate template = mock(IExecutorTemplate.class);
-        when(template.createExecutor()).thenReturn(console);
+        when(template.createExecutor()).thenReturn(spyConsole);
         when(template.getJobName()).thenReturn(name);
         return new Job(template, new CronUtilsExecutionTime(cronString));
     }

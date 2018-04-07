@@ -1,26 +1,26 @@
 package com.blacklabelops.crow.executor;
 
-import com.blacklabelops.crow.definition.IJobDefinition;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.logger.IJobLogger;
 import com.blacklabelops.crow.logger.IJobLoggerFactory;
 import com.blacklabelops.crow.reporter.IJobReporter;
 import com.blacklabelops.crow.reporter.IJobReporterFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 public class JobExecutorTemplate implements IExecutorTemplate {
 
     private final String jobName;
 
-    private final IJobDefinition jobDefinition;
+    private final JobDefinition jobDefinition;
 
     private final List<IJobReporterFactory> jobReporterFactories = new ArrayList<>();
 
     private final List<IJobLoggerFactory> jobLoggerFactories = new ArrayList<>();
 
-    public JobExecutorTemplate(IJobDefinition definition, List<IJobReporterFactory> reporter, List<IJobLoggerFactory> logger) {
+    public JobExecutorTemplate(JobDefinition definition, List<IJobReporterFactory> reporter, List<IJobLoggerFactory> logger) {
         super();
         jobName = definition.getJobName();
         jobDefinition = definition;

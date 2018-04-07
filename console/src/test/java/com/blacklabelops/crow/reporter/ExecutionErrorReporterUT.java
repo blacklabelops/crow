@@ -10,17 +10,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.scheduler.IScheduler;
-import com.blacklabelops.crow.suite.FastTests;
 
-@Category(FastTests.class)
-public class ExecutionErrorReporterTest {
+public class ExecutionErrorReporterUT {
 
     public ExecutionErrorReporter reporter;
 

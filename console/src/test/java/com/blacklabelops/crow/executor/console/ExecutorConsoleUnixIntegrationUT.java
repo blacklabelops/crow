@@ -1,26 +1,25 @@
 package com.blacklabelops.crow.executor.console;
 
-import com.blacklabelops.crow.definition.JobDefinition;
-import com.blacklabelops.crow.suite.FastTests;
-import com.blacklabelops.crow.util.FileAsserter;
-import org.junit.*;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.ExpectedException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-/**
- * Created by steffenbleul on 19.12.16.
- */
-@Category(FastTests.class)
-public class ExecutorConsoleUnixIntegrationTest {
+import com.blacklabelops.crow.definition.JobDefinition;
+import com.blacklabelops.crow.util.FileAsserter;
+
+public class ExecutorConsoleUnixIntegrationUT {
 
     public ExecutorConsole cli;
 

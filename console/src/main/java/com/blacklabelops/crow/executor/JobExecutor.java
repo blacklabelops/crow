@@ -1,15 +1,19 @@
 package com.blacklabelops.crow.executor;
 
-import com.blacklabelops.crow.definition.IJobDefinition;
-import com.blacklabelops.crow.executor.console.*;
-import com.blacklabelops.crow.logger.IJobLogger;
-import com.blacklabelops.crow.reporter.IJobReporter;
+import static java.util.stream.Collectors.toList;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
-import static java.util.stream.Collectors.*;
+import com.blacklabelops.crow.definition.JobDefinition;
+import com.blacklabelops.crow.executor.console.ExecutorConsole;
+import com.blacklabelops.crow.executor.console.OutputReader;
+import com.blacklabelops.crow.logger.IJobLogger;
+import com.blacklabelops.crow.reporter.IJobReporter;
 
 public class JobExecutor implements IExecutor {
 
@@ -17,7 +21,7 @@ public class JobExecutor implements IExecutor {
 
     private final String jobName;
 
-    private final IJobDefinition jobDefinition;
+    private final JobDefinition jobDefinition;
 
     private final List<IJobReporter> jobReporter = new ArrayList<>();
 
@@ -45,7 +49,7 @@ public class JobExecutor implements IExecutor {
     
     private boolean timedOut;
 
-    public JobExecutor(IJobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
+    public JobExecutor(JobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
         super();
         jobName = definition.getJobName();
         jobDefinition = definition;

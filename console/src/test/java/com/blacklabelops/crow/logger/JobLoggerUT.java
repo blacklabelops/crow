@@ -1,13 +1,10 @@
 package com.blacklabelops.crow.logger;
 
-import com.blacklabelops.crow.suite.FastTests;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-import static org.junit.Assert.*;
-
-@Category(FastTests.class)
-public class JobLoggerTest {
+public class JobLoggerUT {
 
     public JobLogLogger jobLogLogger = new JobLogLogger("jobName");
 

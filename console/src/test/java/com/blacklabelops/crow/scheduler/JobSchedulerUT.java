@@ -10,7 +10,6 @@ import java.time.ZonedDateTime;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -19,13 +18,8 @@ import com.blacklabelops.crow.executor.ErrorMode;
 import com.blacklabelops.crow.executor.ExecutionResult;
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
-import com.blacklabelops.crow.suite.FastTests;
 
-/**
- * Created by steffenbleul on 22.12.16.
- */
-@Category(FastTests.class)
-public class JobSchedulerUnitTest {
+public class JobSchedulerUT {
 
     public JobScheduler scheduler = new JobScheduler();
 
