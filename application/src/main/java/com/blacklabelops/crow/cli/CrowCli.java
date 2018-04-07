@@ -6,6 +6,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.web.client.RestTemplate;
 
 import com.blacklabelops.crow.rest.JobInformation;
+import com.blacklabelops.crow.rest.Version;
 
 public class CrowCli {
 	
@@ -28,8 +29,10 @@ public class CrowCli {
 	    			break;
 	    		}
 	    		case VERSION: {
+	    			RestTemplate restTemplate = new RestTemplate();
+	    			Version version = restTemplate.getForObject(config.evaluateBaseURL() + "/crow/version", Version.class);
 	    			PrintConsole consolePrinter = new PrintConsole();
-	    			consolePrinter.printVersion();
+	    			consolePrinter.printVersion(version.getVersion());
 	    			break;
 	    		}
 	    		case HELP: {

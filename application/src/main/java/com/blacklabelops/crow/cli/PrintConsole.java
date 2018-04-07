@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.blacklabelops.crow.rest.JobInformation;
+import com.blacklabelops.crow.util.VersionAccessor;
 
 public class PrintConsole {
 
@@ -37,8 +38,9 @@ public class PrintConsole {
 		return help.toArray(new String[help.size()]);
 	}
 	
-	public void printVersion() {
-		System.out.println("undefined");
+	public void printVersion(String serverVersion) {
+		System.out.println("Client Version: " + new VersionAccessor().getVersion());
+		System.out.println("Server Version: " + serverVersion);
 	}
 
 }

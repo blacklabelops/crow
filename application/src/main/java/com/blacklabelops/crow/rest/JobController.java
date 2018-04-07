@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blacklabelops.crow.util.VersionAccessor;
+
 @RestController
 public class JobController {
 	
@@ -25,5 +27,12 @@ public class JobController {
 	@RequestMapping("/crow/jobs/{jobName}")
 	public JobDescription getJobDescription(@PathVariable String jobName) {
 		return jobService.getJobDescription(jobName);
+	}
+	
+	@RequestMapping("/crow/version")
+	public Version getServerVersion() {
+		Version version = new Version();
+		version.setVersion(new VersionAccessor().getVersion());
+		return version;
 	}
 }

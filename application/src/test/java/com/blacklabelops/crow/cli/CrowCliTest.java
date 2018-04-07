@@ -1,5 +1,6 @@
 package com.blacklabelops.crow.cli;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +32,11 @@ public class CrowCliTest {
 	@LocalServerPort
     int randomServerPort;
 	
+	@Before
+	public void setup() {
+		System.setProperty("crow.server.baseUrl", "http://localhost:" + randomServerPort);
+	}
+	
 	@Test
 	public void testMain_ExecuteHelp() {
 		CrowCli.main(new String[] { "help" });
@@ -42,7 +48,6 @@ public class CrowCliTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testMain_ExecuteList() {
 		CrowCli.main(new String[] { "list" });
 	}

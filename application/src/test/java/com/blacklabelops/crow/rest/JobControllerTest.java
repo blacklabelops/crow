@@ -13,7 +13,6 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,5 +79,13 @@ public class JobControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.name", is("HelloWorld")));
+    }
+    
+    @Test
+    public void testGetServerVersion_GetVersionString_UndefinedInTestContest() throws Exception {
+    		mockMvc.perform(get("/crow/version"))
+    			.andExpect(status().isOk())
+    			.andExpect(content().contentType(contentType))
+             .andExpect(jsonPath("$.version", is("undefined")));
     }
 }
