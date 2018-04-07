@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.beans.BeanUtils;
 
 
 public class JobConfiguration implements IConfigModel {
@@ -36,6 +37,16 @@ public class JobConfiguration implements IConfigModel {
     public JobConfiguration() {
         super();
     }
+    
+    public JobConfiguration(JobConfiguration anotherConfiguration) {
+    	 	super();
+    	 	BeanUtils.copyProperties(anotherConfiguration, this);
+    	 	if (anotherConfiguration.getEnvironments() != null) {
+    	 		this.environments = new HashMap<>(anotherConfiguration.getEnvironments());
+    	 	} else {
+    	 		this.environments = null;
+    	 	}
+    }
 
     public String getName() {
         return name;
@@ -62,19 +73,11 @@ public class JobConfiguration implements IConfigModel {
     }
 
     public Map<String, String> getEnvironments() {
-    		if (environments != null) {
-    			return new HashMap<>(this.environments);
-    		} else {
-    			return null;
-    		}
+    		return environments;
     }
 
     public void setEnvironments(Map<String, String> environments) {
-    		if (environments != null) {
-    			this.environments = new HashMap<>(environments);
-    		} else {
-    			this.environments = null;
-    		}
+    		this.environments = environments;
     }
 
     public String getExecution() {

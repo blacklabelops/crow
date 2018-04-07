@@ -1,5 +1,6 @@
-package com.blacklabelops.crow.application;
+package com.blacklabelops.crow.config;
 
+import com.blacklabelops.crow.application.CrowDemon;
 import com.blacklabelops.crow.config.Crow;
 import com.blacklabelops.crow.executor.ErrorMode;
 import com.blacklabelops.crow.executor.ExecutionMode;

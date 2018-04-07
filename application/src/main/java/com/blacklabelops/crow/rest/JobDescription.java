@@ -3,6 +3,8 @@ package com.blacklabelops.crow.rest;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.BeanUtils;
+
 
 public class JobDescription {
 

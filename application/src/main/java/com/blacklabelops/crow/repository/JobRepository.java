@@ -8,12 +8,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
+import com.blacklabelops.crow.config.Global;
 import com.blacklabelops.crow.config.JobConfiguration;
 import com.blacklabelops.crow.definition.JobDefinition;
 
@@ -21,6 +22,8 @@ import com.blacklabelops.crow.definition.JobDefinition;
 public class JobRepository {
 	
 	public static Logger LOG = LoggerFactory.getLogger(JobRepository.class);
+	
+	private Global globalConfiguration;
 	
 	private final Map<String,RepositoryJob> jobs = Collections.synchronizedMap(new HashMap<>());
 	
@@ -41,25 +44,15 @@ public class JobRepository {
 	}
 	
 	public void addJob(JobConfiguration jobConfiguration) {
-		JobConfiguration clone = cloneConfiguration(jobConfiguration);
-		RepositoryJob repJob = new RepositoryJob();
-		repJob.setJobConfiguration(clone);
-		JobConverter jobConverter = new JobConverter();
-		JobDefinition jobDefinition = jobConverter.convertJob(clone);
-		repJob.setJobDefinition(jobDefinition);
-		RepositoryJob addedJob = jobs.putIfAbsent(jobDefinition.getJobName(), repJob);
+		JobConverter jobConverter = new JobConverter(globalConfiguration);
+		RepositoryJob repositoryJob = jobConverter.convertJob(jobConfiguration);
+		RepositoryJob addedJob = jobs.putIfAbsent(repositoryJob.getJobDefinition().getJobName(), repositoryJob);
 		if (addedJob == null) {
-			LOG.debug("Job added to repository: {}", clone);
-			notifyJobAdded(repJob.getJobDefinition());
+			LOG.debug("Job added to repository: {}", jobConfiguration);
+			notifyJobAdded(repositoryJob.getJobDefinition());
 		} else {
-			LOG.debug("Job not added, already existent in repository: {}", clone);
+			LOG.debug("Job not added, already existent in repository: {}", jobConfiguration);
 		}
-	}
-	
-	private JobConfiguration cloneConfiguration(JobConfiguration jobConfiguration) {
-		JobConfiguration clonedConfiguration = new JobConfiguration();
-		BeanUtils.copyProperties(jobConfiguration, clonedConfiguration);
-		return clonedConfiguration;
 	}
 	
 	public boolean jobExists(String jobName) {
@@ -70,6 +63,7 @@ public class JobRepository {
 		RepositoryJob repositoryJob = this.jobs.remove(jobName);
 		if (repositoryJob != null) {
 			JobDefinition removedJob = repositoryJob.getJobDefinition();
+			LOG.debug("Job {} removed from repository.", jobName);
 			notifyJobRemoved(removedJob);
 		} else {
 			LOG.debug("Job {} not removed, job not found in repository.", jobName);
@@ -77,20 +71,18 @@ public class JobRepository {
 	}
 	
 	public List<JobConfiguration> listJobs() {
-		List<JobConfiguration> jobConfigurations = new ArrayList<>(this.jobs.size());
-		Arrays.asList(this.jobs.values().toArray(new JobConfiguration[this.jobs.size()])).stream().forEach(job -> {
-			JobConfiguration clonedJob = new JobConfiguration();
-			BeanUtils.copyProperties(job, clonedJob);
-			jobConfigurations.add(clonedJob);
-		});
-		return jobConfigurations;
+		return Arrays
+			.asList(this.jobs.values().toArray(new RepositoryJob[this.jobs.size()]))
+			.stream()
+			.map(job -> new JobConfiguration(job.getJobConfiguration()))
+			.collect(Collectors.toList());
 	}
 	
 	public Optional<JobConfiguration> findJob(String jobName) {
+		LOG.debug("Repository listing job: {}", jobName);
 		RepositoryJob found = this.jobs.get(jobName);
 		if (found != null) {
-			JobConfiguration clone = new JobConfiguration();
-			BeanUtils.copyProperties(found.getJobConfiguration(), clone);
+			JobConfiguration clone = new JobConfiguration(found.getJobConfiguration());
 			return Optional.of(clone);
 		} else {
 			return Optional.empty();
@@ -98,8 +90,7 @@ public class JobRepository {
 	}
 
 	private void notifyJobRemoved(JobDefinition removedJob) {
-		JobDefinition jobClone = new JobDefinition();
-		BeanUtils.copyProperties(removedJob, jobClone);
+		JobDefinition jobClone = new JobDefinition(removedJob);
 		List<WeakReference<IJobRepositoryListener>> notifications = new ArrayList<>(listeners);
 		notifications
 			.parallelStream()
@@ -108,12 +99,21 @@ public class JobRepository {
 	}
 
 	private void notifyJobAdded(JobDefinition jobDefinition) {
-		JobDefinition jobClone = new JobDefinition();
-		BeanUtils.copyProperties(jobDefinition, jobClone);
+		JobDefinition jobClone = new JobDefinition(jobDefinition);
 		List<WeakReference<IJobRepositoryListener>> notifications = new ArrayList<>(listeners);
 		notifications
 			.parallelStream()
 			.filter(notified -> notified.get() != null)
 			.forEach(notification -> notification.get().jobAdded(jobClone));
 	}
+
+	public Global getGlobalConfiguration() {
+		return new Global(globalConfiguration);
+	}
+
+	public void setGlobalConfiguration(Global globalConfiguration) {
+		this.globalConfiguration = new Global(globalConfiguration);
+	}
+	
+	
 }

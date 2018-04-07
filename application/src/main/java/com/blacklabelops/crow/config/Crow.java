@@ -13,6 +13,8 @@ public class Crow implements IConfigModel {
     @Valid
     @UniqueJobNames
     private List<JobConfiguration> jobs = new ArrayList<>();
+    
+    private Global global;
 
     public Crow() {
         super();
@@ -25,4 +27,14 @@ public class Crow implements IConfigModel {
     public void setJobs(List<JobConfiguration> jobs) {
         this.jobs = jobs;
     }
+
+	public Global getGlobal() {
+		return global;
+	}
+
+	public void setGlobal(Global global) {
+		this.global = global;
+	}
+    
+    
 }

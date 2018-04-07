@@ -1,9 +1,0 @@
----
-
-crow:
-  jobs:
-    - job:
-        name: Hello World!
-        cron: "* * * * *"
-        command: echo 'Hello World!'
-

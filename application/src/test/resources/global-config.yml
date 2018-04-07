@@ -1,0 +1,20 @@
+---
+
+crow:
+  global:
+    workingDirectory: /tmp
+    shellCommand: /bin/sh -c
+    execution: parallel
+    errorMode: stop
+    environments:
+      GLOBAL_TEST: debug
+  jobs:
+    - name: HelloWorld
+      cron: "* * * * *"
+      command: echo 'Hello World!'
+    - name: "HelloUniverse"
+      cron: "* * * * *"
+      command: "echo 'Hello Universe!'"
+      errorMode: continue
+      environments:
+        MY_KEY: myvalue

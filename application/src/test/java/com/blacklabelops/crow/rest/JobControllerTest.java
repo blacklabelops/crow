@@ -1,5 +1,6 @@
 package com.blacklabelops.crow.rest;
 
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -12,6 +13,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,7 +71,7 @@ public class JobControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].name", is("HelloWorld")));
+                .andExpect(jsonPath("$[0].name", anyOf(is("HelloWorld"), is("HelloUniverse"))));
     }
     
     @Test
