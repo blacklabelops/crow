@@ -28,7 +28,7 @@ public class JobDefinition {
     
     private List<String> postCommand;
 
-    private Map<String, String> environmentVariables;
+    private Map<String, String> environmentVariables = new HashMap<>();
 
     private ExecutionMode executorMode = null;
 

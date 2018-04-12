@@ -20,7 +20,7 @@ class JobConverter {
 	public JobConverter(Global globalConfiguration) {
 		super();
 		if (globalConfiguration != null) {
-			global = Optional.of(new Global(globalConfiguration));
+			global = Optional.of(globalConfiguration);
 		} else {
 			global = Optional.empty();
 		}
@@ -69,13 +69,19 @@ class JobConverter {
 	}
 
 	private void evaluateEnvironmentVariables(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
-		if (!jobConfiguration.getEnvironments().isEmpty()) {
+		if (jobConfiguration.getEnvironments() != null && !jobConfiguration.getEnvironments().isEmpty()) {
             jobDefinition.setEnvironmentVariables(createEnvironmentVariables(jobConfiguration.getEnvironments()));
         }
 		this.global.ifPresent(g -> {
 			if (g.getEnvironments() != null && !g.getEnvironments().isEmpty()) {
 				Map<String, String> environments = g.getEnvironments();
-				environments.putAll(jobDefinition.getEnvironmentVariables());
+				if (environments != null) {
+					if (jobDefinition.getEnvironmentVariables() != null) {
+						environments.putAll(jobDefinition.getEnvironmentVariables());
+					}
+				} else {
+					environments = jobDefinition.getEnvironmentVariables();
+				}
 				jobDefinition.setEnvironmentVariables(environments);
 			}
 		}); 
