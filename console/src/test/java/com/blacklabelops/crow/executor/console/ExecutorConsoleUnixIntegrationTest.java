@@ -19,7 +19,7 @@ import org.junit.rules.ExpectedException;
 import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.util.FileAsserter;
 
-public class ExecutorConsoleUnixIntegrationUT {
+public class ExecutorConsoleUnixIntegrationTest {
 
     public ExecutorConsole cli;
 

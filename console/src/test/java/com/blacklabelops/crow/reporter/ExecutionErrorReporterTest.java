@@ -17,7 +17,7 @@ import org.mockito.junit.MockitoRule;
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.scheduler.IScheduler;
 
-public class ExecutionErrorReporterUT {
+public class ExecutionErrorReporterTest {
 
     public ExecutionErrorReporter reporter;
 

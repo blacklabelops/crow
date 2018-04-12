@@ -12,7 +12,7 @@ import org.mockito.junit.MockitoRule;
 
 import com.blacklabelops.crow.executor.IExecutor;
 
-public class ConsoleReporterUT {
+public class ConsoleReporterTest {
 
     public ConsoleReporter reporter = new ConsoleReporter();
 

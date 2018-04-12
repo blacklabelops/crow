@@ -19,7 +19,7 @@ import com.blacklabelops.crow.executor.ExecutionResult;
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
 
-public class JobSchedulerUT {
+public class JobSchedulerTest {
 
     public JobScheduler scheduler = new JobScheduler();
 

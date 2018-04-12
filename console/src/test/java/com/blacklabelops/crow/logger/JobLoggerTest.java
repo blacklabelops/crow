@@ -4,7 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-public class JobLoggerUT {
+public class JobLoggerTest {
 
     public JobLogLogger jobLogLogger = new JobLogLogger("jobName");
 

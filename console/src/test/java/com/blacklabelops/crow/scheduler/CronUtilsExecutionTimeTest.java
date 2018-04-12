@@ -4,7 +4,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class CronUtilsExecutionTimeUT {
+public class CronUtilsExecutionTimeTest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
