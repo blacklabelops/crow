@@ -2,6 +2,7 @@ package com.blacklabelops.crow.demon;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,8 +17,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.blacklabelops.crow.config.Crow;
+import com.blacklabelops.crow.config.Global;
 import com.blacklabelops.crow.config.JobConfiguration;
 import com.blacklabelops.crow.definition.JobDefinition;
+import com.blacklabelops.crow.discover.LocalConfigDiscover;
 import com.blacklabelops.crow.executor.ErrorMode;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
 import com.blacklabelops.crow.executor.JobExecutorTemplate;
@@ -47,13 +50,15 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 
     private Thread schedulerThread;
     
-    @Autowired
     private JobRepository jobRepository;
 
+	private LocalConfigDiscover localDiscoverer;
+
     @Autowired
-    public SchedulerDemon(@Valid Crow config, JobRepository jobRepository) {
+    public SchedulerDemon(@Valid Crow config, JobRepository jobRepository, LocalConfigDiscover localDiscoverer) {
     		this.jobRepository = jobRepository;
         this.crowConfig = config;
+        this.localDiscoverer = localDiscoverer;
         initialize();
     }
 
@@ -87,11 +92,20 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 
     @Override
     public void run(String... strings) throws Exception {
+    		evaluateGlobalConfiguration().ifPresent(c -> this.jobRepository.setGlobalConfiguration(c));
     		crowConfig.getJobs().stream().forEach(job -> createJob(job));
+    		localDiscoverer.discoverJobs().stream().forEach(job -> createJob(job));
         start();
     }
 
-    @Override
+    private Optional<Global> evaluateGlobalConfiguration() {
+    		if (this.crowConfig != null && this.crowConfig.getGlobal() != null) {
+    			return Optional.of(this.crowConfig.getGlobal());
+    		} 
+		return localDiscoverer.discoverGlobalConfiguration();
+	}
+
+	@Override
     public void destroy() throws Exception {
     }
 
