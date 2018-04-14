@@ -7,6 +7,8 @@ class RepositoryJob {
 	
 	private JobConfiguration jobConfiguration;
 	
+	private JobConfiguration evaluatedConfiguration;
+	
 	private JobDefinition jobDefinition;
 	
 	public RepositoryJob() {
@@ -27,6 +29,14 @@ class RepositoryJob {
 
 	public void setJobDefinition(JobDefinition jobDefinition) {
 		this.jobDefinition = jobDefinition;
+	}
+
+	public JobConfiguration getEvaluatedConfiguration() {
+		return evaluatedConfiguration;
+	}
+
+	public void setEvaluatedConfiguration(JobConfiguration evaluatedConfiguration) {
+		this.evaluatedConfiguration = evaluatedConfiguration;
 	}
 	
 }

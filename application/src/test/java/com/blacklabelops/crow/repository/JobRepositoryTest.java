@@ -17,6 +17,10 @@ import com.blacklabelops.crow.definition.JobDefinition;
 
 public class JobRepositoryTest {
 	
+	private static final String COMMAND = "command";
+	
+	private static final String CRON = "* * * * *";
+
 	@Rule public MockitoRule mockito = MockitoJUnit.rule();
 	
 	@Mock public IJobRepositoryListener listener;
@@ -25,6 +29,8 @@ public class JobRepositoryTest {
 	public void testAddJob_WhenAddingTwoJobs_SecondWillBeDismissed() {
 		JobConfiguration config = new JobConfiguration();
 		config.setName("a");
+		config.setCommand(COMMAND);
+		config.setCron(CRON);
 		JobRepository rep = new JobRepository();
 		rep.addListener(listener);
 		
@@ -38,12 +44,16 @@ public class JobRepositoryTest {
 	public void testAddJob_WhenAddingTwoDifferentJobs_BothWillBeAdded() {
 		JobConfiguration config = new JobConfiguration();
 		config.setName("a");
+		config.setCommand(COMMAND);
+		config.setCron(CRON);
 		JobRepository rep = new JobRepository();
 		rep.addListener(listener);
 		
 		rep.addJob(config);
 		JobConfiguration configB = new JobConfiguration();
 		configB.setName("b");
+		configB.setCommand(COMMAND);
+		configB.setCron(CRON);
 		rep.addJob(configB);
 		
 		verify(listener, times(2)).jobAdded(any(JobDefinition.class));
@@ -53,6 +63,8 @@ public class JobRepositoryTest {
 	public void testRemoveJob_WhenRemovingJob_JobWillBeRemoved() {
 		JobConfiguration config = new JobConfiguration();
 		config.setName("a");
+		config.setCommand(COMMAND);
+		config.setCron(CRON);
 		JobRepository rep = new JobRepository();
 		rep.addListener(listener);
 		rep.addJob(config);
@@ -67,6 +79,8 @@ public class JobRepositoryTest {
 	public void testRemoveJob_WhenRemovingUnknownJob_NoJobWillBeRemoved() {
 		JobConfiguration config = new JobConfiguration();
 		config.setName("a");
+		config.setCommand(COMMAND);
+		config.setCron(CRON);
 		JobRepository rep = new JobRepository();
 		rep.addListener(listener);
 		rep.addJob(config);

@@ -3,6 +3,9 @@ package com.blacklabelops.crow.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.BeanUtils;
 
@@ -10,6 +13,7 @@ import org.springframework.beans.BeanUtils;
 public class JobConfiguration implements IConfigModel {
 
     @NotEmpty(message = "A unique name for each job has to be defined!")
+    @Pattern(regexp="[a-zA-Z0-9_\\.]+", message = "Only numbers and chars are allowed in job names! Regex: [a-zA-Z0-9_\\\\.]+")
     private String name;
 
     @Cron(message = "Cron expression must be valid!")
@@ -30,6 +34,7 @@ public class JobConfiguration implements IConfigModel {
 
     private String errorMode;
     
+    @Min(value = 0L, message = "The value must be positive")
     private Integer timeOutMinutes;
 
     private Map<String, String> environments = new HashMap<>();
@@ -139,7 +144,7 @@ public class JobConfiguration implements IConfigModel {
 	@Override
 	public String toString() {
 		return String.format(
-				"JobConfiguration\n[ name=%s\n, cron=%s\n, command=%s\n, preCommand=%s\n, postCommand=%s\n, shellCommand=%s\n, workingDirectory=%s\n, execution=%s\n, errorMode=%s\n, timeOutMinutes=%s\n, environments=%s]",
+				"JobConfiguration [name=%s, cron=%s, command=%s, preCommand=%s, postCommand=%s, shellCommand=%s, workingDirectory=%s, execution=%s, errorMode=%s, timeOutMinutes=%s, environments=%s]",
 				name, cron, command, preCommand, postCommand, shellCommand, workingDirectory, execution, errorMode,
 				timeOutMinutes, environments);
 	}

@@ -159,6 +159,29 @@ public class ValidationTest {
         constraintViolations = localValidatorFactory.validate(crow);
         assertEquals("Job names should be unique!",0,constraintViolations.size());
     }
+    
+    @Test
+    public void whenNameWithSpaces_RegExViolation() {
+    		JobConfiguration job = new JobConfiguration();
+    		job.setName("aaa bbb");
+    		job.setCron(VALID_CRON);
+    		job.setCommand("command");
+    		constraintViolations = localValidatorFactory.validate(job);
+        assertEquals("Job name not allowed!",1,constraintViolations.size());
+        assertEquals("name",constraintViolations.iterator().next().getPropertyPath().toString());
+    }
+    
+    @Test
+    public void whenNegativeTimeOut_Violation() {
+    		JobConfiguration job = new JobConfiguration();
+    		job.setName("aaa.bbb");
+    		job.setCron(VALID_CRON);
+    		job.setCommand("command");
+    		job.setTimeOutMinutes(Integer.valueOf(-500));
+    		constraintViolations = localValidatorFactory.validate(job);
+        assertEquals(1,constraintViolations.size());
+        assertEquals("timeOutMinutes",constraintViolations.iterator().next().getPropertyPath().toString());
+    }
 
     private void printViolations(Set<ConstraintViolation<IConfigModel>> constraintViolations) {
         if (constraintViolations != null && !constraintViolations.isEmpty()) {

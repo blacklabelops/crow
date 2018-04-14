@@ -8,7 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +26,9 @@ import com.blacklabelops.crow.definition.JobDefinition;
 @Component
 public class JobRepository {
 	
-	public static Logger LOG = LoggerFactory.getLogger(JobRepository.class);
+	private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();;
+	
+	private static Logger LOG = LoggerFactory.getLogger(JobRepository.class);
 	
 	private Global globalConfiguration;
 	
@@ -46,13 +53,24 @@ public class JobRepository {
 	public void addJob(JobConfiguration jobConfiguration) {
 		JobConverter jobConverter = new JobConverter(globalConfiguration);
 		RepositoryJob repositoryJob = jobConverter.convertJob(jobConfiguration);
-		RepositoryJob addedJob = jobs.putIfAbsent(repositoryJob.getJobDefinition().getJobName(), repositoryJob);
-		if (addedJob == null) {
-			LOG.debug("Job added to repository: {}", jobConfiguration);
-			notifyJobAdded(repositoryJob.getJobDefinition());
-		} else {
-			LOG.debug("Job not added, already existent in repository: {}", jobConfiguration);
+		if (validateJob(repositoryJob.getEvaluatedConfiguration())) {
+			RepositoryJob addedJob = jobs.putIfAbsent(repositoryJob.getJobDefinition().getJobName(), repositoryJob);
+			if (addedJob == null) {
+				LOG.debug("Job added to repository: {}", jobConfiguration);
+				notifyJobAdded(repositoryJob.getJobDefinition());
+			} else {
+				LOG.debug("Job not added, already existent in repository: {}", jobConfiguration);
+			}
 		}
+	}
+	
+	private boolean validateJob(JobConfiguration jobConfiguration) {
+		Set<ConstraintViolation<JobConfiguration>> errors = validator.validate(jobConfiguration);
+		if (!errors.isEmpty()) {
+			LOG.error("Job definition invalid, jobname: {}", jobConfiguration.getName());
+			errors.stream().forEach(error -> LOG.error(error.getMessage()));
+		}
+		return errors.isEmpty();
 	}
 	
 	public boolean jobExists(String jobName) {

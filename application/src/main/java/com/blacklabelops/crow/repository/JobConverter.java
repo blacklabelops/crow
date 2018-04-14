@@ -3,6 +3,7 @@ package com.blacklabelops.crow.repository;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.tools.ant.types.Commandline;
 
@@ -41,7 +42,28 @@ class JobConverter {
         evaluateTimeout(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
         evaluateExecutionMode(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
         evaluateErrorMode(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
+        repositoryJob.setEvaluatedConfiguration(evaluateConfiguration(repositoryJob.getJobDefinition()));
 		return repositoryJob;
+	}
+	
+	private JobConfiguration evaluateConfiguration(JobDefinition jobDefinition) {
+		JobConfiguration config = new JobConfiguration();
+		config.setName(jobDefinition.getJobName());
+		config.setCron(jobDefinition.getCron());
+		config.setShellCommand(jobDefinition.getShellCommand());
+		config.setCommand(jobDefinition.getCommand().stream().collect(Collectors.joining()));
+		if (jobDefinition.getPreCommand() != null) {
+			config.setPreCommand(jobDefinition.getPreCommand().stream().collect(Collectors.joining()));
+		}
+		if (jobDefinition.getPostCommand() != null) {
+			config.setPostCommand(jobDefinition.getPostCommand().stream().collect(Collectors.joining()));
+		}
+		config.setWorkingDirectory(jobDefinition.getWorkingDir());
+		config.setEnvironments(jobDefinition.getEnvironmentVariables());
+		config.setTimeOutMinutes(jobDefinition.getTimeoutMinutes());
+		config.setExecution(jobDefinition.getExecutionMode().name());
+		config.setErrorMode(jobDefinition.getErrorMode().name());
+		return config;
 	}
 
 	private void evaluateErrorMode(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
