@@ -1,16 +1,18 @@
 package com.blacklabelops.crow.executor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.lang.ref.WeakReference;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExecutorPool {
 
     private static Logger LOG = LoggerFactory.getLogger(ExecutorPool.class);
 
-    private Map<String, Thread> runningExecutors = new HashMap<>();
+    private Map<String, WeakReference<Thread>> runningExecutors = Collections.synchronizedMap(new HashMap<>());
 
     public ExecutorPool() {
         super();
@@ -23,7 +25,7 @@ public class ExecutorPool {
         if (canBeExecuted) {
             LOG.debug("Starting new instance of  Job {}.", executor.getJobName());
             Thread execution = new Thread(executor);
-            runningExecutors.put(executor.getJobName(), execution);
+            runningExecutors.put(executor.getJobName(), new WeakReference<Thread>(execution));
             execution.start();
         } else {
             LOG.debug("Skipping Job {}, already running!", executor.getJobName());
@@ -34,14 +36,18 @@ public class ExecutorPool {
 
     public boolean checkRunning(IExecutor executor) {
         boolean alreadyRunning = true;
-        if (runningExecutors.containsKey(executor.getJobName())) {
-            if (runningExecutors.get(executor.getJobName()).getState() == Thread.State.TERMINATED) {
-                alreadyRunning = false;
-            }
-        } else {
-            alreadyRunning = false;
-        }
+    		WeakReference<Thread> reference = runningExecutors.get(executor.getJobName());
+    		if (reference != null) {
+    			Thread thread = reference.get();
+    			if (thread == null || thread.getState() == Thread.State.TERMINATED) {
+    				alreadyRunning = false;
+             }
+    		} else {
+    			alreadyRunning = false;
+    		}
         return alreadyRunning;
     }
+    
+    
 
 }
