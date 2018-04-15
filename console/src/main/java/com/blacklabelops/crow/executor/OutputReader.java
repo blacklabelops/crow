@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.executor.console;
+package com.blacklabelops.crow.executor;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

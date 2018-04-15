@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.blacklabelops.crow.definition.JobDefinition;
+import com.blacklabelops.crow.executor.ExecutorException;
 import com.blacklabelops.crow.util.FileAsserter;
 
 public class ExecutorConsoleUnixIntegrationTest {

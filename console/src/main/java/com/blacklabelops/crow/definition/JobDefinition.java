@@ -36,6 +36,10 @@ public class JobDefinition {
     private String workingDir;
     
     private Integer timeoutMinutes;
+    
+    private String containerId;
+    
+    private String containerName;
 
     public JobDefinition() {
         super();
@@ -125,7 +129,7 @@ public class JobDefinition {
     }
 
     public void setPostCommand(List<String> command) {
-    		if (postCommand != null) {
+    		if (command != null) {
     			this.postCommand = new ArrayList<String>(command);
     		} else {
     			this.postCommand = null;
@@ -133,7 +137,7 @@ public class JobDefinition {
     }
 
     public void setPostCommand(String... command) {
-    		if (postCommand != null) {
+    		if (command != null) {
     			this.postCommand = new ArrayList<String>(Arrays.asList(command));
     		} else {
     			this.postCommand = null;
@@ -195,5 +199,23 @@ public class JobDefinition {
 	public void setTimeoutMinutes(Integer minutes) {
 		this.timeoutMinutes = minutes;
 	}
+
+	public ExecutionMode getExecutorMode() {
+		return executorMode;
+	}
+
+	public void setExecutorMode(ExecutionMode executorMode) {
+		this.executorMode = executorMode;
+	}
+
+	public String getContainerName() {
+		return containerName;
+	}
+
+	public void setContainerName(String containerName) {
+		this.containerName = containerName;
+	}
+	
+	
     
 }

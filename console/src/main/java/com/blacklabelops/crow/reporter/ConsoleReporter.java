@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.blacklabelops.crow.executor.ExecutionResult;
-import com.blacklabelops.crow.executor.IExecutor;
 
 public class ConsoleReporter implements IJobReporter {
 

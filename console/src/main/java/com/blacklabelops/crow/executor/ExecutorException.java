@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.executor.console;
+package com.blacklabelops.crow.executor;
 
 public class ExecutorException extends RuntimeException {
 

@@ -1,7 +1,8 @@
-package com.blacklabelops.crow.executor.console;
+package com.blacklabelops.crow.executor.docker;
 
 import static java.util.stream.Collectors.toList;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import com.blacklabelops.crow.executor.OutputReader;
 import com.blacklabelops.crow.logger.IJobLogger;
 import com.blacklabelops.crow.reporter.IJobReporter;
 
-public class ConsoleExecutor implements IExecutor {
+public class DockerExecutor implements IExecutor {
 
     private final static int RETURN_CODE_OKAY = 0;
 
@@ -45,7 +46,7 @@ public class ConsoleExecutor implements IExecutor {
     
     private ExecutionResult executionResult;
 
-    public ConsoleExecutor(JobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
+    public DockerExecutor(JobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
         super();
         jobName = definition.getJobName();
         jobDefinition = new JobDefinition(definition);
@@ -68,7 +69,7 @@ public class ConsoleExecutor implements IExecutor {
     public void run() {
         jobLogger.forEach(IJobLogger::initializeLogger);
         try {
-            LocalConsole executor = new LocalConsole();
+            RemoteContainer executor = new RemoteContainer();
             createDefaultOutputFiles(executor);
             startLogTrailing();
             this.executionResult.setStartingTime(LocalDateTime.now());
@@ -120,7 +121,7 @@ public class ConsoleExecutor implements IExecutor {
         fileAccessor.deleteFile(errorFile);
     }
 
-    private void createDefaultOutputFiles(LocalConsole executor) {
+    private void createDefaultOutputFiles(RemoteContainer executor) {
         outputFile = fileAccessor.createTempFile("ExecutorConsole","OutputFile");
         errorFile = fileAccessor.createTempFile("ExecutorConsole","ErrorFile");
         executor.setOutputFile(outputFile.toFile());
@@ -148,5 +149,6 @@ public class ConsoleExecutor implements IExecutor {
 		return new ExecutionResult(this.executionResult);
 	}
     
+	
     
 }
