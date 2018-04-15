@@ -67,13 +67,14 @@ public class SimpleConsoleUnixIntegrationIT {
     }
 
     @Test
+    @Ignore
     public void whenEchoConsoleThenHelloOnLogs() {
         jobDefinition.setCommand("echo","hello world");
         jobDefinition.setJobName("echoJob");
         simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender, atLeastOnce()).doAppend(logCaptor.capture());
-        assertEquals("Log output must be info level!",logCaptor.getValue().getLevel(), Level.INFO);
+        assertEquals("Log output must be info level!", Level.INFO, logCaptor.getValue().getLevel());
         assertEquals("Message must match echo directive message!","hello world",logCaptor.getValue().getMessage());
     }
 
@@ -84,7 +85,7 @@ public class SimpleConsoleUnixIntegrationIT {
         simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("errorJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender, atLeastOnce()).doAppend(logCaptor.capture());
-        assertEquals("Log output must be error level!",logCaptor.getValue().getLevel(), Level.ERROR);
+        assertEquals("Log output must be error level!",Level.ERROR, logCaptor.getValue().getLevel());
         assertEquals("Must have same message as in echo directive!","error",logCaptor.getValue().getMessage());
     }
     
