@@ -22,6 +22,7 @@ import com.blacklabelops.crow.config.JobConfiguration;
 import com.blacklabelops.crow.definition.ErrorMode;
 import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.discover.LocalConfigDiscover;
+import com.blacklabelops.crow.dispatcher.Dispatcher;
 import com.blacklabelops.crow.dispatcher.IDispatcher;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
 import com.blacklabelops.crow.executor.console.ConsoleExecutorTemplate;
@@ -67,6 +68,7 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 
     private void initialize() {
         jobScheduler = new JobScheduler();
+        jobDispatcher = new Dispatcher();
         scheduler = new MultiJobScheduler(jobScheduler, jobDispatcher);
         this.jobRepository.addListener(this);
     }

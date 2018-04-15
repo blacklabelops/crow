@@ -86,8 +86,11 @@ public class ExecutorPoolIT {
 
     @Test
     public void testAddExecution_WhenModeParallel_NoDropOfSecondExecution() throws InterruptedException {
+    		JobDefinition definition = new JobDefinition();
+		definition.setJobName("A");
+		definition.setExecutionMode(ExecutionMode.PARALLEL);
+		when(executor.getJobDefinition()).thenReturn(definition);
         when(executor.getJobName()).thenReturn("A");
-        when(executor.getExecutionMode()).thenReturn(ExecutionMode.PARALLEL);
         CountDownLatch synchLatch = new CountDownLatch(2);
         doAnswer(new Answer<Void>() {
             @Override
@@ -106,8 +109,11 @@ public class ExecutorPoolIT {
 
     @Test
     public void testAddExecution_WhenModeSequential_SecondExecutionWillBeDropped() throws InterruptedException {
+    		JobDefinition definition = new JobDefinition();
+		definition.setJobName("A");
+		definition.setExecutionMode(ExecutionMode.SEQUENTIAL);
+		when(executor.getJobDefinition()).thenReturn(definition);
         when(executor.getJobName()).thenReturn("A");
-        when(executor.getExecutionMode()).thenReturn(ExecutionMode.SEQUENTIAL);
         CountDownLatch synchLatch = new CountDownLatch(2);
         doAnswer(new Answer<Void>() {
             @Override
@@ -119,7 +125,7 @@ public class ExecutorPoolIT {
         }).when(executor).run();
         Dispatcher pool = new Dispatcher();
         pool.addExecution(executor);
-        IExecutor result = pool.addExecution(executor);
+        DispatchingResult result = pool.addExecution(executor);
         synchLatch.countDown();
         synchLatch.await(5, TimeUnit.SECONDS);
         assertEquals(DispatcherResult.DROPPED_ALREADY_RUNNING, result.getDispatcherResult());
@@ -127,8 +133,10 @@ public class ExecutorPoolIT {
 
     @Test
     public void testAddExecution_WhenNoMode_DefaultSequential_SecondExecutionWillBeDropped() throws InterruptedException {
+    		JobDefinition definition = new JobDefinition();
+    		definition.setJobName("A");
+    		when(executor.getJobDefinition()).thenReturn(definition);
         when(executor.getJobName()).thenReturn("A");
-        when(executor.getExecutionMode()).thenReturn(null);
         CountDownLatch synchLatch = new CountDownLatch(2);
         doAnswer(new Answer<Void>() {
             @Override
@@ -140,7 +148,7 @@ public class ExecutorPoolIT {
         }).when(executor).run();
         Dispatcher pool = new Dispatcher();
         pool.addExecution(executor);
-        IExecutor result = pool.addExecution(executor);
+        DispatchingResult result = pool.addExecution(executor);
         synchLatch.countDown();
         synchLatch.await(5, TimeUnit.SECONDS);
         assertEquals(DispatcherResult.DROPPED_ALREADY_RUNNING, result.getDispatcherResult());

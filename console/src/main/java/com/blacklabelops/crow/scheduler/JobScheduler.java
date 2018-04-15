@@ -1,10 +1,13 @@
 package com.blacklabelops.crow.scheduler;
 
-import com.blacklabelops.crow.definition.ErrorMode;
-import com.blacklabelops.crow.dispatcher.DispatcherResult;
-import com.blacklabelops.crow.executor.IExecutor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import java.util.*;
+import com.blacklabelops.crow.definition.ErrorMode;
+import com.blacklabelops.crow.dispatcher.DispatchingResult;
+import com.blacklabelops.crow.executor.ExecutionResult;
 
 public class JobScheduler implements IScheduler {
 
@@ -23,6 +26,13 @@ public class JobScheduler implements IScheduler {
         jobs.add(job);
         scheduledJobs.add(job);
     }
+    
+    @Override
+    public void removeJob(Job job) {
+        jobs.remove(job);
+        scheduledJobs.remove(job);
+        failedJobs.remove(job);
+    }
 
     @Override
     public Job getNextExecutableJob() {
@@ -30,20 +40,22 @@ public class JobScheduler implements IScheduler {
     }
 
     @Override
-    public void notifyFailingJob(IExecutor executor, DispatcherResult result) {
-        handleFaultyJob(executor);
+    public void notifyDispatchingError(DispatchingResult dispatcherResult) {
+	    	if (dispatcherResult.getJobName() != null) {
+	    		decideUnscheduling(dispatcherResult.getJobDefinition().getErrorMode(), dispatcherResult.getJobName());
+	    	}
     }
-
-    @Override
-    public void notifyExecutionError(IExecutor executor, Integer returnCode) {
-        handleFaultyJob(executor);
-    }
-
-    private void handleFaultyJob(IExecutor executor) {
-        if (executor.getErrorMode() != null && !ErrorMode.CONTINUE.equals(executor.getErrorMode())) {
-            Optional<Job> foundJob = findJobForExecutor(executor);
+    
+    private void decideUnscheduling(ErrorMode errorMode, String jobName) {
+    		if (errorMode != null && !ErrorMode.CONTINUE.equals(errorMode)) {
+            Optional<Job> foundJob = findJob(jobName);
             foundJob.ifPresent(job -> unscheduleJob(job));
         }
+    }
+
+	@Override
+    public void notifyExecutionError(ExecutionResult executionResult) {
+		decideUnscheduling(executionResult.getJobDefinition().getErrorMode(), executionResult.getJobName());
     }
 
     private void unscheduleJob(Job foundJob) {
@@ -51,8 +63,8 @@ public class JobScheduler implements IScheduler {
         failedJobs.add(foundJob);
     }
 
-    private Optional<Job> findJobForExecutor(IExecutor executor) {
-        return jobs.stream().filter(job -> job.getJobName().equals(executor.getJobName())).findFirst();
+    private Optional<Job> findJob(String jobName) {
+        return jobs.stream().filter(job -> job.getJobName().equals(jobName)).findFirst();
     }
 
 

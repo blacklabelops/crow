@@ -1,7 +1,5 @@
 package com.blacklabelops.crow.reporter;
 
-import static org.mockito.Mockito.when;
-
 import java.time.LocalDateTime;
 
 import org.junit.Rule;
@@ -10,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import com.blacklabelops.crow.definition.JobDefinition;
+import com.blacklabelops.crow.executor.ExecutionResult;
 import com.blacklabelops.crow.executor.IExecutor;
 
 public class ConsoleReporterTest {
@@ -24,17 +24,23 @@ public class ConsoleReporterTest {
 
     @Test
     public void testStartingJob() {
-        when(executor.getJobName()).thenReturn("Name");
-        when(executor.getStartingTime()).thenReturn(LocalDateTime.now());
-        reporter.startingJob(executor);
+    		JobDefinition jobDefinition = new JobDefinition();
+    		jobDefinition.setJobName("Name");
+    		ExecutionResult result = new ExecutionResult(jobDefinition);
+    		result.setStartingTime(LocalDateTime.now());
+        
+        reporter.startingJob(result);
     }
 
     @Test
     public void finishedJob() {
-        when(executor.getJobName()).thenReturn("Name");
-        when(executor.getFinishingTime()).thenReturn(LocalDateTime.now());
-        when(executor.getReturnCode()).thenReturn(Integer.valueOf(5));
-        reporter.finishedJob(executor);
+    		JobDefinition jobDefinition = new JobDefinition();
+		jobDefinition.setJobName("Name");
+		ExecutionResult result = new ExecutionResult(jobDefinition);
+		result.setFinishingTime(LocalDateTime.now());
+		result.setReturnCode(Integer.valueOf(5));
+		
+        reporter.finishedJob(result);
     }
 
 

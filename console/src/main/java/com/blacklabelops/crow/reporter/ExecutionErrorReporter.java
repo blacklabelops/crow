@@ -1,5 +1,6 @@
 package com.blacklabelops.crow.reporter;
 
+import com.blacklabelops.crow.executor.ExecutionResult;
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.scheduler.IScheduler;
 import org.slf4j.Logger;
@@ -17,8 +18,8 @@ public class ExecutionErrorReporter implements IJobReporter {
     }
 
     @Override
-    public void failingJob(IExecutor executingJob) {
+    public void failingJob(ExecutionResult executingJob) {
         logger.debug("Notifying a failing job {}!", executingJob.getJobName());
-        scheduler.notifyExecutionError(executingJob, executingJob.getReturnCode());
+        scheduler.notifyExecutionError(executingJob);
     }
 }

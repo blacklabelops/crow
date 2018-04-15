@@ -1,20 +1,19 @@
 package com.blacklabelops.crow.reporter;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.executor.ExecutionResult;
 import com.blacklabelops.crow.scheduler.IScheduler;
 
 public class ExecutionErrorReporterTest {
@@ -27,8 +26,8 @@ public class ExecutionErrorReporterTest {
     @Mock
     IScheduler scheduler;
 
-    @Mock
-    IExecutor executor;
+    @Spy
+    ExecutionResult result = new ExecutionResult();
 
     @Before
     public void setup() {
@@ -42,16 +41,16 @@ public class ExecutionErrorReporterTest {
 
     @Test
     public void testFailingJob_WhenFailing_ThenNotifyError() {
-        reporter.failingJob(executor);
-        verify(scheduler, times(1)).notifyExecutionError(eq(executor), nullable(Integer.class));
+        reporter.failingJob(result);
+        verify(scheduler, times(1)).notifyExecutionError(eq(result));
     }
 
     @Test
     public void testFailingJob_WhenFailingWithReturnCode_ThenNotifyErrorWithReturnCode() {
-        Integer errorCode = Integer.valueOf(5);
-        when(executor.getReturnCode()).thenReturn(errorCode);
-        reporter.failingJob(executor);
-        verify(scheduler, times(1)).notifyExecutionError(eq(executor), eq(errorCode));
+    		Integer errorCode = Integer.valueOf(5);
+    		result.setReturnCode(errorCode);
+        reporter.failingJob(result);
+        verify(scheduler, times(1)).notifyExecutionError(eq(result));
     }
 
 

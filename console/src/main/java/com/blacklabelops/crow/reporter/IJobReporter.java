@@ -1,18 +1,18 @@
 package com.blacklabelops.crow.reporter;
 
-import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.executor.ExecutionResult;
 
 public interface IJobReporter {
 
-    default void startingJob(IExecutor executingJob) {
+    default void startingJob(ExecutionResult executingJob) {
 
     }
 
-    default void finishedJob(IExecutor executingJob) {
+    default void finishedJob(ExecutionResult executingJob) {
 
     }
 
-    default void failingJob(IExecutor executingJob) {
+    default void failingJob(ExecutionResult executingJob) {
 
     }
 }

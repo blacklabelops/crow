@@ -24,6 +24,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
 
+import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.dispatcher.Dispatcher;
 import com.blacklabelops.crow.dispatcher.IDispatcher;
 import com.blacklabelops.crow.executor.IExecutor;
@@ -123,6 +124,8 @@ public class MultiJobSchedulerIT {
     }
     
     private IExecutorTemplate createExecutionTemplate(final String name) {
+    		JobDefinition jobDefinition = new JobDefinition();
+    		jobDefinition.setJobName(name);
         latch.put(name, new CountDownLatch(1));
         IExecutor executor = mock(IExecutor.class);
         when(executor.getJobName()).thenReturn(name);
@@ -133,6 +136,7 @@ public class MultiJobSchedulerIT {
                 return null;
             }
         }).when(executor).run();
+        when(executor.getJobDefinition()).thenReturn(jobDefinition);
         IExecutorTemplate template = mock(IExecutorTemplate.class);
         when(template.createExecutor()).thenReturn(executor);
         when(template.getJobName()).thenReturn(name);

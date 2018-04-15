@@ -8,6 +8,7 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.blacklabelops.crow.executor.ExecutionResult;
 import com.blacklabelops.crow.executor.IExecutor;
 
 public class ConsoleReporter implements IJobReporter {
@@ -30,21 +31,21 @@ public class ConsoleReporter implements IJobReporter {
     }
 
     @Override
-    public void startingJob(IExecutor pExecutingJob) {
+    public void startingJob(ExecutionResult pExecutingJob) {
         String time = formatter.format(pExecutingJob.getStartingTime());
         String message = String.format(startMessageFormat, pExecutingJob.getJobName(), time);
         logger.info(message);
     }
 
     @Override
-    public void finishedJob(IExecutor pExecutingJob) {
+    public void finishedJob(ExecutionResult pExecutingJob) {
         String time = formatter.format(pExecutingJob.getFinishingTime());
         String message = String.format(finishMessageFormat, pExecutingJob.getJobName(), pExecutingJob.getReturnCode(), time);
         logger.info(message);
     }
 
     @Override
-    public void failingJob(IExecutor executingJob) {
+    public void failingJob(ExecutionResult executingJob) {
         String time = formatter.format(LocalDateTime.now());
         String message = String.format(failingMessageFormat, executingJob.getJobName(), time);
         logger.info(message);

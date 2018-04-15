@@ -12,7 +12,7 @@ import java.util.Objects;
 import com.blacklabelops.crow.definition.ErrorMode;
 import com.blacklabelops.crow.definition.ExecutionMode;
 import com.blacklabelops.crow.definition.JobDefinition;
-import com.blacklabelops.crow.dispatcher.DispatcherResult;
+import com.blacklabelops.crow.executor.ExecutionResult;
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.logger.IJobLogger;
 import com.blacklabelops.crow.reporter.IJobReporter;
@@ -42,21 +42,14 @@ public class ConsoleExecutor implements IExecutor {
     private OutputReader errorFileReader;
 
     private Thread errorReaderThread;
-
-    private LocalDateTime startingTime;
-
-    private LocalDateTime finishingTime;
-
-    private Integer returnCode;
     
-    private boolean timedOut;
-    
-    private DispatcherResult dispatcherResult;
+    private ExecutionResult executionResult;
 
     public ConsoleExecutor(JobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
         super();
         jobName = definition.getJobName();
-        jobDefinition = definition;
+        jobDefinition = new JobDefinition(definition);
+        this.executionResult = new ExecutionResult(jobDefinition);
         if (reporter != null) {
             reporter
                     .stream()
@@ -78,20 +71,20 @@ public class ConsoleExecutor implements IExecutor {
             LocalConsole executor = new LocalConsole();
             createDefaultOutputFiles(executor);
             startLogTrailing();
-            this.setStartingTime(LocalDateTime.now());
-            jobReporter.parallelStream().forEach(reporter -> reporter.startingJob(this));
+            this.executionResult.setStartingTime(LocalDateTime.now());
+            jobReporter.parallelStream().forEach(reporter -> reporter.startingJob(new ExecutionResult(this.executionResult)));
             executor.execute(jobDefinition);
-            timedOut = executor.isTimedOut();
-            returnCode = executor.getReturnCode();
-            this.setFinishingTime(LocalDateTime.now());
+            this.executionResult.setTimedOut(executor.isTimedOut());
+            this.executionResult.setReturnCode(executor.getReturnCode());
+            this.executionResult.setFinishingTime(LocalDateTime.now());
             stopLogTrailing();
-            jobReporter.parallelStream().forEach(reporter -> reporter.finishedJob(this));
-            if (!timedOut) {
-        			if (RETURN_CODE_OKAY != returnCode) {
-        				jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(this));
+            jobReporter.parallelStream().forEach(reporter -> reporter.finishedJob(new ExecutionResult(this.executionResult)));
+            if (!this.executionResult.isTimedOut()) {
+        			if (RETURN_CODE_OKAY != this.executionResult.getReturnCode()) {
+        				jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(new ExecutionResult(this.executionResult)));
                  }
             } else {
-            		jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(this));
+            		jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(new ExecutionResult(this.executionResult)));
             }
             deleteOutputFiles();
         } finally {
@@ -138,39 +131,6 @@ public class ConsoleExecutor implements IExecutor {
         return jobName;
     }
 
-    @Override
-    public ExecutionMode getExecutionMode() {
-        return jobDefinition.getExecutionMode();
-    }
-
-    @Override
-    public LocalDateTime getStartingTime() {
-        return startingTime;
-    }
-
-    private void setStartingTime(LocalDateTime startingTime) {
-        this.startingTime = startingTime;
-    }
-
-    @Override
-    public LocalDateTime getFinishingTime() {
-        return finishingTime;
-    }
-
-    private void setFinishingTime(LocalDateTime finishingTime) {
-        this.finishingTime = finishingTime;
-    }
-
-    @Override
-    public Integer getReturnCode() {
-        return this.returnCode;
-    }
-    
-    @Override
-    public boolean isTimedOut() {
-		return timedOut;
-	}
-
 	@Override
     public List<IJobReporter> getReporter() {
         List<IJobReporter> copy = new ArrayList<>();
@@ -178,19 +138,14 @@ public class ConsoleExecutor implements IExecutor {
         return copy;
     }
 
-    @Override
-    public ErrorMode getErrorMode() {
-        return jobDefinition.getErrorMode();
-    }
-    
-    @Override
-	public DispatcherResult getDispatcherResult() {
-		return dispatcherResult;
+	@Override
+	public JobDefinition getJobDefinition() {
+		return new JobDefinition(jobDefinition);
 	}
-    
-    @Override
-	public void setDispatcherResult(DispatcherResult dispatcherResult) {
-		this.dispatcherResult = dispatcherResult;
+
+	@Override
+	public ExecutionResult getExecutionResult() {
+		return new ExecutionResult(this.executionResult);
 	}
     
     

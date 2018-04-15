@@ -34,13 +34,15 @@ public class Dispatcher implements IDispatcher {
     		jobs.remove(jobName);
     }
     
-    public IExecutor execute(String jobName) {
+    @Override
+    public DispatchingResult execute(String jobName) {
     		IExecutorTemplate executor = jobs.get(jobName);
     		return addExecution(executor.createExecutor());
     }
 
-	protected IExecutor addExecution(IExecutor executor) {
-        ExecutionMode executionMode = executor.getExecutionMode();
+	protected DispatchingResult addExecution(IExecutor executor) {
+		DispatchingResult dispatcherResult = new DispatchingResult(executor.getJobDefinition());
+        ExecutionMode executionMode = executor.getJobDefinition().getExecutionMode();
         DispatcherResult result = DispatcherResult.EXECUTED;
         boolean canBeExecuted = ExecutionMode.PARALLEL.equals(executionMode) || !checkRunning(executor);
         if (canBeExecuted) {
@@ -52,8 +54,8 @@ public class Dispatcher implements IDispatcher {
             LOG.debug("Skipping Job {}, already running!", executor.getJobName());
             result = DispatcherResult.DROPPED_ALREADY_RUNNING;
         }
-        executor.setDispatcherResult(result);
-        return executor;
+        dispatcherResult.setDispatcherResult(result);
+        return dispatcherResult;
     }
 
 	public boolean checkRunning(IExecutor executor) {

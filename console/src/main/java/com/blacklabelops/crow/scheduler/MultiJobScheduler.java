@@ -7,9 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.blacklabelops.crow.dispatcher.DispatcherResult;
+import com.blacklabelops.crow.dispatcher.DispatchingResult;
 import com.blacklabelops.crow.dispatcher.IDispatcher;
-import com.blacklabelops.crow.executor.IExecutor;
-
 
 public class MultiJobScheduler implements Runnable {
 
@@ -41,9 +40,9 @@ public class MultiJobScheduler implements Runnable {
                     long timeToNextExecution = chronoUnit.between(ZonedDateTime.now(), nextExecution);
                     if (timeToNextExecution <= 0) {
                         LOG.debug("Executing job {}.", nextJob.getJobName());
-                        IExecutor executionResult = dispatcher.execute(nextJob.getJobName());
-                        if (!DispatcherResult.EXECUTED.equals(executionResult.getDispatcherResult())) {
-                            jobScheduler.notifyFailingJob(executionResult,executionResult.getDispatcherResult());
+                        DispatchingResult dispatchingResult = dispatcher.execute(nextJob.getJobName());
+                        if (!DispatcherResult.EXECUTED.equals(dispatchingResult.getDispatcherResult())) {
+                            jobScheduler.notifyDispatchingError(dispatchingResult);
                         }
                         nextJob.setLastExecution(ZonedDateTime.now());
                         waitFornextExecution = false;
