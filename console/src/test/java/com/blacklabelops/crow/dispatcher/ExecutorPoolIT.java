@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.executor;
+package com.blacklabelops.crow.dispatcher;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
@@ -14,11 +14,16 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
+
+import com.blacklabelops.crow.definition.ExecutionMode;
+import com.blacklabelops.crow.definition.JobDefinition;
+import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.executor.console.ConsoleExecutor;
 
 public class ExecutorPoolIT {
 
@@ -28,22 +33,21 @@ public class ExecutorPoolIT {
     @Rule
     public MockitoRule mockito = MockitoJUnit.rule();
 
-    @Mock
     public IExecutor executor;
-
-    @Mock
-    public IExecutor executorB;
 
     public CountDownLatch latch;
 
     @Before
     public void setup() {
         latch = new CountDownLatch(1);
+        JobDefinition definition = new JobDefinition();
+        definition.setJobName("A");
+        executor = Mockito.spy(new ConsoleExecutor(definition, null, null));
     }
 
     @Test
     public void whenNoExecutionThenNoCheckRunning() {
-        ExecutorPool pool = new ExecutorPool();
+    		Dispatcher pool = new Dispatcher();
         assertFalse(pool.checkRunning(executor));
     }
 
@@ -57,7 +61,7 @@ public class ExecutorPoolIT {
                 return null;
             }
         }).when(executor).run();
-        ExecutorPool pool = new ExecutorPool();
+        Dispatcher pool = new Dispatcher();
         pool.addExecution(executor);
         assertTrue(pool.checkRunning(executor));
     }
@@ -73,7 +77,7 @@ public class ExecutorPoolIT {
                 return null;
             }
         }).when(executor).run();
-        ExecutorPool pool = new ExecutorPool();
+        Dispatcher pool = new Dispatcher();
         pool.addExecution(executor);
         latch.await(3, TimeUnit.SECONDS);
         assertEquals(0, latch.getCount());
@@ -93,7 +97,7 @@ public class ExecutorPoolIT {
                 return null;
             }
         }).when(executor).run();
-        ExecutorPool pool = new ExecutorPool();
+        Dispatcher pool = new Dispatcher();
         pool.addExecution(executor);
         pool.addExecution(executor);
         synchLatch.await(5, TimeUnit.SECONDS);
@@ -113,12 +117,12 @@ public class ExecutorPoolIT {
                 return null;
             }
         }).when(executor).run();
-        ExecutorPool pool = new ExecutorPool();
+        Dispatcher pool = new Dispatcher();
         pool.addExecution(executor);
-        ExecutionResult result = pool.addExecution(executor);
+        IExecutor result = pool.addExecution(executor);
         synchLatch.countDown();
         synchLatch.await(5, TimeUnit.SECONDS);
-        assertEquals(ExecutionResult.DROPPED_ALREADY_RUNNING, result);
+        assertEquals(DispatcherResult.DROPPED_ALREADY_RUNNING, result.getDispatcherResult());
     }
 
     @Test
@@ -134,11 +138,11 @@ public class ExecutorPoolIT {
                 return null;
             }
         }).when(executor).run();
-        ExecutorPool pool = new ExecutorPool();
+        Dispatcher pool = new Dispatcher();
         pool.addExecution(executor);
-        ExecutionResult result = pool.addExecution(executor);
+        IExecutor result = pool.addExecution(executor);
         synchLatch.countDown();
         synchLatch.await(5, TimeUnit.SECONDS);
-        assertEquals(ExecutionResult.DROPPED_ALREADY_RUNNING, result);
+        assertEquals(DispatcherResult.DROPPED_ALREADY_RUNNING, result.getDispatcherResult());
     }
 }

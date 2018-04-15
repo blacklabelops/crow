@@ -1,6 +1,6 @@
 package com.blacklabelops.crow.scheduler;
 
-import com.blacklabelops.crow.executor.ExecutionResult;
+import com.blacklabelops.crow.dispatcher.DispatcherResult;
 import com.blacklabelops.crow.executor.IExecutor;
 
 
@@ -10,7 +10,7 @@ public interface IScheduler {
 
     Job getNextExecutableJob();
 
-    void notifyFailingJob(IExecutor executor, ExecutionResult result);
+    void notifyFailingJob(IExecutor executor, DispatcherResult result);
 
     void notifyExecutionError(IExecutor executor, Integer returnCode);
 

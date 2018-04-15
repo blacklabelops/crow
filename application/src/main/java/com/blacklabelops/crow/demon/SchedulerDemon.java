@@ -19,11 +19,12 @@ import org.springframework.stereotype.Component;
 import com.blacklabelops.crow.config.Crow;
 import com.blacklabelops.crow.config.Global;
 import com.blacklabelops.crow.config.JobConfiguration;
+import com.blacklabelops.crow.definition.ErrorMode;
 import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.discover.LocalConfigDiscover;
-import com.blacklabelops.crow.executor.ErrorMode;
+import com.blacklabelops.crow.dispatcher.IDispatcher;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
-import com.blacklabelops.crow.executor.JobExecutorTemplate;
+import com.blacklabelops.crow.executor.console.ConsoleExecutorTemplate;
 import com.blacklabelops.crow.logger.JobLoggerFactory;
 import com.blacklabelops.crow.reporter.ConsoleReporterFactory;
 import com.blacklabelops.crow.reporter.ExecutionErrorReporterFactory;
@@ -45,6 +46,8 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
     private Crow crowConfig;
 
     private IScheduler jobScheduler;
+    
+    private IDispatcher jobDispatcher;
 
     private MultiJobScheduler scheduler;
 
@@ -64,7 +67,7 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 
     private void initialize() {
         jobScheduler = new JobScheduler();
-        scheduler = new MultiJobScheduler(jobScheduler);
+        scheduler = new MultiJobScheduler(jobScheduler, jobDispatcher);
         this.jobRepository.addListener(this);
     }
 
@@ -120,10 +123,11 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
         if (!ErrorMode.CONTINUE.equals(addedJobDefinition.getErrorMode())) {
             reporter.add(new ExecutionErrorReporterFactory(jobScheduler));
         }
-		IExecutorTemplate jobTemplate = new JobExecutorTemplate(addedJobDefinition,reporter, Stream.of(new JobLoggerFactory(addedJobDefinition.getJobName())).collect(Collectors.toList()));
+		IExecutorTemplate jobTemplate = new ConsoleExecutorTemplate(addedJobDefinition,reporter, Stream.of(new JobLoggerFactory(addedJobDefinition.getJobName())).collect(Collectors.toList()));
         IExecutionTime cronTime = new CronUtilsExecutionTime(addedJobDefinition.getCron());
-        Job workJob = new Job(jobTemplate, cronTime);
+        Job workJob = new Job(addedJobDefinition.getJobName(), cronTime);
         jobScheduler.addJob(workJob);
+        jobDispatcher.addJob(jobTemplate);
 	}
 
 	@Override

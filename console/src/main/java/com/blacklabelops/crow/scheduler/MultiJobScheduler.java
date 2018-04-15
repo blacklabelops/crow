@@ -1,12 +1,14 @@
 package com.blacklabelops.crow.scheduler;
 
-import com.blacklabelops.crow.executor.ExecutionResult;
-import com.blacklabelops.crow.executor.ExecutorPool;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
+import com.blacklabelops.crow.dispatcher.DispatcherResult;
+import com.blacklabelops.crow.dispatcher.IDispatcher;
+import com.blacklabelops.crow.executor.IExecutor;
 
 
 public class MultiJobScheduler implements Runnable {
@@ -17,13 +19,14 @@ public class MultiJobScheduler implements Runnable {
 
     private IScheduler jobScheduler;
 
-    private ExecutorPool executorPool =  new ExecutorPool();
+    private IDispatcher dispatcher;
 
     private boolean keepRunning = true;
 
-    public MultiJobScheduler(IScheduler scheduler) {
+    public MultiJobScheduler(IScheduler scheduler, IDispatcher dispatcher) {
         super();
         jobScheduler = scheduler;
+        this.dispatcher = dispatcher;
     }
 
     @Override
@@ -38,9 +41,9 @@ public class MultiJobScheduler implements Runnable {
                     long timeToNextExecution = chronoUnit.between(ZonedDateTime.now(), nextExecution);
                     if (timeToNextExecution <= 0) {
                         LOG.debug("Executing job {}.", nextJob.getJobName());
-                        ExecutionResult executionResult = executorPool.addExecution(nextJob.getExecutor());
-                        if (!ExecutionResult.EXECUTED.equals(executionResult)) {
-                            jobScheduler.notifyFailingJob(nextJob.getExecutor(),executionResult);
+                        IExecutor executionResult = dispatcher.execute(nextJob.getJobName());
+                        if (!DispatcherResult.EXECUTED.equals(executionResult.getDispatcherResult())) {
+                            jobScheduler.notifyFailingJob(executionResult,executionResult.getDispatcherResult());
                         }
                         nextJob.setLastExecution(ZonedDateTime.now());
                         waitFornextExecution = false;

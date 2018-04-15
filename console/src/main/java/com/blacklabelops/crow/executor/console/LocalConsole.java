@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import com.blacklabelops.crow.definition.JobDefinition;
 import com.cronutils.utils.StringUtils;
 
-public class ExecutorConsole {
+public class LocalConsole {
 	
-	public static final Logger LOG = LoggerFactory.getLogger(ExecutorConsole.class);
+	public static final Logger LOG = LoggerFactory.getLogger(LocalConsole.class);
 
     private File inputFile;
 
@@ -27,7 +27,7 @@ public class ExecutorConsole {
     
     private boolean timedOut;
 
-    public ExecutorConsole() {
+    public LocalConsole() {
         super();
     }
 

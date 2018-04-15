@@ -12,8 +12,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.blacklabelops.crow.config.Crow;
-import com.blacklabelops.crow.executor.ErrorMode;
-import com.blacklabelops.crow.executor.ExecutionMode;
+import com.blacklabelops.crow.definition.ErrorMode;
+import com.blacklabelops.crow.definition.ExecutionMode;
 
 
 @RunWith(SpringRunner.class)

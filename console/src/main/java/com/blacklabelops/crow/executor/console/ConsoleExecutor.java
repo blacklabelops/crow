@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.executor;
+package com.blacklabelops.crow.executor.console;
 
 import static java.util.stream.Collectors.toList;
 
@@ -9,13 +9,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import com.blacklabelops.crow.definition.ErrorMode;
+import com.blacklabelops.crow.definition.ExecutionMode;
 import com.blacklabelops.crow.definition.JobDefinition;
-import com.blacklabelops.crow.executor.console.ExecutorConsole;
-import com.blacklabelops.crow.executor.console.OutputReader;
+import com.blacklabelops.crow.dispatcher.DispatcherResult;
+import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.logger.IJobLogger;
 import com.blacklabelops.crow.reporter.IJobReporter;
 
-public class JobExecutor implements IExecutor {
+public class ConsoleExecutor implements IExecutor {
 
     private final static int RETURN_CODE_OKAY = 0;
 
@@ -48,8 +50,10 @@ public class JobExecutor implements IExecutor {
     private Integer returnCode;
     
     private boolean timedOut;
+    
+    private DispatcherResult dispatcherResult;
 
-    public JobExecutor(JobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
+    public ConsoleExecutor(JobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
         super();
         jobName = definition.getJobName();
         jobDefinition = definition;
@@ -71,23 +75,23 @@ public class JobExecutor implements IExecutor {
     public void run() {
         jobLogger.forEach(IJobLogger::initializeLogger);
         try {
-            ExecutorConsole executor = new ExecutorConsole();
+            LocalConsole executor = new LocalConsole();
             createDefaultOutputFiles(executor);
             startLogTrailing();
             this.setStartingTime(LocalDateTime.now());
-            jobReporter.forEach(reporter -> reporter.startingJob(this));
+            jobReporter.parallelStream().forEach(reporter -> reporter.startingJob(this));
             executor.execute(jobDefinition);
             timedOut = executor.isTimedOut();
             returnCode = executor.getReturnCode();
             this.setFinishingTime(LocalDateTime.now());
             stopLogTrailing();
-            jobReporter.forEach(reporter -> reporter.finishedJob(this));
+            jobReporter.parallelStream().forEach(reporter -> reporter.finishedJob(this));
             if (!timedOut) {
         			if (RETURN_CODE_OKAY != returnCode) {
-        				jobReporter.forEach(reporter -> reporter.failingJob(this));
+        				jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(this));
                  }
             } else {
-            		jobReporter.forEach(reporter -> reporter.failingJob(this));
+            		jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(this));
             }
             deleteOutputFiles();
         } finally {
@@ -123,7 +127,7 @@ public class JobExecutor implements IExecutor {
         fileAccessor.deleteFile(errorFile);
     }
 
-    private void createDefaultOutputFiles(ExecutorConsole executor) {
+    private void createDefaultOutputFiles(LocalConsole executor) {
         outputFile = fileAccessor.createTempFile("ExecutorConsole","OutputFile");
         errorFile = fileAccessor.createTempFile("ExecutorConsole","ErrorFile");
         executor.setOutputFile(outputFile.toFile());
@@ -178,4 +182,16 @@ public class JobExecutor implements IExecutor {
     public ErrorMode getErrorMode() {
         return jobDefinition.getErrorMode();
     }
+    
+    @Override
+	public DispatcherResult getDispatcherResult() {
+		return dispatcherResult;
+	}
+    
+    @Override
+	public void setDispatcherResult(DispatcherResult dispatcherResult) {
+		this.dispatcherResult = dispatcherResult;
+	}
+    
+    
 }

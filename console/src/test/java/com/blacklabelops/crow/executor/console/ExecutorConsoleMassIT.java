@@ -12,7 +12,7 @@ import com.blacklabelops.crow.util.FileAsserter;
 
 public class ExecutorConsoleMassIT {
 
-    public ExecutorConsole cli;
+    public LocalConsole cli;
 
     public JobDefinition definition;
 

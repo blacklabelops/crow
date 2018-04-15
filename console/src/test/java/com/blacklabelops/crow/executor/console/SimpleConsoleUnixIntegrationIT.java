@@ -26,12 +26,11 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import com.blacklabelops.crow.definition.JobDefinition;
-import com.blacklabelops.crow.executor.JobExecutor;
 import com.blacklabelops.crow.logger.JobLogLogger;
 
 public class SimpleConsoleUnixIntegrationIT {
 
-    public JobExecutor simpleConsole;
+    public ConsoleExecutor simpleConsole;
 
     public JobDefinition jobDefinition;
 
@@ -63,7 +62,7 @@ public class SimpleConsoleUnixIntegrationIT {
     @Test
     public void whenNoDefinitionThenNullpointerException() {
         exception.expect(NullPointerException.class);
-        simpleConsole = new JobExecutor(null, null,null);
+        simpleConsole = new ConsoleExecutor(null, null,null);
         simpleConsole.run();
     }
 
@@ -71,7 +70,7 @@ public class SimpleConsoleUnixIntegrationIT {
     public void whenEchoConsoleThenHelloOnLogs() {
         jobDefinition.setCommand("echo","hello world");
         jobDefinition.setJobName("echoJob");
-        simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
+        simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender, atLeastOnce()).doAppend(logCaptor.capture());
         assertEquals("Log output must be info level!",logCaptor.getValue().getLevel(), Level.INFO);
@@ -82,7 +81,7 @@ public class SimpleConsoleUnixIntegrationIT {
     public void whenEchoErrorConsoleThenErrorOnLogs() {
         jobDefinition.setCommand("/bin/bash","-c",">&2 echo error");
         jobDefinition.setJobName("errorJob");
-        simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("errorJob")).collect(Collectors.toList()));
+        simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("errorJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender, atLeastOnce()).doAppend(logCaptor.capture());
         assertEquals("Log output must be error level!",logCaptor.getValue().getLevel(), Level.ERROR);
@@ -94,7 +93,7 @@ public class SimpleConsoleUnixIntegrationIT {
     		jobDefinition.setCommand("sleep","200");
     		jobDefinition.setTimeoutMinutes(1);
         jobDefinition.setJobName("echoJob");
-        simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
+        simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
         simpleConsole.run();
         assertTrue(simpleConsole.isTimedOut());
     }
@@ -104,7 +103,7 @@ public class SimpleConsoleUnixIntegrationIT {
     		jobDefinition.setCommand("sleep","2");
     		jobDefinition.setTimeoutMinutes(1);
         jobDefinition.setJobName("echoJob");
-        simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
+        simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
         simpleConsole.run();
         assertFalse(simpleConsole.isTimedOut());
         assertEquals(Integer.valueOf(0), simpleConsole.getReturnCode());
@@ -117,7 +116,7 @@ public class SimpleConsoleUnixIntegrationIT {
         jobDefinition.setCommand("pwd");
         jobDefinition.setJobName("workdirJob");
         jobDefinition.setWorkingDir(tempDirectory);
-        simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("workdirJob")).collect(Collectors.toList()));
+        simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("workdirJob")).collect(Collectors.toList()));
         simpleConsole.run();
         verify(appender).doAppend(logCaptor.capture());
         assertEquals("Must match working directory",tempDirectory,logCaptor.getValue().getMessage());
@@ -129,7 +128,7 @@ public class SimpleConsoleUnixIntegrationIT {
     		jobDefinition.setCommand("echo","hello world");
     		jobDefinition.setPreCommand("echo","hello preCommand");
     		jobDefinition.setPostCommand("echo","hello postCommand");
-    		simpleConsole = new JobExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
+    		simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(Collectors.toList()));
         simpleConsole.run();
     }
 }

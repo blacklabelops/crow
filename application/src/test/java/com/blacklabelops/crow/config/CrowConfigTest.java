@@ -2,8 +2,9 @@ package com.blacklabelops.crow.config;
 
 import com.blacklabelops.crow.application.CrowDemon;
 import com.blacklabelops.crow.config.Crow;
-import com.blacklabelops.crow.executor.ErrorMode;
-import com.blacklabelops.crow.executor.ExecutionMode;
+import com.blacklabelops.crow.definition.ErrorMode;
+import com.blacklabelops.crow.definition.ExecutionMode;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

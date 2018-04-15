@@ -17,8 +17,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.blacklabelops.crow.definition.JobDefinition;
+import com.blacklabelops.crow.dispatcher.Dispatcher;
+import com.blacklabelops.crow.dispatcher.IDispatcher;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
-import com.blacklabelops.crow.executor.JobExecutor;
+import com.blacklabelops.crow.executor.console.ConsoleExecutor;
 
 public class MultiJobSchedulerIntegrationIT {
 
@@ -32,10 +34,13 @@ public class MultiJobSchedulerIntegrationIT {
     @Test(timeout = 80000)
     public void whenJobByMinutwThenExecute() throws InterruptedException {
         IScheduler scheduler = new JobScheduler();
-        MultiJobScheduler multischeduler = new MultiJobScheduler(scheduler);
-        Job job1 = createJob("A","* * * * *",1);
-        Job job2 = createJob("B","* * * * *",1);
+        IDispatcher dispatcher = new Dispatcher();
+        MultiJobScheduler multischeduler = new MultiJobScheduler(scheduler,dispatcher);
+        Job job1 = createJob("A","* * * * *");
+        Job job2 = createJob("B","* * * * *");
+        dispatcher.addJob(createExecutorTemplate("A",1));
         scheduler.addJob(job1);
+        dispatcher.addJob(createExecutorTemplate("B",1));
         scheduler.addJob(job2);
         Thread schedulerThread = new Thread(multischeduler);
         schedulerThread.start();
@@ -50,10 +55,13 @@ public class MultiJobSchedulerIntegrationIT {
     @Test(timeout = 140000)
     public void whenTwoJobsByMinuteThenExecuteTwoTimesInTwoMinutes() throws InterruptedException {
         IScheduler scheduler = new JobScheduler();
-        MultiJobScheduler multischeduler = new MultiJobScheduler(scheduler);
-        Job job1 = createJob("A","* * * * *",2);
-        Job job2 = createJob("B","* * * * *",2);
+        IDispatcher dispatcher = new Dispatcher();
+        MultiJobScheduler multischeduler = new MultiJobScheduler(scheduler, dispatcher);
+        Job job1 = createJob("A","* * * * *");
+        Job job2 = createJob("B","* * * * *");
+        dispatcher.addJob(createExecutorTemplate("A",2));
         scheduler.addJob(job1);
+        dispatcher.addJob(createExecutorTemplate("B",2));
         scheduler.addJob(job2);
         Thread schedulerThread = new Thread(multischeduler);
         schedulerThread.start();
@@ -65,13 +73,20 @@ public class MultiJobSchedulerIntegrationIT {
         assertEquals("Job B must have been executed",0, latch.get("B").getCount());
     }
 
-    private Job createJob(final String name, String cronString,int latches) {
+    private Job createJob(final String name, String cronString) {
         JobDefinition defConsole = new JobDefinition();
         defConsole.setCommand("echo","Hello" + name);
         defConsole.setJobName(name);
-        JobExecutor console = new JobExecutor(defConsole, null, null);
+        return new Job(name, new CronUtilsExecutionTime(cronString));
+    }
+    
+    private IExecutorTemplate createExecutorTemplate(final String name, int latches) {
+    		JobDefinition defConsole = new JobDefinition();
+        defConsole.setCommand("echo","Hello" + name);
+        defConsole.setJobName(name);
+    		ConsoleExecutor console = new ConsoleExecutor(defConsole, null, null);
         latch.put(name,new CountDownLatch(latches));
-        JobExecutor spyConsole = spy(console);
+        ConsoleExecutor spyConsole = spy(console);
         doAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -79,9 +94,9 @@ public class MultiJobSchedulerIntegrationIT {
                 return invocationOnMock.callRealMethod();
             }
         }).when(spyConsole).run();
-        IExecutorTemplate template = mock(IExecutorTemplate.class);
+    		IExecutorTemplate template = mock(IExecutorTemplate.class);
         when(template.createExecutor()).thenReturn(spyConsole);
         when(template.getJobName()).thenReturn(name);
-        return new Job(template, new CronUtilsExecutionTime(cronString));
+        return template;
     }
 }

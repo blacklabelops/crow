@@ -6,7 +6,7 @@ import com.blacklabelops.crow.definition.JobDefinition;
 
 public class ExecutorConsoleRule extends ExternalResource {
 
-    public ExecutorConsole executor;
+    public LocalConsole executor;
 
     public JobDefinition definition;
 
@@ -17,7 +17,7 @@ public class ExecutorConsoleRule extends ExternalResource {
     @Override
     protected void before() throws Throwable {
         super.before();
-        executor = new ExecutorConsole();
+        executor = new LocalConsole();
         definition = new JobDefinition();
     }
 
@@ -28,7 +28,7 @@ public class ExecutorConsoleRule extends ExternalResource {
         definition = null;
     }
 
-    public ExecutorConsole getExecutor() {
+    public LocalConsole getExecutor() {
         return executor;
     }
 

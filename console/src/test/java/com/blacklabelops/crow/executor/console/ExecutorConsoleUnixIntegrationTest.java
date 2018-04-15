@@ -21,7 +21,7 @@ import com.blacklabelops.crow.util.FileAsserter;
 
 public class ExecutorConsoleUnixIntegrationTest {
 
-    public ExecutorConsole cli;
+    public LocalConsole cli;
 
     public JobDefinition definition;
 

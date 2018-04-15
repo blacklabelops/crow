@@ -9,9 +9,9 @@ import org.apache.tools.ant.types.Commandline;
 
 import com.blacklabelops.crow.config.Global;
 import com.blacklabelops.crow.config.JobConfiguration;
+import com.blacklabelops.crow.definition.ErrorMode;
+import com.blacklabelops.crow.definition.ExecutionMode;
 import com.blacklabelops.crow.definition.JobDefinition;
-import com.blacklabelops.crow.executor.ErrorMode;
-import com.blacklabelops.crow.executor.ExecutionMode;
 import com.cronutils.utils.StringUtils;
 
 class JobConverter {

@@ -11,9 +11,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blacklabelops.crow.executor.ErrorMode;
-import com.blacklabelops.crow.executor.ExecutionMode;
-
 public class JobDefinition {
 	
 	private static Logger LOG = LoggerFactory.getLogger(JobDefinition.class);

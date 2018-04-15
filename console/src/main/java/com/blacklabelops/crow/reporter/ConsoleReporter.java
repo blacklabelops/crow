@@ -1,14 +1,14 @@
 package com.blacklabelops.crow.reporter;
 
-import com.blacklabelops.crow.executor.IExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.blacklabelops.crow.executor.IExecutor;
 
 public class ConsoleReporter implements IJobReporter {
 

@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.blacklabelops.crow.config.JobConfiguration;
-import com.blacklabelops.crow.executor.ErrorMode;
-import com.blacklabelops.crow.executor.ExecutionMode;
+import com.blacklabelops.crow.definition.ErrorMode;
+import com.blacklabelops.crow.definition.ExecutionMode;
 import com.blacklabelops.crow.repository.JobRepository;
 import com.blacklabelops.crow.scheduler.CronUtilsExecutionTime;
 import com.cronutils.utils.StringUtils;

@@ -11,8 +11,8 @@ import org.junit.Test;
 
 import com.blacklabelops.crow.config.Global;
 import com.blacklabelops.crow.config.JobConfiguration;
-import com.blacklabelops.crow.executor.ErrorMode;
-import com.blacklabelops.crow.executor.ExecutionMode;
+import com.blacklabelops.crow.definition.ErrorMode;
+import com.blacklabelops.crow.definition.ExecutionMode;
 
 public class JobConverterTest {
 	

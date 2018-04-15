@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.executor;
+package com.blacklabelops.crow.dispatcher;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -8,19 +8,40 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExecutorPool {
+import com.blacklabelops.crow.definition.ExecutionMode;
+import com.blacklabelops.crow.executor.IExecutor;
+import com.blacklabelops.crow.executor.IExecutorTemplate;
 
-    private static Logger LOG = LoggerFactory.getLogger(ExecutorPool.class);
+public class Dispatcher implements IDispatcher {
 
+    private static Logger LOG = LoggerFactory.getLogger(Dispatcher.class);
+    
+    private Map<String, IExecutorTemplate> jobs = Collections.synchronizedMap(new HashMap<>());
+    
     private Map<String, WeakReference<Thread>> runningExecutors = Collections.synchronizedMap(new HashMap<>());
 
-    public ExecutorPool() {
+    public Dispatcher() {
         super();
     }
+    
+    @Override
+    public void addJob(IExecutorTemplate executorTemplate) {
+    		jobs.put(executorTemplate.getJobName(), executorTemplate);
+    }
+    
+    @Override
+    public void removeJob(String jobName) {
+    		jobs.remove(jobName);
+    }
+    
+    public IExecutor execute(String jobName) {
+    		IExecutorTemplate executor = jobs.get(jobName);
+    		return addExecution(executor.createExecutor());
+    }
 
-    public ExecutionResult addExecution(IExecutor executor) {
+	protected IExecutor addExecution(IExecutor executor) {
         ExecutionMode executionMode = executor.getExecutionMode();
-        ExecutionResult result = ExecutionResult.EXECUTED;
+        DispatcherResult result = DispatcherResult.EXECUTED;
         boolean canBeExecuted = ExecutionMode.PARALLEL.equals(executionMode) || !checkRunning(executor);
         if (canBeExecuted) {
             LOG.debug("Starting new instance of  Job {}.", executor.getJobName());
@@ -29,12 +50,13 @@ public class ExecutorPool {
             execution.start();
         } else {
             LOG.debug("Skipping Job {}, already running!", executor.getJobName());
-            result = ExecutionResult.DROPPED_ALREADY_RUNNING;
+            result = DispatcherResult.DROPPED_ALREADY_RUNNING;
         }
-        return result;
+        executor.setDispatcherResult(result);
+        return executor;
     }
 
-    public boolean checkRunning(IExecutor executor) {
+	public boolean checkRunning(IExecutor executor) {
         boolean alreadyRunning = true;
     		WeakReference<Thread> reference = runningExecutors.get(executor.getJobName());
     		if (reference != null) {

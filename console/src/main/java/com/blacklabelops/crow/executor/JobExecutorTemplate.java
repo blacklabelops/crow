@@ -10,7 +10,7 @@ import com.blacklabelops.crow.logger.IJobLoggerFactory;
 import com.blacklabelops.crow.reporter.IJobReporter;
 import com.blacklabelops.crow.reporter.IJobReporterFactory;
 
-public class JobExecutorTemplate implements IExecutorTemplate {
+public abstract class JobExecutorTemplate implements IExecutorTemplate {
 
     private final String jobName;
 
@@ -37,26 +37,29 @@ public class JobExecutorTemplate implements IExecutorTemplate {
                     .forEach(log -> jobLoggerFactories.add(log));
         }
     }
+    
+    @Override
+    public abstract IExecutor createExecutor();
 
-    public IExecutor createExecutor() {
-        List<IJobReporter> reporters = createReporters();
-        List<IJobLogger> logger = createLoggers();
-        return new JobExecutor(jobDefinition, reporters, logger);
-    }
-
-    private List<IJobLogger> createLoggers() {
+    protected List<IJobLogger> createLoggers() {
         List<IJobLogger> loggers = new ArrayList<>(jobLoggerFactories.size());
         jobLoggerFactories.stream().forEach(loggerFactory -> loggers.add(loggerFactory.createInstance()));
         return loggers;
     }
 
-    private List<IJobReporter> createReporters() {
+    protected List<IJobReporter> createReporters() {
         List<IJobReporter> reporters = new ArrayList<>(jobReporterFactories.size());
         jobReporterFactories.stream().forEach(reporterFactory -> reporters.add(reporterFactory.createInstance()));
         return reporters;
     }
-
+    
+    @Override
     public String getJobName() {
         return jobName;
     }
+
+	protected JobDefinition getJobDefinition() {
+		return new JobDefinition(jobDefinition);
+	}
+    
 }

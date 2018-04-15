@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.executor;
+package com.blacklabelops.crow.definition;
 
 public enum ExecutionMode {
     SEQUENTIAL,

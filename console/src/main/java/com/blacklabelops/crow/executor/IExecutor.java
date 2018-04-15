@@ -1,5 +1,8 @@
 package com.blacklabelops.crow.executor;
 
+import com.blacklabelops.crow.definition.ErrorMode;
+import com.blacklabelops.crow.definition.ExecutionMode;
+import com.blacklabelops.crow.dispatcher.DispatcherResult;
 import com.blacklabelops.crow.reporter.IJobReporter;
 
 import java.time.LocalDateTime;
@@ -24,4 +27,8 @@ public interface IExecutor extends Runnable {
     public ErrorMode getErrorMode();
 
 	boolean isTimedOut();
+
+	DispatcherResult getDispatcherResult();
+
+	void setDispatcherResult(DispatcherResult dispatcherResult);
 }

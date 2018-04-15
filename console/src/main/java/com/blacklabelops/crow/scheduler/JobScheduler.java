@@ -1,11 +1,10 @@
 package com.blacklabelops.crow.scheduler;
 
-import com.blacklabelops.crow.executor.ErrorMode;
-import com.blacklabelops.crow.executor.ExecutionResult;
+import com.blacklabelops.crow.definition.ErrorMode;
+import com.blacklabelops.crow.dispatcher.DispatcherResult;
 import com.blacklabelops.crow.executor.IExecutor;
 
 import java.util.*;
-
 
 public class JobScheduler implements IScheduler {
 
@@ -31,7 +30,7 @@ public class JobScheduler implements IScheduler {
     }
 
     @Override
-    public void notifyFailingJob(IExecutor executor, ExecutionResult result) {
+    public void notifyFailingJob(IExecutor executor, DispatcherResult result) {
         handleFaultyJob(executor);
     }
 
@@ -39,7 +38,6 @@ public class JobScheduler implements IScheduler {
     public void notifyExecutionError(IExecutor executor, Integer returnCode) {
         handleFaultyJob(executor);
     }
-
 
     private void handleFaultyJob(IExecutor executor) {
         if (executor.getErrorMode() != null && !ErrorMode.CONTINUE.equals(executor.getErrorMode())) {
@@ -54,7 +52,7 @@ public class JobScheduler implements IScheduler {
     }
 
     private Optional<Job> findJobForExecutor(IExecutor executor) {
-        return jobs.stream().filter(job -> job.getExecutor().getJobName().equals(executor.getJobName())).findFirst();
+        return jobs.stream().filter(job -> job.getJobName().equals(executor.getJobName())).findFirst();
     }
 
 

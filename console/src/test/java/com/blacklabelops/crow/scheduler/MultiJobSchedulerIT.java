@@ -24,6 +24,8 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
 
+import com.blacklabelops.crow.dispatcher.Dispatcher;
+import com.blacklabelops.crow.dispatcher.IDispatcher;
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
 
@@ -37,6 +39,8 @@ public class MultiJobSchedulerIT {
 
     @Spy
     IScheduler scheduler = new JobScheduler();
+    
+    IDispatcher dispatcher = new Dispatcher();
 
     MultiJobScheduler multiScheduler;
 
@@ -45,12 +49,14 @@ public class MultiJobSchedulerIT {
     @Before
     public void setup() {
         latch = new HashMap<>();
-        multiScheduler = new MultiJobScheduler(scheduler);
+        multiScheduler = new MultiJobScheduler(scheduler, dispatcher);
     }
 
     @Test(timeout = 5000)
     public void whenJobThenExecuteSuccessfully() throws InterruptedException {
         Job job1 = createJob("A", 2);
+        IExecutorTemplate executor = createExecutionTemplate("A");
+        dispatcher.addJob(executor);
         scheduler.addJob(job1);
         Thread schedulerThread = new Thread(multiScheduler);
         schedulerThread.start();
@@ -58,14 +64,18 @@ public class MultiJobSchedulerIT {
         multiScheduler.stop();
         schedulerThread.join();
         assertEquals("Job must have been executed",0, latch.get("A").getCount());
-        verify(job1.getExecutor(), atLeastOnce()).run();
+        verify(executor.createExecutor(), atLeastOnce()).run();
     }
 
     @Test(timeout = 5000)
     public void whenTwoJobsThenExecuteBoth() throws InterruptedException {
         Job job1 = createJob("A", 2);
+        IExecutorTemplate executor = createExecutionTemplate("A");
         Job job2 = createJob("B", 3);
+        IExecutorTemplate executor2 = createExecutionTemplate("B");
+        dispatcher.addJob(executor);
         scheduler.addJob(job1);
+        dispatcher.addJob(executor2);
         scheduler.addJob(job2);
         Thread schedulerThread = new Thread(multiScheduler);
         schedulerThread.start();
@@ -80,8 +90,12 @@ public class MultiJobSchedulerIT {
     @Test(timeout = 5000)
     public void whenTwoJobsSameTimesThenExecuteBothSequentially() throws InterruptedException {
         Job job1 = createJob("A", 2);
+        IExecutorTemplate executor = createExecutionTemplate("A");
         Job job2 = createJob("B", 2);
+        IExecutorTemplate executor2 = createExecutionTemplate("B");
+        dispatcher.addJob(executor);
         scheduler.addJob(job1);
+        dispatcher.addJob(executor2);
         scheduler.addJob(job2);
         Thread schedulerThread = new Thread(multiScheduler);
         schedulerThread.start();
@@ -92,19 +106,9 @@ public class MultiJobSchedulerIT {
         assertEquals("Job A must have been executed",0, latch.get("A").getCount());
         assertEquals("Job B must have been executed",0, latch.get("B").getCount());
     }
-
+    
     private Job createJob(final String name, long secondsNextInvocation) {
-        latch.put(name, new CountDownLatch(1));
-        IExecutor executor = mock(IExecutor.class);
-        when(executor.getJobName()).thenReturn(name);
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-                latch.get(name).countDown();
-                return null;
-            }
-        }).when(executor).run();
-        IExecutionTime executorTime = mock(IExecutionTime.class);
+    		IExecutionTime executorTime = mock(IExecutionTime.class);
         when(executorTime.nextExecution(any())).thenAnswer(new Answer<ZonedDateTime>() {
 
             private long seconds = secondsNextInvocation;
@@ -115,9 +119,23 @@ public class MultiJobSchedulerIT {
                 return time.plusSeconds(seconds);
             }
         });
+        return new Job(name, executorTime);
+    }
+    
+    private IExecutorTemplate createExecutionTemplate(final String name) {
+        latch.put(name, new CountDownLatch(1));
+        IExecutor executor = mock(IExecutor.class);
+        when(executor.getJobName()).thenReturn(name);
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+                latch.get(name).countDown();
+                return null;
+            }
+        }).when(executor).run();
         IExecutorTemplate template = mock(IExecutorTemplate.class);
         when(template.createExecutor()).thenReturn(executor);
         when(template.getJobName()).thenReturn(name);
-        return new Job(template,executorTime);
+        return template;
     }
 }
