@@ -32,8 +32,14 @@ public class DockerTestContainerFactory {
 		return startContainer();
 	}
 	
-	public boolean checkTestImage() throws DockerException, InterruptedException {
-		ImageInfo result = dockerClient.inspectImage(TEST_IMAGE);
+	public boolean checkTestImage() {
+		ImageInfo result = null;
+		
+		try {
+			result = dockerClient.inspectImage(TEST_IMAGE);
+		} catch (Exception e) {	
+		}
+		
 		if (result != null) {
 			return true;
 		} else {
