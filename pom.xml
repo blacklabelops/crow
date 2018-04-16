@@ -26,7 +26,26 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <java.version>1.8</java.version>
+        <snakeyaml.version>1.9</snakeyaml.version>
+        <gson.version>2.8.2</gson.version>
+        <mockito.version>2.18.0</mockito.version>
     </properties>
+    
+    <build>
+	    <plugins>
+	    		<plugin>
+		       <groupId>org.apache.maven.plugins</groupId>
+		       <artifactId>maven-jar-plugin</artifactId>
+		       <executions>
+		         <execution>
+		           <goals>
+		             <goal>test-jar</goal>
+		           </goals>
+		         </execution>
+		       </executions>
+		     </plugin>
+	    </plugins>
+    </build>
 
     <dependencies>
         <dependency>
@@ -49,7 +68,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.18.0</version>
             <scope>test</scope>
         </dependency>
         

@@ -22,43 +22,43 @@ import com.google.gson.JsonParser;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes=CrowDemon.class)
-@TestPropertySource(locations="classpath:tryOut.properties")
+@ContextConfiguration(classes = CrowDemon.class)
+@TestPropertySource(locations = "classpath:tryOut.properties")
 public class CrowCliTest {
-	
+
 	@Autowired
 	private TestRestTemplate restTemplate;
-	
+
 	@LocalServerPort
-    int randomServerPort;
-	
+	int randomServerPort;
+
 	@Before
 	public void setup() {
 		System.setProperty("crow.server.baseUrl", "http://localhost:" + randomServerPort);
 	}
-	
+
 	@Test
 	public void testMain_ExecuteHelp() {
 		CrowCli.main(new String[] { "help" });
 	}
-	
+
 	@Test
 	public void testMain_ExecuteVersion() {
 		CrowCli.main(new String[] { "version" });
 	}
-	
+
 	@Test
 	public void testMain_ExecuteList() {
 		CrowCli.main(new String[] { "list" });
 	}
-	
+
 	@Test
 	public void testMain_PrintList() {
 		JobInformation[] jobs = this.restTemplate.getForObject("/crow/jobs", JobInformation[].class);
 		PrintConsole console = new PrintConsole();
 		console.printJobs(jobs);
 	}
-	
+
 	@Test
 	@Ignore
 	public void testMain_PrintJsonList() {

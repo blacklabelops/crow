@@ -28,24 +28,24 @@ import com.spotify.docker.client.messages.ExecState;
 import com.spotify.docker.client.messages.Info;
 
 public class DockerSmokeTest {
-	
+
 	private Logger LOG = LoggerFactory.getLogger(DockerSmokeTest.class);
-	
+
 	public static DockerTestContainerFactory containerFactory;
-	
+
 	public static int numberOfContainers = 5;
-	
+
 	public static List<String> containers = new ArrayList<>(numberOfContainers);
-	
+
 	public static DockerClient dockerClient;
-	
+
 	@BeforeClass
-	public static void setupClass() throws DockerCertificateException, DockerException, InterruptedException  {
+	public static void setupClass() throws DockerCertificateException, DockerException, InterruptedException {
 		dockerClient = DockerClientFactory.initializeDockerClient();
 		containerFactory = new DockerTestContainerFactory(dockerClient);
 		containerFactory.runSomeContainers(numberOfContainers);
 	}
-	
+
 	@AfterClass
 	public static void tearDownClass() {
 		containerFactory.deleteContainers();
@@ -54,18 +54,19 @@ public class DockerSmokeTest {
 	@Test
 	public void testInfo_AccessingInfo_InfoAccessible() throws DockerException, InterruptedException {
 		Info info = dockerClient.info();
-		
+
 		assertNotNull(info);
 	}
-	
+
 	@Test
-	public void testListContainers_ContainersStarted_ContainersCanBeFound() throws DockerException, InterruptedException {
+	public void testListContainers_ContainersStarted_ContainersCanBeFound() throws DockerException,
+			InterruptedException {
 		List<Container> containers = dockerClient.listContainers();
 		List<String> startedContainers = containerFactory.getContainerIds();
-		
-		assertTrue(assertContainersFound(startedContainers,containers));
+
+		assertTrue(assertContainersFound(startedContainers, containers));
 	}
-	
+
 	private boolean assertContainersFound(List<String> startedContainers, List<Container> containers) {
 		boolean found = true;
 		for (String startedContainer : startedContainers) {
@@ -76,11 +77,11 @@ public class DockerSmokeTest {
 		}
 		return found;
 	}
-	
+
 	@Test
 	public void testInspectContainers_SequentialInspection() {
 		List<String> startedContainers = containerFactory.getContainerIds();
-		
+
 		long startTime = System.currentTimeMillis();
 		List<ContainerInfo> inspections = startedContainers.stream().map(c -> {
 			try {
@@ -91,14 +92,14 @@ public class DockerSmokeTest {
 		}).collect(Collectors.toList());
 		long endTime = System.currentTimeMillis();
 		LOG.info("Execution time {}", endTime - startTime);
-		
+
 		assertEquals(startedContainers.size(), inspections.size());
 	}
-	
+
 	@Test
 	public void testInspectContainers_ParallelInspection() {
 		List<String> startedContainers = containerFactory.getContainerIds();
-		
+
 		long startTime = System.currentTimeMillis();
 		List<ContainerInfo> inspections = startedContainers.parallelStream().map(c -> {
 			try {
@@ -109,27 +110,29 @@ public class DockerSmokeTest {
 		}).collect(Collectors.toList());
 		long endTime = System.currentTimeMillis();
 		LOG.info("Execution time {}", endTime - startTime);
-		
+
 		assertEquals(startedContainers.size(), inspections.size());
 	}
-	
+
 	/**
 	 * Does not work on circleci (api version 1.32 available, 1.35 required)
 	 */
 	@Test
 	@Ignore
-	public void testExecution_ConfigWithWorkingDir_CommandExecutedInWorkingDir() throws InterruptedException, IOException, DockerException {
+	public void testExecution_ConfigWithWorkingDir_CommandExecutedInWorkingDir() throws InterruptedException,
+			IOException, DockerException {
 		String[] command = new String[] { "pwd" };
-        String container = containerFactory.getContainerIds().stream().findFirst().get();
-        ExecCreation execCreation = dockerClient.execCreate(container, command, DockerClient.ExecCreateParam.attachStdout(),
-        		    DockerClient.ExecCreateParam.attachStderr(), new ExecCreateParam("WorkingDir", "/var/www"));
-        
-        LogStream output = dockerClient.execStart(execCreation.id());
-        String execOutput = output.readFully();
-        ExecState state = dockerClient.execInspect(execCreation.id());
-        
+		String container = containerFactory.getContainerIds().stream().findFirst().get();
+		ExecCreation execCreation = dockerClient.execCreate(container, command, DockerClient.ExecCreateParam
+				.attachStdout(),
+				DockerClient.ExecCreateParam.attachStderr(), new ExecCreateParam("WorkingDir", "/var/www"));
+
+		LogStream output = dockerClient.execStart(execCreation.id());
+		String execOutput = output.readFully();
+		ExecState state = dockerClient.execInspect(execCreation.id());
+
 		LOG.info("Output: {}", execOutput);
-		
+
 		assertEquals("/var/www\n", execOutput);
 		assertEquals(Integer.valueOf(0), state.exitCode());
 	}

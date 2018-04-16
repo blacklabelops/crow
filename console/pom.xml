@@ -58,7 +58,20 @@
 		  <artifactId>docker-client</artifactId>
 		  <version>8.11.2</version>
 		</dependency>
-
+		
+		<!-- Required for Spring Boot 2.x -->
+		<!--  dependency>
+		    <groupId>org.glassfish.jersey.inject</groupId>
+    			<artifactId>jersey-hk2</artifactId>
+		    <version>2.27</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.glassfish.jersey.bundles.repackaged</groupId>
+		    <artifactId>jersey-guava</artifactId>
+		    <version>2.25.1</version>
+		</dependency -->
+		
     </dependencies>
 
 </project>

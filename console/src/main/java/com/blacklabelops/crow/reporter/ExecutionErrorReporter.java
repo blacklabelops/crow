@@ -1,10 +1,10 @@
 package com.blacklabelops.crow.reporter;
 
-import com.blacklabelops.crow.executor.ExecutionResult;
-import com.blacklabelops.crow.executor.IExecutor;
-import com.blacklabelops.crow.scheduler.IScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.blacklabelops.crow.executor.ExecutionResult;
+import com.blacklabelops.crow.scheduler.IScheduler;
 
 public class ExecutionErrorReporter implements IJobReporter {
 

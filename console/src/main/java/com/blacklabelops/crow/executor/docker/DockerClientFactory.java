@@ -19,6 +19,8 @@ public class DockerClientFactory {
 			Builder builder = DefaultDockerClient.fromEnv();
 			if (!builder.uri().getScheme().equals("https") && builder.dockerCertificates() != null) {
 				builder.dockerCertificates(null);
+				builder.registryAuthSupplier(null);
+				builder.dockerAuth(false);
 			}
 			dockerClient = builder.build();
 		} catch (DockerCertificateException e) {

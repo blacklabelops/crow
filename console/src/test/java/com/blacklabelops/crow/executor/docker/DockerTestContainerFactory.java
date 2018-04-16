@@ -12,49 +12,55 @@ import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.ImageInfo;
 
 public class DockerTestContainerFactory {
-	
+
 	private static final String TEST_IMAGE = "busybox:latest";
 
 	private final DockerClient dockerClient;
-	
+
 	public static int numberOfContainers;
-	
+
 	public static List<String> containers = Collections.synchronizedList(new ArrayList<>());
-	
+
 	public DockerTestContainerFactory(DockerClient dockerClient) {
 		this.dockerClient = dockerClient;
 	}
-	
-	public String runContainer() throws DockerException, InterruptedException  {
+
+	public String runContainer() throws DockerException, InterruptedException {
 		if (!checkTestImage()) {
-			dockerClient.pull(TEST_IMAGE);
+			try {
+				dockerClient.pull(TEST_IMAGE);
+			} catch (DockerException | InterruptedException e) {
+			}
 		}
 		String id = startContainer();
 		containers.add(id);
 		return id;
 	}
-	
+
 	public boolean checkTestImage() {
 		ImageInfo result = null;
-		
+
 		try {
 			result = dockerClient.inspectImage(TEST_IMAGE);
-		} catch (Exception e) {	
+		} catch (Exception e) {
 		}
-		
+
 		if (result != null) {
 			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public void runSomeContainers(int containerAmount) throws DockerException, InterruptedException {
 		numberOfContainers += containerAmount;
 		if (!checkTestImage()) {
-			dockerClient.pull(TEST_IMAGE);
+			try {
+				dockerClient.pull(TEST_IMAGE);
+			} catch (DockerException | InterruptedException e) {
+			}
 		}
-		for (int i=0;i < numberOfContainers;i++) {
+		for (int i = 0; i < numberOfContainers; i++) {
 			String containerid = startContainer();
 			containers.add(containerid);
 		}
@@ -75,16 +81,16 @@ public class DockerTestContainerFactory {
 	}
 
 	private String startContainer() throws DockerException, InterruptedException {
-		String[] command = new String[] { "sh", "-c","while sleep 1; do :; done" };
+		String[] command = new String[] { "sh", "-c", "while sleep 1; do :; done" };
 		ContainerConfig containerConfig = ContainerConfig.builder()
-			    .image(TEST_IMAGE)
-			    .cmd(command)
-			    .build();
+				.image(TEST_IMAGE)
+				.cmd(command)
+				.build();
 		ContainerCreation creation = dockerClient.createContainer(containerConfig);
 		dockerClient.startContainer(creation.id());
 		return creation.id();
 	}
-	
+
 	public List<String> getContainerIds() {
 		return new ArrayList<>(containers);
 	}
