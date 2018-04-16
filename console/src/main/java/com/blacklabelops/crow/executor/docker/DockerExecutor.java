@@ -2,7 +2,6 @@ package com.blacklabelops.crow.executor.docker;
 
 import static java.util.stream.Collectors.toList;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

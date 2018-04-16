@@ -1,5 +1,6 @@
 package com.blacklabelops.crow.executor.docker;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -7,14 +8,14 @@ import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.util.FileAsserter;
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.core.DockerClientBuilder;
+import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerException;
 
 public class ContainerRemoteTest {
 	
@@ -42,7 +43,7 @@ public class ContainerRemoteTest {
     
 	@BeforeClass
 	public static void setupClass() throws InterruptedException, IOException {
-		dockerClient = DockerClientBuilder.getInstance().build();
+		dockerClient = new DefaultDockerClient("unix:///var/run/docker.sock");
 		containerFactory = new DockerTestContainerFactory(dockerClient);
 	}
 	
@@ -52,7 +53,7 @@ public class ContainerRemoteTest {
 	}
 	
 	@Test
-	public void testRun_ExecuteCommandInContainer_ResultInFile() throws IOException, InterruptedException {
+	public void testRun_ExecuteCommandInContainer_ResultInFile() throws DockerException, InterruptedException {
 		String containerId = containerFactory.runContainer();
 		JobDefinition jobDefinition = new JobDefinition();
 		jobDefinition.setJobName("A");
@@ -65,7 +66,7 @@ public class ContainerRemoteTest {
 	}
 	
 	@Test
-	public void testRun_ExecuteErrorCommandInContainer_ResultInErrorFile() throws IOException, InterruptedException {
+	public void testRun_ExecuteErrorCommandInContainer_ResultInErrorFile() throws DockerException, InterruptedException {
 		String containerId = containerFactory.runContainer();
 		JobDefinition jobDefinition = new JobDefinition();
 		jobDefinition.setJobName("A");
@@ -78,7 +79,20 @@ public class ContainerRemoteTest {
 	}
 	
 	@Test
-	public void testRun_ExecuteAllCommands_AllOutputsInFile() throws IOException, InterruptedException {
+	public void testRun_FaultyCommand_ReturnCodeNotZero() throws DockerException, InterruptedException {
+		String containerId = containerFactory.runContainer();
+		JobDefinition jobDefinition = new JobDefinition();
+		jobDefinition.setJobName("A");
+		jobDefinition.setCommand("bash","-c","echo HelloWorld");
+		jobDefinition.setContainerName(containerId);
+		
+		cli.execute(jobDefinition);
+		
+		assertNotEquals(Integer.valueOf(0), cli.getReturnCode());
+	}
+	
+	@Test
+	public void testRun_ExecuteAllCommands_AllOutputsInFile() throws DockerException, InterruptedException {
 		String containerId = containerFactory.runContainer();
 		JobDefinition jobDefinition = new JobDefinition();
 		jobDefinition.setJobName("A");
@@ -93,19 +107,5 @@ public class ContainerRemoteTest {
 		outputFile.assertContainsLine("preCommand");
 		outputFile.assertContainsLine("postCommand");
 	}
-	
-	@Test(timeout=70000)
-	@Ignore
-	public void testRun_CommandTakesLongerThanTimeOut_JobTimedOut() throws IOException, InterruptedException {
-		String containerId = containerFactory.runContainer();
-		JobDefinition jobDefinition = new JobDefinition();
-		jobDefinition.setJobName("A");
-		jobDefinition.setCommand("sleep","65000");
-		jobDefinition.setTimeoutMinutes(1);
-		jobDefinition.setContainerName(containerId);
-		
-		cli.execute(jobDefinition);
-		
-		assertTrue(cli.isTimedOut());
-	}
+
 }

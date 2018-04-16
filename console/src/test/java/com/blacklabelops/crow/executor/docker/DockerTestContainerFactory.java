@@ -1,35 +1,51 @@
 package com.blacklabelops.crow.executor.docker;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.core.command.PullImageResultCallback;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.DockerClient.RemoveContainerParam;
+import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.ContainerConfig;
+import com.spotify.docker.client.messages.ContainerCreation;
+import com.spotify.docker.client.messages.ImageInfo;
 
 public class DockerTestContainerFactory {
 	
+	private static final String TEST_IMAGE = "busybox:latest";
+
 	private final DockerClient dockerClient;
 	
 	public static int numberOfContainers;
 	
-	public static List<String> containers = new ArrayList<>();
+	public static List<String> containers = Collections.synchronizedList(new ArrayList<>());
 	
 	public DockerTestContainerFactory(DockerClient dockerClient) {
 		this.dockerClient = dockerClient;
 	}
 	
-	public String runContainer() throws IOException, InterruptedException {
-		PullImageResultCallback callback = new PullImageResultCallback();
-		dockerClient.pullImageCmd("busybox:latest").exec(callback).awaitCompletion().close();
+	public String runContainer() throws DockerException, InterruptedException  {
+		if (!checkTestImage()) {
+			dockerClient.pull(TEST_IMAGE);
+		}
 		return startContainer();
 	}
 	
-	public void runSomeContainers(int containerAmount) throws InterruptedException, IOException {
+	public boolean checkTestImage() throws DockerException, InterruptedException {
+		ImageInfo result = dockerClient.inspectImage(TEST_IMAGE);
+		if (result != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public void runSomeContainers(int containerAmount) throws DockerException, InterruptedException {
 		numberOfContainers += containerAmount;
-		PullImageResultCallback callback = new PullImageResultCallback();
-		dockerClient.pullImageCmd("busybox:latest").exec(callback).awaitCompletion().close();
+		if (!checkTestImage()) {
+			dockerClient.pull(TEST_IMAGE);
+		}
 		for (int i=0;i < numberOfContainers;i++) {
 			String containerid = startContainer();
 			containers.add(containerid);
@@ -37,20 +53,29 @@ public class DockerTestContainerFactory {
 	}
 
 	public void deleteContainers() {
-		containers.parallelStream().forEach(c -> stopContainer(c));
+		getContainerIds().parallelStream().forEach(c -> {
+			try {
+				stopContainer(c);
+			} catch (DockerException e) {
+			} catch (InterruptedException e) {
+			}
+		});
 	}
 
-	private void stopContainer(String c) {
-		dockerClient.stopContainerCmd(c).withTimeout(0).exec();
-		dockerClient.removeContainerCmd(c).withForce(true).withRemoveVolumes(true).exec();
+	private void stopContainer(String c) throws DockerException, InterruptedException {
+		dockerClient.removeContainer(c, RemoveContainerParam.forceKill(true), RemoveContainerParam.removeVolumes(true));
 	}
 
-	private String startContainer() {
-		CreateContainerResponse container = dockerClient.createContainerCmd("busybox")
-				.withCmd("sh", "-c","while sleep 1; do :; done")
-				.exec();
-		dockerClient.startContainerCmd(container.getId()).exec();
-		return container.getId();
+	private String startContainer() throws DockerException, InterruptedException {
+		String[] command = new String[] { "sh", "-c","while sleep 1; do :; done" };
+		ContainerConfig containerConfig = ContainerConfig.builder()
+			    .image(TEST_IMAGE)
+			    .cmd(command)
+			    .build();
+		ContainerCreation creation = dockerClient.createContainer(containerConfig);
+		dockerClient.startContainer(creation.id());
+		containers.add(creation.id());
+		return creation.id();
 	}
 	
 	public List<String> getContainerIds() {
