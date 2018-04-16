@@ -43,7 +43,7 @@ public class ContainerRemoteTest {
     
 	@BeforeClass
 	public static void setupClass() throws InterruptedException, IOException {
-		dockerClient = new DefaultDockerClient("unix:///var/run/docker.sock");
+		dockerClient = DockerClientFactory.initializeDockerClient();
 		containerFactory = new DockerTestContainerFactory(dockerClient);
 	}
 	

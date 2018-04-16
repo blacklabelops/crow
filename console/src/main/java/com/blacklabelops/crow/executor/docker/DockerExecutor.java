@@ -17,7 +17,7 @@ import com.blacklabelops.crow.executor.OutputReader;
 import com.blacklabelops.crow.logger.IJobLogger;
 import com.blacklabelops.crow.reporter.IJobReporter;
 
-public class DockerExecutor implements IExecutor {
+class DockerExecutor implements IExecutor {
 
     private final static int RETURN_CODE_OKAY = 0;
 

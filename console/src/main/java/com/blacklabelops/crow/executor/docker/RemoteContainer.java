@@ -65,7 +65,7 @@ class RemoteContainer {
 
     public void execute(JobDefinition executionDefinition) {
         checkDefinition(executionDefinition);
-        initializeDockerClient(executionDefinition);
+        dockerClient = DockerClientFactory.initializeDockerClient();
         boolean preResult = true;
         try {
         		prepareRedirects();
@@ -81,20 +81,6 @@ class RemoteContainer {
 			IOUtils.closeQuietly(outErrorStream);
         }
     }
-    
-    private void initializeDockerClient(JobDefinition executionDefinition) {
-    		try {
-    			Builder builder = DefaultDockerClient.fromEnv();
-    			if (!builder.uri().getScheme().equals("https") && builder.dockerCertificates() != null) {
-    				builder.dockerCertificates(null);
-    			}
-    			dockerClient = builder.build();
-		} catch (DockerCertificateException e) {
-			String message = String.format("Unable to initialize Docker Client: Job %s, Container %s", executionDefinition.getJobName(), executionDefinition.getContainerName());
-			LOG.error(message, e);
-			throw new ExecutorException(message, e);
-		}
-	}
 
 	private void executePostCommands(JobDefinition executionDefinition) {
 		String[] command = executionDefinition.getPostCommand().toArray(new String[executionDefinition.getPostCommand().size()]);
