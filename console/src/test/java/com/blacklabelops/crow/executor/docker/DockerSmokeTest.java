@@ -15,10 +15,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.DockerClient.ExecCreateParam;
+import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
@@ -41,7 +40,7 @@ public class DockerSmokeTest {
 	
 	@BeforeClass
 	public static void setupClass() throws DockerCertificateException, DockerException, InterruptedException  {
-		dockerClient = new DefaultDockerClient("unix:///var/run/docker.sock");
+		dockerClient = DockerClientFactory.initializeDockerClient();
 		containerFactory = new DockerTestContainerFactory(dockerClient);
 		containerFactory.runSomeContainers(numberOfContainers);
 	}

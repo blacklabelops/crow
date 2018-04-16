@@ -29,7 +29,9 @@ public class DockerTestContainerFactory {
 		if (!checkTestImage()) {
 			dockerClient.pull(TEST_IMAGE);
 		}
-		return startContainer();
+		String id = startContainer();
+		containers.add(id);
+		return id;
 	}
 	
 	public boolean checkTestImage() {
@@ -80,7 +82,6 @@ public class DockerTestContainerFactory {
 			    .build();
 		ContainerCreation creation = dockerClient.createContainer(containerConfig);
 		dockerClient.startContainer(creation.id());
-		containers.add(creation.id());
 		return creation.id();
 	}
 	

@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.util.FileAsserter;
-import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerException;
 
