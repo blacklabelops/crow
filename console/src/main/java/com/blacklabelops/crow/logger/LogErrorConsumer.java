@@ -10,7 +10,7 @@ public class LogErrorConsumer extends BoundedLineWriter {
 
 	public LogErrorConsumer(
 			Logger pLogger) {
-		super();
+		super(true);
 		logger = pLogger;
 	}
 

@@ -25,31 +25,30 @@ import com.blacklabelops.crow.definition.JobDefinition;
 
 @Component
 public class JobRepository {
-	
+
 	private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();;
-	
+
 	private static Logger LOG = LoggerFactory.getLogger(JobRepository.class);
-	
+
 	private Global globalConfiguration;
-	
-	private final Map<String,RepositoryJob> jobs = Collections.synchronizedMap(new HashMap<>());
-	
-	private final List<WeakReference<IJobRepositoryListener>> listeners = Collections.synchronizedList(new ArrayList<>());
-	
+
+	private final Map<String, RepositoryJob> jobs = Collections.synchronizedMap(new HashMap<>());
+
+	private final List<WeakReference<IJobRepositoryListener>> listeners = Collections.synchronizedList(
+			new ArrayList<>());
+
 	public JobRepository() {
 		super();
 	}
-	
+
 	public void addListeners(List<IJobRepositoryListener> repositoryListeners) {
-		repositoryListeners.stream().forEach(listener -> 
-			listeners.add(new WeakReference<>(listener))
-		);
+		repositoryListeners.stream().forEach(listener -> listeners.add(new WeakReference<>(listener)));
 	}
-	
+
 	public void addListener(IJobRepositoryListener repositoryListener) {
 		listeners.add(new WeakReference<>(repositoryListener));
 	}
-	
+
 	public void addJob(JobConfiguration jobConfiguration) {
 		JobConverter jobConverter = new JobConverter(globalConfiguration);
 		RepositoryJob repositoryJob = jobConverter.convertJob(jobConfiguration);
@@ -59,11 +58,11 @@ public class JobRepository {
 				LOG.debug("Job added to repository: {}", jobConfiguration);
 				notifyJobAdded(repositoryJob.getJobDefinition());
 			} else {
-				LOG.debug("Job not added, already existent in repository: {}", jobConfiguration);
+				LOG.info("Job not added, already existent in repository: {}", jobConfiguration);
 			}
 		}
 	}
-	
+
 	private boolean validateJob(JobConfiguration jobConfiguration) {
 		Set<ConstraintViolation<JobConfiguration>> errors = validator.validate(jobConfiguration);
 		if (!errors.isEmpty()) {
@@ -72,11 +71,11 @@ public class JobRepository {
 		}
 		return errors.isEmpty();
 	}
-	
+
 	public boolean jobExists(String jobName) {
 		return this.jobs.containsKey(jobName);
 	}
-	
+
 	public void removeJob(String jobName) {
 		RepositoryJob repositoryJob = this.jobs.remove(jobName);
 		if (repositoryJob != null) {
@@ -87,15 +86,15 @@ public class JobRepository {
 			LOG.debug("Job {} not removed, job not found in repository.", jobName);
 		}
 	}
-	
+
 	public List<JobConfiguration> listJobs() {
 		return Arrays
-			.asList(this.jobs.values().toArray(new RepositoryJob[this.jobs.size()]))
-			.stream()
-			.map(job -> new JobConfiguration(job.getJobConfiguration()))
-			.collect(Collectors.toList());
+				.asList(this.jobs.values().toArray(new RepositoryJob[this.jobs.size()]))
+				.stream()
+				.map(job -> new JobConfiguration(job.getJobConfiguration()))
+				.collect(Collectors.toList());
 	}
-	
+
 	public Optional<JobConfiguration> findJob(String jobName) {
 		LOG.debug("Repository listing job: {}", jobName);
 		RepositoryJob found = this.jobs.get(jobName);
@@ -111,18 +110,18 @@ public class JobRepository {
 		JobDefinition jobClone = new JobDefinition(removedJob);
 		List<WeakReference<IJobRepositoryListener>> notifications = new ArrayList<>(listeners);
 		notifications
-			.parallelStream()
-			.filter(notified -> notified.get() != null)
-			.forEach(notification -> notification.get().jobRemoved(jobClone));
+				.parallelStream()
+				.filter(notified -> notified.get() != null)
+				.forEach(notification -> notification.get().jobRemoved(jobClone));
 	}
 
 	private void notifyJobAdded(JobDefinition jobDefinition) {
 		JobDefinition jobClone = new JobDefinition(jobDefinition);
 		List<WeakReference<IJobRepositoryListener>> notifications = new ArrayList<>(listeners);
 		notifications
-			.parallelStream()
-			.filter(notified -> notified.get() != null)
-			.forEach(notification -> notification.get().jobAdded(jobClone));
+				.parallelStream()
+				.filter(notified -> notified.get() != null)
+				.forEach(notification -> notification.get().jobAdded(jobClone));
 	}
 
 	public Global getGlobalConfiguration() {
@@ -132,6 +131,5 @@ public class JobRepository {
 	public void setGlobalConfiguration(Global globalConfiguration) {
 		this.globalConfiguration = new Global(globalConfiguration);
 	}
-	
-	
+
 }

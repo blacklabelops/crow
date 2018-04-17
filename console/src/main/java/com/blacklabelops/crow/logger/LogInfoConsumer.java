@@ -9,7 +9,7 @@ public class LogInfoConsumer extends BoundedLineWriter {
 	private Logger logger;
 
 	public LogInfoConsumer(Logger pLogger) {
-		super();
+		super(true);
 		logger = pLogger;
 	}
 
