@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.log4j.lf5.util.StreamUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class OutputReader implements Runnable {
 			while (keepReading) {
 				lineConsumer.parallelStream().forEach(o -> {
 					try {
-						StreamUtils.copy(inputStream, o);
+						IOUtils.copy(inputStream, o);
 					} catch (IOException e) {
 						LOG.error("Supplying loggers failed.", e);
 					}
@@ -42,7 +42,7 @@ public class OutputReader implements Runnable {
 				waitforNewInput();
 				lineConsumer.parallelStream().forEach(o -> {
 					try {
-						StreamUtils.copy(inputStream, o);
+						IOUtils.copy(inputStream, o);
 					} catch (IOException e) {
 						LOG.error("Supplying loggers failed.", e);
 					}
