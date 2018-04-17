@@ -1,39 +1,44 @@
 package com.blacklabelops.crow.logger;
 
-import java.util.function.Consumer;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
+import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JobLogLogger implements IJobLogger {
 
-    private final Logger jobLogger;
+	private final Logger jobLogger;
 
-    private final LogInfoConsumer loginfoConsumer;
+	private OutputStream loginfoConsumer;
 
-    private final LogErrorConsumer logerrorConsumer;
+	private OutputStream logerrorConsumer;
 
-    public JobLogLogger(String jobName) {
-        jobLogger = LoggerFactory.getLogger(jobName);
-        loginfoConsumer = new LogInfoConsumer(jobLogger);
-        logerrorConsumer = new LogErrorConsumer(jobLogger);
-    }
+	public JobLogLogger(String jobName) {
+		jobLogger = LoggerFactory.getLogger(jobName);
+	}
 
-    @Override
-    public void initializeLogger() {
-    }
+	@Override
+	public void initializeLogger() {
+		loginfoConsumer = new WriterOutputStream(new LogInfoConsumer(jobLogger), StandardCharsets.UTF_8);
+		logerrorConsumer = new WriterOutputStream(new LogErrorConsumer(jobLogger), StandardCharsets.UTF_8);
+	}
 
-    @Override
-    public void finishLogger() {
-    }
+	@Override
+	public void finishLogger() {
+		IOUtils.closeQuietly(loginfoConsumer);
+		IOUtils.closeQuietly(logerrorConsumer);
+	}
 
-    @Override
-    public Consumer<String> getInfoLogConsumer() {
-        return loginfoConsumer;
-    }
+	@Override
+	public OutputStream getInfoLogConsumer() {
+		return loginfoConsumer;
+	}
 
-    @Override
-    public Consumer<String> getErrorLogConsumer() {
-        return logerrorConsumer;
-    }
+	@Override
+	public OutputStream getErrorLogConsumer() {
+		return logerrorConsumer;
+	}
 }

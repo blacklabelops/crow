@@ -2,20 +2,21 @@ package com.blacklabelops.crow.logger;
 
 import org.slf4j.Logger;
 
-import java.util.function.Consumer;
+import com.blacklabelops.crow.executor.BoundedLineWriter;
 
+public class LogInfoConsumer extends BoundedLineWriter {
 
-public class LogInfoConsumer implements Consumer<String> {
+	private Logger logger;
 
-    private Logger logger;
+	public LogInfoConsumer(Logger pLogger) {
+		super();
+		logger = pLogger;
+	}
 
-    public LogInfoConsumer(Logger pLogger) {
-        super();
-        logger = pLogger;
-    }
+	@Override
+	protected void writeLine(String line) {
+		logger.info(line);
 
-    @Override
-    public void accept(String s) {
-        logger.info(s);
-    }
+	}
+
 }

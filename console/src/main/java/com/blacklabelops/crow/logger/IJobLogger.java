@@ -1,14 +1,14 @@
 package com.blacklabelops.crow.logger;
 
-import java.util.function.Consumer;
+import java.io.OutputStream;
 
 public interface IJobLogger {
 
-    public void initializeLogger();
+	public void initializeLogger();
 
-    public void finishLogger();
+	public void finishLogger();
 
-    public Consumer<String> getInfoLogConsumer();
+	public OutputStream getInfoLogConsumer();
 
-    public Consumer<String> getErrorLogConsumer();
+	public OutputStream getErrorLogConsumer();
 }
