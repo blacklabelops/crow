@@ -18,6 +18,8 @@ class DockerExecutor implements IExecutor {
 
 	private final String jobName;
 
+	private final String jobId;
+
 	private final JobDefinition jobDefinition;
 
 	private final List<IJobReporter> jobReporter = new ArrayList<>();
@@ -28,6 +30,7 @@ class DockerExecutor implements IExecutor {
 
 	public DockerExecutor(JobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger) {
 		super();
+		jobId = definition.resolveJobId();
 		jobName = definition.getJobName();
 		jobDefinition = new JobDefinition(definition);
 		this.executionResult = new ExecutionResult(jobDefinition);
@@ -86,6 +89,11 @@ class DockerExecutor implements IExecutor {
 	@Override
 	public ExecutionResult getExecutionResult() {
 		return new ExecutionResult(this.executionResult);
+	}
+
+	@Override
+	public String getJobId() {
+		return jobId;
 	}
 
 }

@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.blacklabelops.crow.definition.JobDefinition;
@@ -16,7 +17,7 @@ import com.spotify.docker.client.exceptions.DockerException;
 
 public class ContainerRemoteIT {
 
-	public RemoteContainer cli;
+	public RemoteContainer remoteContainer;
 
 	public JobDefinition definition;
 
@@ -31,11 +32,11 @@ public class ContainerRemoteIT {
 	@Before
 	public void setup() {
 		assert !System.getProperty("os.name").startsWith("Windows");
-		cli = new RemoteContainer();
+		remoteContainer = new RemoteContainer();
 		output = new ByteArrayOutputStream();
 		errorOutput = new ByteArrayOutputStream();
-		cli.setOutStream(output);
-		cli.setOutErrorStream(errorOutput);
+		remoteContainer.setOutStream(output);
+		remoteContainer.setOutErrorStream(errorOutput);
 	}
 
 	@BeforeClass
@@ -50,16 +51,17 @@ public class ContainerRemoteIT {
 	}
 
 	@Test(timeout = 120000)
+	@Ignore
 	public void testRun_CommandTakesLongerThanTimeOut_JobTimedOut() throws DockerException, InterruptedException {
 		String containerId = containerFactory.runContainer();
 		JobDefinition jobDefinition = new JobDefinition();
 		jobDefinition.setJobName("A");
-		jobDefinition.setCommand("sleep", "90000");
+		jobDefinition.setCommand("sleep", "80000");
 		jobDefinition.setTimeoutMinutes(1);
 		jobDefinition.setContainerId(containerId);
 
-		cli.execute(jobDefinition);
+		remoteContainer.execute(jobDefinition);
 
-		assertTrue(cli.isTimedOut());
+		assertTrue(remoteContainer.isTimedOut());
 	}
 }

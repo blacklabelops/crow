@@ -11,28 +11,31 @@ import com.blacklabelops.crow.definition.JobDefinition;
 import com.blacklabelops.crow.executor.ExecutionResult;
 
 public class DispatchingResult {
-	
+
 	private static Logger LOG = LoggerFactory.getLogger(DispatchingResult.class);
-	
+
 	private JobDefinition jobDefinition;
-	
+
 	private String jobName;
-	
+
+	private String jobId;
+
 	private DispatcherResult dispatcherResult;
-	
+
 	private LocalDateTime dispatchingTime;
-	
+
 	public DispatchingResult() {
 		super();
 	}
-	
+
 	public DispatchingResult(JobDefinition jobDefinition) {
 		super();
 		this.setJobDefinition(jobDefinition);
 		this.setJobName(jobDefinition.getJobName());
+		this.setJobId(jobDefinition.resolveJobId());
 		this.setDispatchingTime(LocalDateTime.now());
 	}
-	
+
 	public DispatchingResult(ExecutionResult executionResult) {
 		super();
 		try {
@@ -83,11 +86,19 @@ public class DispatchingResult {
 		this.dispatchingTime = dispatchingTime;
 	}
 
+	public String getJobId() {
+		return jobId;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+
 	@Override
 	public String toString() {
 		return String.format(
 				"DispatchingResult [jobDefinition=%s, jobName=%s, dispatcherResult=%s, dispatchingTime=%s]",
 				jobDefinition, jobName, dispatcherResult, dispatchingTime);
 	}
-	
+
 }

@@ -7,13 +7,13 @@ import com.blacklabelops.crow.reporter.IJobReporter;
 
 public interface IExecutor extends Runnable {
 
-    public void run();
+	public void run();
 
-    public String getJobName();
+	public String getJobId();
 
-    public List<IJobReporter> getReporter();
-	
+	public List<IJobReporter> getReporter();
+
 	JobDefinition getJobDefinition();
-	
+
 	ExecutionResult getExecutionResult();
 }

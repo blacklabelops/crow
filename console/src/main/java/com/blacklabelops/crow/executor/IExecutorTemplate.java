@@ -2,7 +2,7 @@ package com.blacklabelops.crow.executor;
 
 public interface IExecutorTemplate {
 
-    public IExecutor createExecutor();
+	public IExecutor createExecutor();
 
-    public String getJobName();
+	public String getJobId();
 }

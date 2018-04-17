@@ -27,9 +27,9 @@ import com.spotify.docker.client.messages.ExecCreation;
 import com.spotify.docker.client.messages.ExecState;
 import com.spotify.docker.client.messages.Info;
 
-public class DockerSmokeTest {
+public class DockerSmokeIT {
 
-	private Logger LOG = LoggerFactory.getLogger(DockerSmokeTest.class);
+	private Logger LOG = LoggerFactory.getLogger(DockerSmokeIT.class);
 
 	public static DockerTestContainerFactory containerFactory;
 
@@ -112,6 +112,25 @@ public class DockerSmokeTest {
 		LOG.info("Execution time {}", endTime - startTime);
 
 		assertEquals(startedContainers.size(), inspections.size());
+	}
+
+	@Test
+	public void testExecution_ExecuteCommandInContainer_OutputExecuted() throws InterruptedException,
+			IOException, DockerException {
+		String[] command = new String[] { "echo", "HelloWorld" };
+		String container = containerFactory.getContainerIds().stream().findFirst().get();
+		ExecCreation execCreation = dockerClient.execCreate(container, command, DockerClient.ExecCreateParam
+				.attachStdout(),
+				DockerClient.ExecCreateParam.attachStderr());
+
+		LogStream output = dockerClient.execStart(execCreation.id());
+		String execOutput = output.readFully();
+		ExecState state = dockerClient.execInspect(execCreation.id());
+
+		LOG.info("Output: {}", execOutput);
+
+		assertEquals("HelloWorld\n", execOutput);
+		assertEquals(Integer.valueOf(0), state.exitCode());
 	}
 
 	/**

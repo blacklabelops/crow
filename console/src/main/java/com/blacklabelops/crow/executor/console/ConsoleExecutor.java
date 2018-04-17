@@ -19,124 +19,133 @@ import com.blacklabelops.crow.reporter.IJobReporter;
 
 public class ConsoleExecutor implements IExecutor {
 
-    private final static int RETURN_CODE_OKAY = 0;
+	private final static int RETURN_CODE_OKAY = 0;
 
-    private final String jobName;
+	private final String jobName;
 
-    private final JobDefinition jobDefinition;
+	private final String jobId;
 
-    private final List<IJobReporter> jobReporter = new ArrayList<>();
+	private final JobDefinition jobDefinition;
 
-    private final List<IJobLogger> jobLogger = new ArrayList<>();
+	private final List<IJobReporter> jobReporter = new ArrayList<>();
 
-    private final FileAccessor fileAccessor = new FileAccessor();
+	private final List<IJobLogger> jobLogger = new ArrayList<>();
 
-    private Path outputFile;
+	private final FileAccessor fileAccessor = new FileAccessor();
 
-    private Path errorFile;
+	private Path outputFile;
 
-    private OutputReader outputFileReader;
+	private Path errorFile;
 
-    private Thread outputReaderThread;
+	private OutputReader outputFileReader;
 
-    private OutputReader errorFileReader;
+	private Thread outputReaderThread;
 
-    private Thread errorReaderThread;
-    
-    private ExecutionResult executionResult;
+	private OutputReader errorFileReader;
 
-    public ConsoleExecutor(JobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger)  {
-        super();
-        jobName = definition.getJobName();
-        jobDefinition = new JobDefinition(definition);
-        this.executionResult = new ExecutionResult(jobDefinition);
-        if (reporter != null) {
-            reporter
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .forEach(report -> jobReporter.add(report));
-        }
-        if (logger != null) {
-                logger
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .forEach(log -> jobLogger.add(log));
-        }
-    }
+	private Thread errorReaderThread;
 
-    @Override
-    public void run() {
-        jobLogger.forEach(IJobLogger::initializeLogger);
-        try {
-            LocalConsole executor = new LocalConsole();
-            createDefaultOutputFiles(executor);
-            startLogTrailing();
-            this.executionResult.setStartingTime(LocalDateTime.now());
-            jobReporter.parallelStream().forEach(reporter -> reporter.startingJob(new ExecutionResult(this.executionResult)));
-            executor.execute(jobDefinition);
-            this.executionResult.setTimedOut(executor.isTimedOut());
-            this.executionResult.setReturnCode(executor.getReturnCode());
-            this.executionResult.setFinishingTime(LocalDateTime.now());
-            stopLogTrailing();
-            jobReporter.parallelStream().forEach(reporter -> reporter.finishedJob(new ExecutionResult(this.executionResult)));
-            if (!this.executionResult.isTimedOut()) {
-        			if (RETURN_CODE_OKAY != this.executionResult.getReturnCode()) {
-        				jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(new ExecutionResult(this.executionResult)));
-                 }
-            } else {
-            		jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(new ExecutionResult(this.executionResult)));
-            }
-            deleteOutputFiles();
-        } finally {
-            jobLogger.forEach(IJobLogger::finishLogger);
-        }
-    }
+	private ExecutionResult executionResult;
 
-    private void startLogTrailing() {
-        outputFileReader = new OutputReader(outputFile, jobLogger.stream().map(IJobLogger::getInfoLogConsumer).filter(Objects::nonNull).collect(toList()));
-        outputReaderThread = new Thread(outputFileReader);
-        outputReaderThread.start();
-        errorFileReader = new OutputReader(errorFile, jobLogger.stream().map(IJobLogger::getErrorLogConsumer).filter(Objects::nonNull).collect(toList()));
-        errorReaderThread = new Thread(errorFileReader);
-        errorReaderThread.start();
-    }
-
-    private void stopLogTrailing() {
-        stopFileTrailing(outputFileReader, outputReaderThread);
-        stopFileTrailing(errorFileReader, errorReaderThread);
-    }
-
-    private void stopFileTrailing(OutputReader reader, Thread thread) {
-        reader.stop();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Cannot join outputReader",e);
-        }
-    }
-
-    private void deleteOutputFiles() {
-        fileAccessor.deleteFile(outputFile);
-        fileAccessor.deleteFile(errorFile);
-    }
-
-    private void createDefaultOutputFiles(LocalConsole executor) {
-        outputFile = fileAccessor.createTempFile("ExecutorConsole","OutputFile");
-        errorFile = fileAccessor.createTempFile("ExecutorConsole","ErrorFile");
-        executor.setOutputFile(outputFile.toFile());
-        executor.setOutputErrorFile(errorFile.toFile());
-    }
-
-    public String getJobName() {
-        return jobName;
-    }
+	public ConsoleExecutor(JobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger) {
+		super();
+		jobName = definition.getJobName();
+		jobId = definition.resolveJobId();
+		jobDefinition = new JobDefinition(definition);
+		this.executionResult = new ExecutionResult(jobDefinition);
+		if (reporter != null) {
+			reporter
+					.stream()
+					.filter(Objects::nonNull)
+					.forEach(report -> jobReporter.add(report));
+		}
+		if (logger != null) {
+			logger
+					.stream()
+					.filter(Objects::nonNull)
+					.forEach(log -> jobLogger.add(log));
+		}
+	}
 
 	@Override
-    public List<IJobReporter> getReporter() {
-        List<IJobReporter> copy = new ArrayList<>();
-        Collections.copy(jobReporter, copy);
-        return copy;
-    }
+	public void run() {
+		jobLogger.forEach(IJobLogger::initializeLogger);
+		try {
+			LocalConsole executor = new LocalConsole();
+			createDefaultOutputFiles(executor);
+			startLogTrailing();
+			this.executionResult.setStartingTime(LocalDateTime.now());
+			jobReporter.parallelStream().forEach(reporter -> reporter.startingJob(new ExecutionResult(
+					this.executionResult)));
+			executor.execute(jobDefinition);
+			this.executionResult.setTimedOut(executor.isTimedOut());
+			this.executionResult.setReturnCode(executor.getReturnCode());
+			this.executionResult.setFinishingTime(LocalDateTime.now());
+			stopLogTrailing();
+			jobReporter.parallelStream().forEach(reporter -> reporter.finishedJob(new ExecutionResult(
+					this.executionResult)));
+			if (!this.executionResult.isTimedOut()) {
+				if (RETURN_CODE_OKAY != this.executionResult.getReturnCode()) {
+					jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(new ExecutionResult(
+							this.executionResult)));
+				}
+			} else {
+				jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(new ExecutionResult(
+						this.executionResult)));
+			}
+			deleteOutputFiles();
+		} finally {
+			jobLogger.forEach(IJobLogger::finishLogger);
+		}
+	}
+
+	private void startLogTrailing() {
+		outputFileReader = new OutputReader(outputFile, jobLogger.stream().map(IJobLogger::getInfoLogConsumer).filter(
+				Objects::nonNull).collect(toList()));
+		outputReaderThread = new Thread(outputFileReader);
+		outputReaderThread.start();
+		errorFileReader = new OutputReader(errorFile, jobLogger.stream().map(IJobLogger::getErrorLogConsumer).filter(
+				Objects::nonNull).collect(toList()));
+		errorReaderThread = new Thread(errorFileReader);
+		errorReaderThread.start();
+	}
+
+	private void stopLogTrailing() {
+		stopFileTrailing(outputFileReader, outputReaderThread);
+		stopFileTrailing(errorFileReader, errorReaderThread);
+	}
+
+	private void stopFileTrailing(OutputReader reader, Thread thread) {
+		reader.stop();
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			throw new RuntimeException("Cannot join outputReader", e);
+		}
+	}
+
+	private void deleteOutputFiles() {
+		fileAccessor.deleteFile(outputFile);
+		fileAccessor.deleteFile(errorFile);
+	}
+
+	private void createDefaultOutputFiles(LocalConsole executor) {
+		outputFile = fileAccessor.createTempFile("ExecutorConsole", "OutputFile");
+		errorFile = fileAccessor.createTempFile("ExecutorConsole", "ErrorFile");
+		executor.setOutputFile(outputFile.toFile());
+		executor.setOutputErrorFile(errorFile.toFile());
+	}
+
+	public String getJobName() {
+		return jobName;
+	}
+
+	@Override
+	public List<IJobReporter> getReporter() {
+		List<IJobReporter> copy = new ArrayList<>();
+		Collections.copy(jobReporter, copy);
+		return copy;
+	}
 
 	@Override
 	public JobDefinition getJobDefinition() {
@@ -147,6 +156,10 @@ public class ConsoleExecutor implements IExecutor {
 	public ExecutionResult getExecutionResult() {
 		return new ExecutionResult(this.executionResult);
 	}
-    
-    
+
+	@Override
+	public String getJobId() {
+		return jobId;
+	}
+
 }

@@ -116,8 +116,8 @@ class RemoteContainer {
 		try {
 			execCreation = dockerClient.execCreate(executionDefinition.getContainerId(), command, executionParams);
 		} catch (DockerException | InterruptedException e) {
-			String message = String.format("Execution creation for job %s in container %s failed!",
-					executionDefinition.getJobName(), executionDefinition.getContainerId());
+			String message = String.format("Execution creation for job %s failed!",
+					executionDefinition.resolveJobLabel());
 			LOG.error(message, e);
 			throw new ExecutorException(message, e);
 		}
@@ -135,9 +135,8 @@ class RemoteContainer {
 					ExecState state = dockerClient.execInspect(processBuilder.id());
 					RemoteContainer.this.returnCode = state.exitCode();
 				} catch (DockerException | InterruptedException | IOException e) {
-					String message = String.format("Error executing job %s in container %s",
-							RemoteContainer.this.jobDefinition.getJobName(),
-							RemoteContainer.this.jobDefinition.getContainerId());
+					String message = String.format("Error executing job %s !",
+							RemoteContainer.this.jobDefinition.resolveJobLabel());
 					LOG.error(message, e);
 					throw new ExecutorException(message, e);
 				} finally {
@@ -159,22 +158,20 @@ class RemoteContainer {
 			try {
 				future.get(this.jobDefinition.getTimeoutMinutes(), TimeUnit.MINUTES);
 			} catch (InterruptedException | ExecutionException e) {
-				String message = String.format("Error executing job %s in container %s",
-						RemoteContainer.this.jobDefinition.getJobName(),
-						RemoteContainer.this.jobDefinition.getContainerId());
+				String message = String.format("Error executing job %s!",
+						RemoteContainer.this.jobDefinition.resolveJobLabel());
 				LOG.error(message, e);
 				throw new ExecutorException(message, e);
 			} catch (TimeoutException e) {
-				LOG.error("Job {} in container {} timed out!", this.jobDefinition.getJobName(),
-						this.jobDefinition.getContainerId());
+				LOG.error("Job timed out {}!", this.jobDefinition.resolveJobLabel());
 				this.timedOut = true;
 			}
 		} else {
 			try {
 				future.get();
 			} catch (InterruptedException | ExecutionException e) {
-				String message = String.format("Error executing job %s in container %s",
-						this.jobDefinition.getJobName(), this.jobDefinition.getContainerId());
+				String message = String.format("Error executing job %s!",
+						this.jobDefinition.resolveJobLabel());
 				LOG.error(message, e);
 				throw new ExecutorException(message, e);
 			}

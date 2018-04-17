@@ -9,113 +9,118 @@ import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.BeanUtils;
 
+import com.cronutils.utils.StringUtils;
 
 public class JobConfiguration implements IConfigModel {
 
-    @NotEmpty(message = "A unique name for each job has to be defined!")
-    @Pattern(regexp="[a-zA-Z0-9_\\.]+", message = "Only numbers and chars are allowed in job names! Regex: [a-zA-Z0-9_\\\\.]+")
-    private String name;
+	@NotEmpty(message = "A unique name for each job has to be defined!")
+	@Pattern(regexp = "[a-zA-Z0-9_\\.]+", message = "Only numbers and chars are allowed in job names! Regex: [a-zA-Z0-9_\\\\.]+")
+	private String name;
 
-    @Cron(message = "Cron expression must be valid!")
-    private String cron;
+	@Cron(message = "Cron expression must be valid!")
+	private String cron;
 
-    @NotEmpty(message = "Your command is not allowed to be empty!")
-    private String command;
-    
-    private String preCommand;
-    
-    private String postCommand;
-    
-    private String shellCommand;
+	@NotEmpty(message = "Your command is not allowed to be empty!")
+	private String command;
 
-    private String workingDirectory;
+	private String preCommand;
 
-    private String execution;
+	private String postCommand;
 
-    private String errorMode;
-    
-    @Min(value = 0L, message = "The value must be positive")
-    private Integer timeOutMinutes;
+	private String shellCommand;
 
-    private Map<String, String> environments = new HashMap<>();
-    
-    public JobConfiguration() {
-        super();
-    }
-    
-    public JobConfiguration(JobConfiguration anotherConfiguration) {
-    	 	super();
-    	 	BeanUtils.copyProperties(anotherConfiguration, this);
-    	 	if (anotherConfiguration.getEnvironments() != null) {
-    	 		this.environments = new HashMap<>(anotherConfiguration.getEnvironments());
-    	 	} else {
-    	 		this.environments = null;
-    	 	}
-    }
+	private String workingDirectory;
 
-    public String getName() {
-        return name;
-    }
+	private String execution;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	private String errorMode;
 
-    public String getCron() {
-        return cron;
-    }
+	private String containerId;
 
-    public void setCron(String cron) {
-        this.cron = cron;
-    }
+	private String containerName;
 
-    public String getCommand() {
-        return command;
-    }
+	@Min(value = 0L, message = "The value must be positive")
+	private Integer timeOutMinutes;
 
-    public void setCommand(String command) {
-        this.command = command;
-    }
+	private Map<String, String> environments = new HashMap<>();
 
-    public Map<String, String> getEnvironments() {
-    		return environments;
-    }
+	public JobConfiguration() {
+		super();
+	}
 
-    public void setEnvironments(Map<String, String> environments) {
-    		this.environments = environments;
-    }
+	public JobConfiguration(JobConfiguration anotherConfiguration) {
+		super();
+		BeanUtils.copyProperties(anotherConfiguration, this);
+		if (anotherConfiguration.getEnvironments() != null) {
+			this.environments = new HashMap<>(anotherConfiguration.getEnvironments());
+		} else {
+			this.environments = null;
+		}
+	}
 
-    public String getExecution() {
-        return execution;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setExecution(String execution) {
-        this.execution = execution;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public String getErrorMode() {
-        return errorMode;
-    }
+	public String getCron() {
+		return cron;
+	}
 
-    public void setErrorMode(String errorMode) {
-        this.errorMode = errorMode;
-    }
+	public void setCron(String cron) {
+		this.cron = cron;
+	}
 
-    public String getShellCommand() {
-        return shellCommand;
-    }
+	public String getCommand() {
+		return command;
+	}
 
-    public void setShellCommand(String shellCommand) {
-        this.shellCommand = shellCommand;
-    }
+	public void setCommand(String command) {
+		this.command = command;
+	}
 
-    public String getWorkingDirectory() {
-        return workingDirectory;
-    }
+	public Map<String, String> getEnvironments() {
+		return environments;
+	}
 
-    public void setWorkingDirectory(String workingDirectory) {
-        this.workingDirectory = workingDirectory;
-    }
+	public void setEnvironments(Map<String, String> environments) {
+		this.environments = environments;
+	}
+
+	public String getExecution() {
+		return execution;
+	}
+
+	public void setExecution(String execution) {
+		this.execution = execution;
+	}
+
+	public String getErrorMode() {
+		return errorMode;
+	}
+
+	public void setErrorMode(String errorMode) {
+		this.errorMode = errorMode;
+	}
+
+	public String getShellCommand() {
+		return shellCommand;
+	}
+
+	public void setShellCommand(String shellCommand) {
+		this.shellCommand = shellCommand;
+	}
+
+	public String getWorkingDirectory() {
+		return workingDirectory;
+	}
+
+	public void setWorkingDirectory(String workingDirectory) {
+		this.workingDirectory = workingDirectory;
+	}
 
 	public String getPreCommand() {
 		return preCommand;
@@ -141,12 +146,39 @@ public class JobConfiguration implements IConfigModel {
 		this.timeOutMinutes = timeOutMinutes;
 	}
 
+	public String getContainerName() {
+		return containerName;
+	}
+
+	public void setContainerName(String containerName) {
+		this.containerName = containerName;
+	}
+
+	public String getContainerId() {
+		return containerId;
+	}
+
+	public void setContainerId(String containerId) {
+		this.containerId = containerId;
+	}
+
+	public String resolveJobId() {
+		String jobId = getName();
+		if (!StringUtils.isEmpty(getContainerId())) {
+			jobId = jobId.concat("#").concat(getContainerId());
+		}
+		if (!StringUtils.isEmpty(getContainerName())) {
+			jobId = jobId.concat("#").concat(getContainerName());
+		}
+		return jobId;
+	}
+
 	@Override
 	public String toString() {
 		return String.format(
-				"JobConfiguration [name=%s, cron=%s, command=%s, preCommand=%s, postCommand=%s, shellCommand=%s, workingDirectory=%s, execution=%s, errorMode=%s, timeOutMinutes=%s, environments=%s]",
+				"JobConfiguration [name=%s, cron=%s, command=%s, preCommand=%s, postCommand=%s, shellCommand=%s, workingDirectory=%s, execution=%s, errorMode=%s, containerId=%s, containerName=%s, timeOutMinutes=%s, environments=%s]",
 				name, cron, command, preCommand, postCommand, shellCommand, workingDirectory, execution, errorMode,
-				timeOutMinutes, environments);
+				containerId, containerName, timeOutMinutes, environments);
 	}
-    
+
 }

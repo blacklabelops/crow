@@ -53,7 +53,7 @@ public class JobRepository {
 		JobConverter jobConverter = new JobConverter(globalConfiguration);
 		RepositoryJob repositoryJob = jobConverter.convertJob(jobConfiguration);
 		if (validateJob(repositoryJob.getEvaluatedConfiguration())) {
-			RepositoryJob addedJob = jobs.putIfAbsent(repositoryJob.getJobDefinition().getJobName(), repositoryJob);
+			RepositoryJob addedJob = jobs.putIfAbsent(repositoryJob.getJobDefinition().resolveJobId(), repositoryJob);
 			if (addedJob == null) {
 				LOG.debug("Job added to repository: {}", jobConfiguration);
 				notifyJobAdded(repositoryJob.getJobDefinition());

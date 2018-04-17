@@ -12,16 +12,16 @@ import com.blacklabelops.crow.config.JobConfiguration;
 import com.cronutils.utils.StringUtils;
 
 class JobExtractor {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(JobExtractor.class);
-	
+
 	private final String prefix;
-	
+
 	public JobExtractor(String prefix) {
 		super();
 		this.prefix = prefix;
 	}
-	
+
 	public List<JobConfiguration> extractFromEnvironmentVariables(Map<String, String> environmentVariables) {
 		List<JobConfiguration> jobs = new ArrayList<>();
 		int iterator = 0;
@@ -33,7 +33,7 @@ class JobExtractor {
 		} while (job.isPresent());
 		return jobs;
 	}
-	
+
 	public List<JobConfiguration> extractFromProperties(Map<String, String> properties) {
 		List<JobConfiguration> jobs = new ArrayList<>();
 		int iterator = 0;
@@ -45,16 +45,18 @@ class JobExtractor {
 		} while (job.isPresent());
 		return jobs;
 	}
-	
-	private Optional<JobConfiguration> extractJobFromEnvironmentVariables(String jobPrefix, Map<String, String> environmentVariables) {
+
+	private Optional<JobConfiguration> extractJobFromEnvironmentVariables(String jobPrefix,
+			Map<String, String> environmentVariables) {
 		Optional<JobConfiguration> job = Optional.empty();
 		if (checkJobEnvironments(jobPrefix, environmentVariables)) {
 			job = fillJobFromEnvironmentVariables(jobPrefix, environmentVariables);
 		}
 		return job;
 	}
-	
-	private Optional<JobConfiguration> fillJobFromEnvironmentVariables(String jobPrefix, Map<String, String> environmentVariables) {
+
+	private Optional<JobConfiguration> fillJobFromEnvironmentVariables(String jobPrefix,
+			Map<String, String> environmentVariables) {
 		JobConfiguration job = new JobConfiguration();
 		job.setName(environmentVariables.get(getEnvironmentField(jobPrefix, JobField.NAME)));
 		job.setCron(environmentVariables.get(getEnvironmentField(jobPrefix, JobField.CRON)));
@@ -65,6 +67,8 @@ class JobExtractor {
 		job.setShellCommand(environmentVariables.get(getEnvironmentField(jobPrefix, JobField.SHELL_COMMAND)));
 		job.setExecution(environmentVariables.get(getEnvironmentField(jobPrefix, JobField.EXECUTION_MODE)));
 		job.setErrorMode(environmentVariables.get(getEnvironmentField(jobPrefix, JobField.ON_ERROR)));
+		job.setContainerName(environmentVariables.get(getEnvironmentField(jobPrefix, JobField.CONTAINER_NAME)));
+		job.setContainerId(environmentVariables.get(getEnvironmentField(jobPrefix, JobField.CONTAINER_ID)));
 		String minuteString = environmentVariables.get(getEnvironmentField(jobPrefix, JobField.TIMEOUT_MINUTES));
 		try {
 			job.setTimeOutMinutes(getTimeoutMinutes(minuteString));
@@ -74,7 +78,7 @@ class JobExtractor {
 		}
 		return Optional.of(job);
 	}
-	
+
 	private Integer getTimeoutMinutes(String minuteString) {
 		Integer minutes = null;
 		if (!StringUtils.isEmpty(minuteString)) {
@@ -94,6 +98,8 @@ class JobExtractor {
 		job.setShellCommand(properties.get(getPropertyField(jobPrefix, JobField.SHELL_COMMAND)));
 		job.setExecution(properties.get(getPropertyField(jobPrefix, JobField.EXECUTION_MODE)));
 		job.setErrorMode(properties.get(getPropertyField(jobPrefix, JobField.ON_ERROR)));
+		job.setContainerName(properties.get(getPropertyField(jobPrefix, JobField.CONTAINER_NAME)));
+		job.setContainerId(properties.get(getPropertyField(jobPrefix, JobField.CONTAINER_ID)));
 		String minuteString = properties.get(getPropertyField(jobPrefix, JobField.TIMEOUT_MINUTES));
 		try {
 			job.setTimeOutMinutes(getTimeoutMinutes(minuteString));

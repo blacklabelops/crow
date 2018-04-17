@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerClient.RemoveContainerParam;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ContainerConfig;
+import com.spotify.docker.client.messages.ContainerConfig.Builder;
 import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.ImageInfo;
 
@@ -33,6 +36,18 @@ public class DockerTestContainerFactory {
 			}
 		}
 		String id = startContainer();
+		containers.add(id);
+		return id;
+	}
+
+	public String runContainer(String name) throws DockerException, InterruptedException {
+		if (!checkTestImage()) {
+			try {
+				dockerClient.pull(TEST_IMAGE);
+			} catch (DockerException | InterruptedException e) {
+			}
+		}
+		String id = startContainer(name);
 		containers.add(id);
 		return id;
 	}
@@ -81,12 +96,19 @@ public class DockerTestContainerFactory {
 	}
 
 	private String startContainer() throws DockerException, InterruptedException {
+		return this.startContainer(null);
+	}
+
+	private String startContainer(String name) throws DockerException, InterruptedException {
 		String[] command = new String[] { "sh", "-c", "while sleep 1; do :; done" };
-		ContainerConfig containerConfig = ContainerConfig.builder()
+		Builder builder = ContainerConfig.builder()
 				.image(TEST_IMAGE)
-				.cmd(command)
-				.build();
+				.cmd(command);
+		ContainerConfig containerConfig = builder.build();
 		ContainerCreation creation = dockerClient.createContainer(containerConfig);
+		if (!StringUtils.isEmpty(name)) {
+			dockerClient.renameContainer(creation.id(), name);
+		}
 		dockerClient.startContainer(creation.id());
 		return creation.id();
 	}

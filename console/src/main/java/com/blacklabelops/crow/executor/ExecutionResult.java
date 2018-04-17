@@ -10,33 +10,36 @@ import org.slf4j.LoggerFactory;
 import com.blacklabelops.crow.definition.JobDefinition;
 
 public class ExecutionResult {
-	
-	private static Logger LOG = LoggerFactory.getLogger(ExecutionResult.class);
-	
-	private JobDefinition jobDefinition;
-	
-	private String jobName;
-	
-	private Integer returnCode;
-    
-    private boolean timedOut;
-    
-    private LocalDateTime startingTime;
 
-    private LocalDateTime finishingTime;
-    
-    private LocalDateTime errorTime;
-	
+	private static Logger LOG = LoggerFactory.getLogger(ExecutionResult.class);
+
+	private JobDefinition jobDefinition;
+
+	private String jobName;
+
+	private String jobId;
+
+	private Integer returnCode;
+
+	private boolean timedOut;
+
+	private LocalDateTime startingTime;
+
+	private LocalDateTime finishingTime;
+
+	private LocalDateTime errorTime;
+
 	public ExecutionResult() {
 		super();
 	}
-	
+
 	public ExecutionResult(JobDefinition jobDefinition) {
 		super();
 		this.setJobDefinition(jobDefinition);
 		this.setJobName(jobDefinition.getJobName());
+		this.setJobId(jobDefinition.resolveJobId());
 	}
-	
+
 	public ExecutionResult(ExecutionResult executionResult) {
 		super();
 		try {
@@ -110,6 +113,13 @@ public class ExecutionResult {
 	public void setErrorTime(LocalDateTime errorTime) {
 		this.errorTime = errorTime;
 	}
-	
-	
+
+	public String getJobId() {
+		return jobId;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+
 }

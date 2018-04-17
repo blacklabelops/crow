@@ -102,7 +102,7 @@ public class MultiJobSchedulerIntegrationIT {
 		}).when(spyConsole).run();
 		IExecutorTemplate template = mock(IExecutorTemplate.class);
 		when(template.createExecutor()).thenReturn(spyConsole);
-		when(template.getJobName()).thenReturn(name);
+		when(template.getJobId()).thenReturn(name);
 		return template;
 	}
 }

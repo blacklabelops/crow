@@ -11,6 +11,8 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cronutils.utils.StringUtils;
+
 public class JobDefinition {
 
 	private static Logger LOG = LoggerFactory.getLogger(JobDefinition.class);
@@ -222,6 +224,28 @@ public class JobDefinition {
 
 	public void setContainerId(String containerId) {
 		this.containerId = containerId;
+	}
+
+	public String resolveJobId() {
+		String jobId = getJobName();
+		if (!StringUtils.isEmpty(getContainerId())) {
+			jobId = jobId.concat("#").concat(getContainerId());
+		}
+		if (!StringUtils.isEmpty(getContainerName())) {
+			jobId = jobId.concat("#").concat(getContainerName());
+		}
+		return jobId;
+	}
+
+	public String resolveJobLabel() {
+		String jobId = getJobName();
+		if (!StringUtils.isEmpty(getContainerId())) {
+			jobId = jobId.concat("#").concat(getContainerId());
+		}
+		if (!StringUtils.isEmpty(getContainerName())) {
+			jobId = jobId.concat("#").concat(getContainerName());
+		}
+		return jobId;
 	}
 
 }

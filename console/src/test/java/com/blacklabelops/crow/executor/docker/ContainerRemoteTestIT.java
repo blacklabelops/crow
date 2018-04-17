@@ -17,7 +17,7 @@ import com.blacklabelops.crow.definition.JobDefinition;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerException;
 
-public class ContainerRemoteTest {
+public class ContainerRemoteTestIT {
 
 	public RemoteContainer cli;
 
@@ -53,7 +53,7 @@ public class ContainerRemoteTest {
 	}
 
 	@Test
-	public void testRun_ExecuteCommandInContainer_ResultInFile() throws DockerException, InterruptedException {
+	public void testRun_ExecuteCommandInContainer_OutputCorrect() throws DockerException, InterruptedException {
 		String containerId = containerFactory.runContainer();
 		JobDefinition jobDefinition = new JobDefinition();
 		jobDefinition.setJobName("A");
