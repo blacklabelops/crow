@@ -74,9 +74,9 @@ public class JobDispatcher {
 	private String getLoggerLabel(JobDefinition jobDefinition) {
 		String loggerLabel = jobDefinition.getJobName();
 		if (!StringUtils.isEmpty(jobDefinition.getContainerName())) {
-			loggerLabel.concat(" - ").concat(jobDefinition.getContainerName());
+			loggerLabel = loggerLabel.concat(" - ").concat(jobDefinition.getContainerName());
 		} else if (!StringUtils.isEmpty(jobDefinition.getContainerId())) {
-			loggerLabel.concat(" - ").concat(jobDefinition.getContainerId());
+			loggerLabel = loggerLabel.concat(" - ").concat(jobDefinition.getContainerId());
 		}
 		return loggerLabel;
 	}
