@@ -248,4 +248,12 @@ public class JobDefinition {
 		return jobId;
 	}
 
+	@Override
+	public String toString() {
+		return String.format(
+				"JobDefinition [cron=%s, shellCommand=%s, command=%s, preCommand=%s, postCommand=%s, environmentVariables=%s, executorMode=%s, errorMode=%s, jobName=%s, workingDir=%s, timeoutMinutes=%s, containerId=%s, containerName=%s]",
+				cron, shellCommand, command, preCommand, postCommand, environmentVariables, executorMode, errorMode,
+				jobName, workingDir, timeoutMinutes, containerId, containerName);
+	}
+
 }
