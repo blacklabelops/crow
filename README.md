@@ -1,5 +1,10 @@
 # Crow - Cron Web Scheduler
 
+[![Circle CI](https://circleci.com/gh/blacklabelops/crow.svg?style=shield&branch=master)](https://circleci.com/gh/blacklabelops/crow)
+[![codecov](https://codecov.io/github/blacklabelops/crow/coverage.svg?branch=master)](https://codecov.io/github/blacklabelops/crow?branch=master)
+[![Open Issues](https://img.shields.io/github/issues/blacklabelops/crow.svg)](https://github.com/blacklabelops/crow/issues)
+[![Stars on GitHub](https://img.shields.io/github/stars/blacklabelops/crow.svg)](https://github.com/cblacklabelops/crow/stargazers)
+
 Crow is a cron web scheduler for container environments.
 
 Realized in Spring Boot.
@@ -239,7 +244,7 @@ crow:
     - name: "HelloShellCommand"
       cron: "* * * * *"
       command: echo Hello
-      shellCommand: /bin/bash -c 
+      shellCommand: /bin/bash -c
 ~~~~
 
 ## Working Directory
@@ -259,5 +264,5 @@ crow:
     - name: "HelloShellCommand"
       cron: "* * * * *"
       command: echo Hello
-      workingDirectory: /tmp 
+      workingDirectory: /tmp
 ~~~~
