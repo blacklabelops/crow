@@ -18,6 +18,7 @@ import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.ContainerRenameConflictException;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.exceptions.DockerRequestException;
 import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.ExecCreation;
 import com.spotify.docker.client.messages.ExecState;
@@ -63,11 +64,17 @@ public class DockerSingleContainerSmokeTest {
 		assertEquals(Integer.valueOf(0), state.exitCode());
 	}
 
-	@Test(expected = ContainerRenameConflictException.class)
+	@Test
 	public void testExecution_TryTwoContainersWithSameName_Error() throws InterruptedException,
 			IOException, DockerException {
-		containerFactory.runContainer(CONTAINER_NAME);
-		containerFactory.runContainer(CONTAINER_NAME);
+		Exception exc = null;
+		try {
+			containerFactory.runContainer(CONTAINER_NAME);
+			containerFactory.runContainer(CONTAINER_NAME);
+		} catch (Exception e) {
+			exc = e;
+		}
+		assertTrue(exc instanceof ContainerRenameConflictException || exc instanceof DockerRequestException);
 	}
 
 	@Test
