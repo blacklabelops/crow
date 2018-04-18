@@ -42,6 +42,8 @@ class RemoteContainer {
 
 	private JobDefinition jobDefinition;
 
+	private String container;
+
 	public RemoteContainer() {
 		super();
 	}
@@ -50,12 +52,15 @@ class RemoteContainer {
 		if (executionDefinition == null)
 			throw new ExecutorException("Executor has no job definition!");
 		if (executionDefinition.getCommand() == null)
-			throw new ExecutorException("Executor has no command specified");
+			throw new ExecutorException("Executor has no command specified!");
+		if (executionDefinition.getContainerId() == null && executionDefinition.getContainerName() == null)
+			throw new ExecutorException("No container had been defined!");
 		jobDefinition = new JobDefinition(executionDefinition);
 	}
 
 	public void execute(JobDefinition executionDefinition) {
 		checkDefinition(executionDefinition);
+		evaluateContainer(executionDefinition);
 		dockerClient = DockerClientFactory.initializeDockerClient();
 		boolean preResult = true;
 		try {
@@ -70,6 +75,14 @@ class RemoteContainer {
 		} finally {
 			IOUtils.closeQuietly(outStream);
 			IOUtils.closeQuietly(outErrorStream);
+		}
+	}
+
+	private void evaluateContainer(JobDefinition executionDefinition) {
+		if (!StringUtils.isEmpty(executionDefinition.getContainerName())) {
+			this.container = executionDefinition.getContainerName();
+		} else if (!StringUtils.isEmpty(executionDefinition.getContainerId())) {
+			this.container = executionDefinition.getContainerId();
 		}
 	}
 
@@ -114,7 +127,7 @@ class RemoteContainer {
 		ExecCreateParam[] executionParams = parameters.toArray(new ExecCreateParam[parameters.size()]);
 		ExecCreation execCreation = null;
 		try {
-			execCreation = dockerClient.execCreate(executionDefinition.getContainerId(), command, executionParams);
+			execCreation = dockerClient.execCreate(this.container, command, executionParams);
 		} catch (DockerException | InterruptedException e) {
 			String message = String.format("Execution creation for job %s failed!",
 					executionDefinition.resolveJobLabel());
@@ -173,7 +186,7 @@ class RemoteContainer {
 				String message = String.format("Error executing job %s!",
 						this.jobDefinition.resolveJobLabel());
 				LOG.error(message, e);
-				throw new ExecutorException(message, e);
+
 			}
 		}
 	}

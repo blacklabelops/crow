@@ -1,6 +1,7 @@
 package com.blacklabelops.crow.executor.docker;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.ContainerRenameConflictException;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.ExecCreation;
 import com.spotify.docker.client.messages.ExecState;
 
@@ -67,4 +69,16 @@ public class DockerSingleContainerSmokeTest {
 		containerFactory.runContainer(containerName);
 		containerFactory.runContainer(containerName);
 	}
+
+	@Test
+	public void testExecution_CheckContainerRunning_Success() throws InterruptedException,
+			IOException, DockerException {
+		String containerName = "TestContainer";
+
+		containerFactory.runContainer(containerName);
+		ContainerInfo inspect = dockerClient.inspectContainer(containerName);
+
+		assertTrue(inspect.state().running());
+	}
+
 }

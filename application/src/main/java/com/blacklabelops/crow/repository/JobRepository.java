@@ -72,18 +72,18 @@ public class JobRepository {
 		return errors.isEmpty();
 	}
 
-	public boolean jobExists(String jobName) {
-		return this.jobs.containsKey(jobName);
+	public boolean jobExists(String jobId) {
+		return this.jobs.containsKey(jobId);
 	}
 
-	public void removeJob(String jobName) {
-		RepositoryJob repositoryJob = this.jobs.remove(jobName);
+	public void removeJob(String jobId) {
+		RepositoryJob repositoryJob = this.jobs.remove(jobId);
 		if (repositoryJob != null) {
 			JobDefinition removedJob = repositoryJob.getJobDefinition();
-			LOG.debug("Job {} removed from repository.", jobName);
+			LOG.debug("Job {} removed from repository.", jobId);
 			notifyJobRemoved(removedJob);
 		} else {
-			LOG.debug("Job {} not removed, job not found in repository.", jobName);
+			LOG.debug("Job {} not removed, job not found in repository.", jobId);
 		}
 	}
 
@@ -95,9 +95,9 @@ public class JobRepository {
 				.collect(Collectors.toList());
 	}
 
-	public Optional<JobConfiguration> findJob(String jobName) {
-		LOG.debug("Repository listing job: {}", jobName);
-		RepositoryJob found = this.jobs.get(jobName);
+	public Optional<JobConfiguration> findJob(String jobId) {
+		LOG.debug("Repository listing job: {}", jobId);
+		RepositoryJob found = this.jobs.get(jobId);
 		if (found != null) {
 			JobConfiguration clone = new JobConfiguration(found.getJobConfiguration());
 			return Optional.of(clone);

@@ -16,8 +16,8 @@ public class JobLogLogger implements IJobLogger {
 
 	private OutputStream logerrorConsumer;
 
-	public JobLogLogger(String jobName) {
-		jobLogger = LoggerFactory.getLogger(jobName);
+	public JobLogLogger(String jobLoggerLabel) {
+		jobLogger = LoggerFactory.getLogger(jobLoggerLabel);
 	}
 
 	@Override

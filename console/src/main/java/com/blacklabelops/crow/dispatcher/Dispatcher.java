@@ -3,6 +3,7 @@ package com.blacklabelops.crow.dispatcher;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -11,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.blacklabelops.crow.definition.ExecutionMode;
 import com.blacklabelops.crow.executor.IExecutor;
 import com.blacklabelops.crow.executor.IExecutorTemplate;
+import com.blacklabelops.crow.logger.IJobLogger;
+import com.blacklabelops.crow.reporter.IJobReporter;
 
 public class Dispatcher implements IDispatcher {
 
@@ -40,6 +43,35 @@ public class Dispatcher implements IDispatcher {
 		return addExecution(executor.createExecutor());
 	}
 
+	@Override
+	public DispatchingResult execute(String jobId, List<IJobReporter> reporters, List<IJobLogger> loggers) {
+		IExecutorTemplate executorTemplate = jobs.get(jobId);
+		IExecutor executor = executorTemplate.createExecutor();
+		if (loggers != null) {
+			executor.addLogger(loggers);
+		}
+		if (reporters != null) {
+			executor.addReporter(reporters);
+		}
+		return addExecution(executor);
+	}
+
+	@Override
+	public void testExecute(String jobId, List<IJobReporter> reporters, List<IJobLogger> loggers) {
+		IExecutorTemplate executorTemplate = jobs.get(jobId);
+		IExecutor executor = executorTemplate.createExecutor();
+		executor.deleteReporters();
+		executor.deleteLoggers();
+		if (loggers != null) {
+			executor.addLogger(loggers);
+		}
+		if (reporters != null) {
+			executor.addReporter(reporters);
+		}
+		Thread execution = new Thread(executor);
+		execution.start();
+	}
+
 	protected DispatchingResult addExecution(IExecutor executor) {
 		DispatchingResult dispatcherResult = new DispatchingResult(executor.getJobDefinition());
 		ExecutionMode executionMode = executor.getJobDefinition().getExecutionMode();
@@ -58,7 +90,7 @@ public class Dispatcher implements IDispatcher {
 		return dispatcherResult;
 	}
 
-	public boolean checkRunning(IExecutor executor) {
+	protected boolean checkRunning(IExecutor executor) {
 		boolean alreadyRunning = true;
 		WeakReference<Thread> reference = runningExecutors.get(executor.getJobId());
 		if (reference != null) {

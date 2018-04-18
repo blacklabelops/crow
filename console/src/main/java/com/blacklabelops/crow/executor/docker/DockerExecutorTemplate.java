@@ -10,9 +10,9 @@ import com.blacklabelops.crow.logger.IJobLoggerFactory;
 import com.blacklabelops.crow.reporter.IJobReporter;
 import com.blacklabelops.crow.reporter.IJobReporterFactory;
 
-public class ConsoleExecutorTemplate extends JobExecutorTemplate {
+public class DockerExecutorTemplate extends JobExecutorTemplate {
 
-	public ConsoleExecutorTemplate(JobDefinition definition, List<IJobReporterFactory> reporter, List<IJobLoggerFactory> logger) {
+	public DockerExecutorTemplate(JobDefinition definition, List<IJobReporterFactory> reporter, List<IJobLoggerFactory> logger) {
 		super(definition, reporter, logger);
 	}
 	

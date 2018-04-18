@@ -26,26 +26,28 @@ class JobConverter {
 			global = Optional.empty();
 		}
 	}
-	
+
 	public RepositoryJob convertJob(JobConfiguration jobConfiguration) {
 		RepositoryJob repositoryJob = new RepositoryJob();
 		repositoryJob.setJobConfiguration(new JobConfiguration(jobConfiguration));
 		repositoryJob.setJobDefinition(new JobDefinition());
 		repositoryJob.getJobDefinition().setJobName(jobConfiguration.getName());
 		repositoryJob.getJobDefinition().setCron(jobConfiguration.getCron());
+		repositoryJob.getJobDefinition().setContainerName(jobConfiguration.getContainerName());
+		repositoryJob.getJobDefinition().setContainerId(jobConfiguration.getContainerId());
 		evaluateShellCommand(jobConfiguration, repositoryJob.getJobDefinition());
-        evaluateCommand(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-        evaluatePreCommand(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-        evaluatePostCommand(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-        evaluateWorkingDirectory(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-        evaluateEnvironmentVariables(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-        evaluateTimeout(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-        evaluateExecutionMode(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-        evaluateErrorMode(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-        repositoryJob.setEvaluatedConfiguration(evaluateConfiguration(repositoryJob.getJobDefinition()));
+		evaluateCommand(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
+		evaluatePreCommand(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
+		evaluatePostCommand(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
+		evaluateWorkingDirectory(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
+		evaluateEnvironmentVariables(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
+		evaluateTimeout(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
+		evaluateExecutionMode(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
+		evaluateErrorMode(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
+		repositoryJob.setEvaluatedConfiguration(evaluateConfiguration(repositoryJob.getJobDefinition()));
 		return repositoryJob;
 	}
-	
+
 	private JobConfiguration evaluateConfiguration(JobDefinition jobDefinition) {
 		JobConfiguration config = new JobConfiguration();
 		config.setName(jobDefinition.getJobName());
@@ -92,8 +94,8 @@ class JobConverter {
 
 	private void evaluateEnvironmentVariables(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
 		if (jobConfiguration.getEnvironments() != null && !jobConfiguration.getEnvironments().isEmpty()) {
-            jobDefinition.setEnvironmentVariables(createEnvironmentVariables(jobConfiguration.getEnvironments()));
-        }
+			jobDefinition.setEnvironmentVariables(createEnvironmentVariables(jobConfiguration.getEnvironments()));
+		}
 		this.global.ifPresent(g -> {
 			if (g.getEnvironments() != null && !g.getEnvironments().isEmpty()) {
 				Map<String, String> environments = g.getEnvironments();
@@ -106,19 +108,21 @@ class JobConverter {
 				}
 				jobDefinition.setEnvironmentVariables(environments);
 			}
-		}); 
+		});
 	}
 
 	private void evaluatePostCommand(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
 		if (jobConfiguration.getPostCommand() != null && !jobConfiguration.getPostCommand().isEmpty()) {
-        		jobDefinition.setPostCommand(takeOverCommand(jobConfiguration.getPostCommand(), jobDefinition.getShellCommand()));
-        }
+			jobDefinition.setPostCommand(takeOverCommand(jobConfiguration.getPostCommand(), jobDefinition
+					.getShellCommand()));
+		}
 	}
 
 	private void evaluatePreCommand(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
 		if (jobConfiguration.getPreCommand() != null && !jobConfiguration.getPreCommand().isEmpty()) {
-        		jobDefinition.setPreCommand(takeOverCommand(jobConfiguration.getPreCommand(), jobDefinition.getShellCommand()));
-        }
+			jobDefinition.setPreCommand(takeOverCommand(jobConfiguration.getPreCommand(), jobDefinition
+					.getShellCommand()));
+		}
 	}
 
 	private void evaluateCommand(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
@@ -128,30 +132,30 @@ class JobConverter {
 	private void evaluateWorkingDirectory(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
 		if (!StringUtils.isEmpty(jobConfiguration.getWorkingDirectory())) {
 			jobDefinition.setWorkingDir(jobConfiguration.getWorkingDirectory());
-        } else {
-	        	global.ifPresent(g -> {
-	    			if (!StringUtils.isEmpty(g.getWorkingDirectory())) {
-	    				jobDefinition.setWorkingDir(g.getWorkingDirectory());
-	    			}
-	    		});
-        }
+		} else {
+			global.ifPresent(g -> {
+				if (!StringUtils.isEmpty(g.getWorkingDirectory())) {
+					jobDefinition.setWorkingDir(g.getWorkingDirectory());
+				}
+			});
+		}
 	}
-	
+
 	private String[] takeOverCommand(String command, String shellCommand) {
-        Commandline commandLine = null;
-        if (!StringUtils.isEmpty(shellCommand)) {
-            commandLine = new Commandline( shellCommand );
-            commandLine.addArguments(new String[] { command });
-        } else {
-            commandLine = new Commandline(command);
-        }
-        return commandLine.getCommandline();
-    }
-	
+		Commandline commandLine = null;
+		if (!StringUtils.isEmpty(shellCommand)) {
+			commandLine = new Commandline(shellCommand);
+			commandLine.addArguments(new String[] { command });
+		} else {
+			commandLine = new Commandline(command);
+		}
+		return commandLine.getCommandline();
+	}
+
 	private void evaluateShellCommand(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
 		if (!StringUtils.isEmpty(jobConfiguration.getShellCommand())) {
 			jobDefinition.setShellCommand(jobConfiguration.getShellCommand());
-		} else { 
+		} else {
 			global.ifPresent(g -> {
 				if (!StringUtils.isEmpty(g.getShellCommand())) {
 					jobDefinition.setShellCommand(g.getShellCommand());
@@ -160,14 +164,13 @@ class JobConverter {
 		}
 	}
 
-    private Map<String,String> createEnvironmentVariables(Map<String, String> environments) {
-        Map<String, String> environmentVariables = new HashMap<>();
-        environments
-        		.keySet()
-        		.stream().
-        		forEach(key -> environmentVariables.put(key,environments.get(key) != null ? environments.get(key) : ""));
-        return environmentVariables;
-    }
-	
-	
+	private Map<String, String> createEnvironmentVariables(Map<String, String> environments) {
+		Map<String, String> environmentVariables = new HashMap<>();
+		environments
+				.keySet()
+				.stream().forEach(key -> environmentVariables.put(key, environments.get(key) != null ? environments.get(
+						key) : ""));
+		return environmentVariables;
+	}
+
 }

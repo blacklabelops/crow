@@ -162,4 +162,24 @@ public class ConsoleExecutor implements IExecutor {
 		return jobId;
 	}
 
+	@Override
+	public void addReporter(List<IJobReporter> reporters) {
+		this.jobReporter.addAll(reporters);
+	}
+
+	@Override
+	public void addLogger(List<IJobLogger> loggers) {
+		this.jobLogger.addAll(loggers);
+	}
+
+	@Override
+	public void deleteReporters() {
+		this.jobReporter.clear();
+	}
+
+	@Override
+	public void deleteLoggers() {
+		this.jobLogger.clear();
+	}
+
 }
