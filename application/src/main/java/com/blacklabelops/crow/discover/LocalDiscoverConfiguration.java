@@ -5,19 +5,19 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class LocalDiscoverConfiguration {
-	
+
 	@Value("${crow.global.property.prefix:crow.}")
 	private String standardGlobalPrefix;
-	
+
 	@Value("${CROW_GLOBAL_PROPERTY_PREFIX:CROW_}")
 	private String standardGlobalEnvPrefix;
-	
+
 	@Value("${crow.job.property.prefix:job.}")
 	private String standardJobPrefix;
-	
-	@Value("${CROW_JOBL_PROPERTY_PREFIX:JOB}")
+
+	@Value("${CROW_JOB_PROPERTY_PREFIX:JOB}")
 	private String standardJobEnvPrefix;
-	
+
 	public LocalDiscoverConfiguration() {
 		super();
 	}
@@ -53,5 +53,5 @@ class LocalDiscoverConfiguration {
 	public void setStandardJobEnvPrefix(String standardJobEnvPrefix) {
 		this.standardJobEnvPrefix = standardJobEnvPrefix;
 	}
-	
+
 }

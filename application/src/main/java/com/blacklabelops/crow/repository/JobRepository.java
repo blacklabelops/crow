@@ -55,7 +55,7 @@ public class JobRepository {
 		if (validateJob(repositoryJob.getEvaluatedConfiguration())) {
 			RepositoryJob addedJob = jobs.putIfAbsent(repositoryJob.getJobDefinition().resolveJobId(), repositoryJob);
 			if (addedJob == null) {
-				LOG.debug("Job added to repository: {}", jobConfiguration);
+				LOG.debug("Job added to repository: {}", repositoryJob.getJobDefinition());
 				notifyJobAdded(repositoryJob.getJobDefinition());
 			} else {
 				LOG.info("Job not added, already existent in repository: {}", jobConfiguration);
@@ -129,6 +129,7 @@ public class JobRepository {
 	}
 
 	public void setGlobalConfiguration(Global globalConfiguration) {
+		LOG.debug("Setting global configuration: {}", globalConfiguration);
 		this.globalConfiguration = new Global(globalConfiguration);
 	}
 

@@ -27,4 +27,11 @@ public class Job {
 	public void setLastExecution(ZonedDateTime theLastExecution) {
 		lastExecution = theLastExecution;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("Job [jobExcutionTime=%s, lastExecution=%s, jobId=%s]", jobExcutionTime, lastExecution,
+				jobId);
+	}
+
 }

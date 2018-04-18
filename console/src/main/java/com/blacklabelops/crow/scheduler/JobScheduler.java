@@ -5,11 +5,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.blacklabelops.crow.definition.ErrorMode;
 import com.blacklabelops.crow.dispatcher.DispatchingResult;
 import com.blacklabelops.crow.executor.ExecutionResult;
 
 public class JobScheduler implements IScheduler {
+
+	private static Logger LOG = LoggerFactory.getLogger(JobScheduler.class);
 
 	private List<Job> jobs = Collections.synchronizedList(new ArrayList<Job>());
 
@@ -25,6 +30,7 @@ public class JobScheduler implements IScheduler {
 	public void addJob(Job job) {
 		jobs.add(job);
 		scheduledJobs.add(job);
+		LOG.debug("Added job to the scheduler: {}", job);
 	}
 
 	@Override
@@ -32,6 +38,7 @@ public class JobScheduler implements IScheduler {
 		jobs.remove(job);
 		scheduledJobs.remove(job);
 		failedJobs.remove(job);
+		LOG.debug("Removed job from the scheduler: {}", job);
 	}
 
 	@Override

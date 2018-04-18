@@ -9,23 +9,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Global {
-	
+
 	private static Logger LOG = LoggerFactory.getLogger(Global.class);
-	
+
 	private String shellCommand;
-	
+
 	private String workingDirectory;
-	
+
 	private String execution;
 
-    private String errorMode;
-	
+	private String errorMode;
+
 	private Map<String, String> environments = new HashMap<>();
-	
+
 	public Global() {
 		super();
 	}
-	
+
 	public Global(Global anotherGlobal) {
 		super();
 		try {
@@ -79,7 +79,12 @@ public class Global {
 	public void setEnvironments(Map<String, String> environments) {
 		this.environments = environments;
 	}
-	
-	
-	
+
+	@Override
+	public String toString() {
+		return String.format(
+				"Global [shellCommand=%s, workingDirectory=%s, execution=%s, errorMode=%s, environments=%s]",
+				shellCommand, workingDirectory, execution, errorMode, environments);
+	}
+
 }
