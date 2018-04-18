@@ -15,7 +15,7 @@ jobs:
       #- restore_cache:
       #    key: circleci-crow-{{ checksum "pom.xml" }}
 
-      - run: mvn clean install
+      - run: mvn clean install cobertura:cobertura
 
       - save_cache:
           paths:
@@ -29,3 +29,5 @@ jobs:
 
       - store_artifacts:
           path: application/target/crow-application-0.5-SNAPSHOT.jar
+
+      - run: bash <(curl -s https://codecov.io/bash)
