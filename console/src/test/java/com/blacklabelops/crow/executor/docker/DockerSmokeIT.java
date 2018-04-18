@@ -27,6 +27,7 @@ import com.spotify.docker.client.messages.ExecCreation;
 import com.spotify.docker.client.messages.ExecState;
 import com.spotify.docker.client.messages.Info;
 
+@Ignore
 public class DockerSmokeIT {
 
 	private Logger LOG = LoggerFactory.getLogger(DockerSmokeIT.class);

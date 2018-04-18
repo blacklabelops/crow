@@ -38,9 +38,11 @@ import com.spotify.docker.client.exceptions.DockerException;
 @SpringBootTest
 @ContextConfiguration(classes = CrowDemon.class)
 @TestPropertySource(locations = "classpath:testDockerExecution.properties")
-public class DockerExecutionTest implements IJobLogger {
+public class SpringDockerExecutionIT implements IJobLogger {
 
-	private Logger LOG = LoggerFactory.getLogger(DockerExecutionTest.class);
+	public static final String CONTAINER_NAME = "SpringDockerExecutionIT";
+
+	private Logger LOG = LoggerFactory.getLogger(SpringDockerExecutionIT.class);
 
 	public DockerTestContainerFactory containerFactory;
 
@@ -88,8 +90,7 @@ public class DockerExecutionTest implements IJobLogger {
 	public void testExecution_ExecuteManually_OutputCorrect() throws DockerException, InterruptedException {
 		Optional<JobConfiguration> job = repository.listJobs().stream().filter(j -> "EchoDockerContainer".equals(j
 				.getName())).findFirst();
-		String containerName = "TestDockerContainer";
-		this.containerFactory.runContainer(containerName);
+		this.containerFactory.runContainer(CONTAINER_NAME);
 
 		this.dispatcher.execute(job.get().resolveJobId(), null, logger);
 		latch.await();
@@ -103,8 +104,7 @@ public class DockerExecutionTest implements IJobLogger {
 			InterruptedException {
 		Optional<JobConfiguration> job = repository.listJobs().stream().filter(j -> "EchoDockerContainer".equals(j
 				.getName())).findFirst();
-		String containerName = "TestDockerContainer";
-		this.containerFactory.runContainer(containerName);
+		this.containerFactory.runContainer(CONTAINER_NAME);
 
 		this.dispatcher.testExecute(job.get().resolveJobId(), null, logger);
 		latch.await();

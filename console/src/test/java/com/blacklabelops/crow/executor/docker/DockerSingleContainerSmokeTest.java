@@ -24,6 +24,8 @@ import com.spotify.docker.client.messages.ExecState;
 
 public class DockerSingleContainerSmokeTest {
 
+	public static final String CONTAINER_NAME = "DockerSingleContainerSmokeTestContainer";
+
 	private Logger LOG = LoggerFactory.getLogger(DockerSingleContainerSmokeTest.class);
 
 	public DockerTestContainerFactory containerFactory;
@@ -46,10 +48,9 @@ public class DockerSingleContainerSmokeTest {
 	@Test
 	public void testExecution_ExecuteInCommandNamedContainer_OutputExecuted() throws InterruptedException,
 			IOException, DockerException {
-		String containerName = "TestContainer";
 		String[] command = new String[] { "echo", "HelloWorld" };
-		containerFactory.runContainer(containerName);
-		ExecCreation execCreation = dockerClient.execCreate(containerName, command, DockerClient.ExecCreateParam
+		containerFactory.runContainer(CONTAINER_NAME);
+		ExecCreation execCreation = dockerClient.execCreate(CONTAINER_NAME, command, DockerClient.ExecCreateParam
 				.attachStdout(),
 				DockerClient.ExecCreateParam.attachStderr());
 		LogStream output = dockerClient.execStart(execCreation.id());
@@ -65,18 +66,16 @@ public class DockerSingleContainerSmokeTest {
 	@Test(expected = ContainerRenameConflictException.class)
 	public void testExecution_TryTwoContainersWithSameName_Error() throws InterruptedException,
 			IOException, DockerException {
-		String containerName = "TestContainer";
-		containerFactory.runContainer(containerName);
-		containerFactory.runContainer(containerName);
+		containerFactory.runContainer(CONTAINER_NAME);
+		containerFactory.runContainer(CONTAINER_NAME);
 	}
 
 	@Test
 	public void testExecution_CheckContainerRunning_Success() throws InterruptedException,
 			IOException, DockerException {
-		String containerName = "TestContainer";
 
-		containerFactory.runContainer(containerName);
-		ContainerInfo inspect = dockerClient.inspectContainer(containerName);
+		containerFactory.runContainer(CONTAINER_NAME);
+		ContainerInfo inspect = dockerClient.inspectContainer(CONTAINER_NAME);
 
 		assertTrue(inspect.state().running());
 	}

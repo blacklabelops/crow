@@ -30,6 +30,8 @@ public class DockerExecutionIT implements IJobLogger, IJobLoggerFactory {
 
 	private Logger LOG = LoggerFactory.getLogger(DockerExecutionIT.class);
 
+	public static final String CONTAINER_NAME = "DockerExecutionITContainer";
+
 	public DockerTestContainerFactory containerFactory;
 
 	public List<String> containers = new LinkedList<>();
@@ -67,13 +69,12 @@ public class DockerExecutionIT implements IJobLogger, IJobLoggerFactory {
 
 	@Test
 	public void testExecution_ExecuteManually_OutputCorrect() throws DockerException, InterruptedException {
-		String containerName = "TestDockerContainer";
 		JobDefinition definition = new JobDefinition();
 		definition.setJobName("EchoTest");
 		definition.setCommand("echo", "Hello Docker World!");
-		definition.setContainerName(containerName);
+		definition.setContainerName(CONTAINER_NAME);
 		DockerExecutorTemplate jobTemplate = new DockerExecutorTemplate(definition, null, loggerFactory);
-		this.containerFactory.runContainer(containerName);
+		this.containerFactory.runContainer(CONTAINER_NAME);
 
 		this.dispatcher.addJob(jobTemplate);
 		this.dispatcher.execute(definition.resolveJobId());

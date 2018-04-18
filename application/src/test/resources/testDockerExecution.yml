@@ -5,4 +5,4 @@ crow:
     - name: EchoDockerContainer
       cron: "* * * * *"
       command: echo 'Hello Docker World!'
-      containerName: TestDockerContainer
+      containerName: SpringDockerExecutionIT
