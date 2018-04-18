@@ -98,10 +98,15 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 	}
 
 	private Optional<Global> evaluateGlobalConfiguration() {
-		if (this.crowConfig != null && this.crowConfig.getGlobal() != null) {
-			return Optional.of(this.crowConfig.getGlobal());
+		Optional<Global> global = localDiscoverer.discoverGlobalConfiguration();
+		if (!global.isPresent()) {
+			if (this.crowConfig != null && this.crowConfig.getGlobal() != null) {
+				global = Optional.of(this.crowConfig.getGlobal());
+			} else {
+				global = Optional.empty();
+			}
 		}
-		return localDiscoverer.discoverGlobalConfiguration();
+		return global;
 	}
 
 	@Override
