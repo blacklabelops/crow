@@ -81,21 +81,26 @@ public class ConsoleExecutor implements IExecutor {
 			this.executionResult.setTimedOut(executor.isTimedOut());
 			this.executionResult.setReturnCode(executor.getReturnCode());
 			this.executionResult.setFinishingTime(LocalDateTime.now());
+		} finally {
 			stopLogTrailing();
-			jobReporter.parallelStream().forEach(reporter -> reporter.finishedJob(new ExecutionResult(
-					this.executionResult)));
-			if (!this.executionResult.isTimedOut()) {
-				if (RETURN_CODE_OKAY != this.executionResult.getReturnCode()) {
-					jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(new ExecutionResult(
-							this.executionResult)));
-				}
-			} else {
+			deleteOutputFiles();
+			jobLogger.forEach(IJobLogger::finishLogger);
+		}
+		reportResults();
+
+	}
+
+	private void reportResults() {
+		jobReporter.parallelStream().forEach(reporter -> reporter.finishedJob(new ExecutionResult(
+				this.executionResult)));
+		if (!this.executionResult.isTimedOut()) {
+			if (RETURN_CODE_OKAY != this.executionResult.getReturnCode()) {
 				jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(new ExecutionResult(
 						this.executionResult)));
 			}
-			deleteOutputFiles();
-		} finally {
-			jobLogger.forEach(IJobLogger::finishLogger);
+		} else {
+			jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(new ExecutionResult(
+					this.executionResult)));
 		}
 	}
 

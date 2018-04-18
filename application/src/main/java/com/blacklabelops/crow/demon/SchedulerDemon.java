@@ -119,7 +119,7 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 			reporter.add(new ExecutionErrorReporterFactory(jobScheduler));
 		}
 		IExecutionTime cronTime = new CronUtilsExecutionTime(addedJobDefinition.getCron());
-		Job workJob = new Job(addedJobDefinition.getJobName(), cronTime);
+		Job workJob = new Job(addedJobDefinition.resolveJobId(), cronTime);
 		jobScheduler.addJob(workJob);
 		jobDispatcher.addJob(addedJobDefinition, reporter, null);
 	}

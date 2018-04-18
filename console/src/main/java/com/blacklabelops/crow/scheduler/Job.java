@@ -4,27 +4,27 @@ import java.time.ZonedDateTime;
 
 public class Job {
 
-    private final IExecutionTime jobExcutionTime;
+	private final IExecutionTime jobExcutionTime;
 
-    private ZonedDateTime lastExecution = ZonedDateTime.now();
+	private ZonedDateTime lastExecution = ZonedDateTime.now();
 
-	private final String jobName;
+	private final String jobId;
 
-    public Job(String jobName, IExecutionTime executionTime) {
-        super();
-        this.jobName = jobName;
-        jobExcutionTime = executionTime;
-    }
+	public Job(String jobId, IExecutionTime executionTime) {
+		super();
+		this.jobId = jobId;
+		jobExcutionTime = executionTime;
+	}
 
-    public String getJobName() {
-        return jobName;
-    }
+	public String getJobId() {
+		return jobId;
+	}
 
-    public ZonedDateTime getNextExecution() {
-        return jobExcutionTime.nextExecution(lastExecution);
-    }
+	public ZonedDateTime getNextExecution() {
+		return jobExcutionTime.nextExecution(lastExecution);
+	}
 
-    public void setLastExecution(ZonedDateTime theLastExecution) {
-        lastExecution = theLastExecution;
-    }
+	public void setLastExecution(ZonedDateTime theLastExecution) {
+		lastExecution = theLastExecution;
+	}
 }
