@@ -31,6 +31,7 @@
         <mockito.version>2.18.0</mockito.version>
     </properties>
     
+    
     <build>
 	    <plugins>
 	    		<plugin>
@@ -83,6 +84,28 @@
                     </configuration>
                 </execution>
 				</executions>
+			</plugin>
+			<plugin>
+			    <artifactId>maven-resources-plugin</artifactId>
+			    <executions>
+			        <execution>
+			            <id>copy-files-on-build</id>
+			            <phase>validate</phase>
+			            <goals>
+			                <goal>copy-resources</goal>
+			            </goals>
+			            <configuration>
+			                <outputDirectory>${basedir}/target/artifacts</outputDirectory>
+			                <resources>
+			                    <resource>
+			                        <directory>${basedir}/target</directory>
+			                        <include>*.jar</include>
+			                        <filtering>false</filtering>
+			                    </resource>
+			                </resources>
+			            </configuration>
+			        </execution>
+			    </executions>
 			</plugin>
 	    </plugins>
     </build>

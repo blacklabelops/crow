@@ -28,6 +28,6 @@ jobs:
           path: console/target/surefire-reports
 
       - store_artifacts:
-          path: application/target/*.jar
+          path: application/target/artifacts
 
       - run: bash <(curl -s https://codecov.io/bash)
