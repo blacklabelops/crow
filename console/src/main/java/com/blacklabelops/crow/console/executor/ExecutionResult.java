@@ -7,17 +7,16 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
+import com.blacklabelops.crow.console.definition.JobId;
 
 public class ExecutionResult {
 
 	private static Logger LOG = LoggerFactory.getLogger(ExecutionResult.class);
 
-	private JobDefinition jobDefinition;
+	private Job jobDefinition;
 
-	private String jobName;
-
-	private String jobId;
+	private JobId jobId;
 
 	private Integer returnCode;
 
@@ -33,11 +32,10 @@ public class ExecutionResult {
 		super();
 	}
 
-	public ExecutionResult(JobDefinition jobDefinition) {
+	public ExecutionResult(Job jobDefinition) {
 		super();
-		this.setJobDefinition(jobDefinition);
-		this.setJobName(jobDefinition.getJobName());
-		this.setJobId(jobDefinition.resolveJobId());
+		this.jobDefinition = jobDefinition;
+		this.jobId = jobDefinition.getId();
 	}
 
 	public ExecutionResult(ExecutionResult executionResult) {
@@ -47,31 +45,11 @@ public class ExecutionResult {
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			LOG.error("ExecutionResult konnte nicht geclont werden!");
 		}
-		this.setJobDefinition(executionResult.getJobDefinition());
+		this.jobDefinition = executionResult.getJobDefinition();
 	}
 
-	public JobDefinition getJobDefinition() {
-		if (jobDefinition != null) {
-			return new JobDefinition(jobDefinition);
-		} else {
-			return jobDefinition;
-		}
-	}
-
-	public void setJobDefinition(JobDefinition jobDefinition) {
-		if (jobDefinition != null) {
-			this.jobDefinition = new JobDefinition(jobDefinition);
-		} else {
-			this.jobDefinition = jobDefinition;
-		}
-	}
-
-	public String getJobName() {
-		return jobName;
-	}
-
-	public void setJobName(String jobName) {
-		this.jobName = jobName;
+	public Job getJobDefinition() {
+		return jobDefinition;
 	}
 
 	public Integer getReturnCode() {
@@ -114,12 +92,8 @@ public class ExecutionResult {
 		this.errorTime = errorTime;
 	}
 
-	public String getJobId() {
+	public JobId getJobId() {
 		return jobId;
-	}
-
-	public void setJobId(String jobId) {
-		this.jobId = jobId;
 	}
 
 }

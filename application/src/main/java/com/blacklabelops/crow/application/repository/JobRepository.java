@@ -21,7 +21,8 @@ import org.springframework.stereotype.Component;
 
 import com.blacklabelops.crow.application.config.Global;
 import com.blacklabelops.crow.application.config.JobConfiguration;
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
+import com.blacklabelops.crow.console.definition.JobId;
 
 @Component
 public class JobRepository {
@@ -32,7 +33,7 @@ public class JobRepository {
 
 	private Global globalConfiguration;
 
-	private final Map<String, RepositoryJob> jobs = Collections.synchronizedMap(new HashMap<>());
+	private final Map<JobId, RepositoryJob> jobs = Collections.synchronizedMap(new HashMap<>());
 
 	private final List<WeakReference<IJobRepositoryListener>> listeners = Collections.synchronizedList(
 			new ArrayList<>());
@@ -49,18 +50,44 @@ public class JobRepository {
 		listeners.add(new WeakReference<>(repositoryListener));
 	}
 
-	public void addJob(JobConfiguration jobConfiguration) {
+	public JobId addJob(JobConfiguration jobConfiguration) {
+		JobId result = null;
 		JobConverter jobConverter = new JobConverter(globalConfiguration);
 		RepositoryJob repositoryJob = jobConverter.convertJob(jobConfiguration);
-		if (validateJob(repositoryJob.getEvaluatedConfiguration())) {
-			RepositoryJob addedJob = jobs.putIfAbsent(repositoryJob.getJobDefinition().resolveJobId(), repositoryJob);
+		if (validateJob(repositoryJob.getEvaluatedConfiguration()) && nonExistentJob(repositoryJob
+				.getEvaluatedConfiguration())) {
+			RepositoryJob addedJob = jobs.putIfAbsent(repositoryJob.getJobDefinition().getId(), repositoryJob);
 			if (addedJob == null) {
 				LOG.debug("Job added to repository: {}", repositoryJob.getJobDefinition());
+				result = repositoryJob.getJobDefinition().getId();
 				notifyJobAdded(repositoryJob.getJobDefinition());
 			} else {
 				LOG.info("Job not added, already existent in repository: {}", jobConfiguration);
 			}
 		}
+		return result;
+	}
+
+	private boolean nonExistentJob(JobConfiguration evaluatedConfiguration) {
+		boolean jobFound = true;
+		List<RepositoryJob> jobList = Arrays.asList(this.jobs.values().toArray(new RepositoryJob[this.jobs.size()]));
+		for (RepositoryJob job : jobList) {
+			Job definition = job.getJobDefinition();
+			if (definition.getName().equals(evaluatedConfiguration.getName())) {
+				// Job with Docker Container Name => Job Name with Container Name must be unique
+				if (definition.getContainerName().isPresent() && definition.getContainerName().get().equals(
+						evaluatedConfiguration.getContainerName())) {
+					// Job with Docker Container Id => Job Name with Container Id must be unique
+				} else if (definition.getContainerId().isPresent() && definition.getContainerId().get().equals(
+						evaluatedConfiguration.getContainerId())) {
+					jobFound = false;
+					// Job without Docker Container Name => Job Name must be unique
+				} else if (!definition.getContainerName().isPresent() && !definition.getContainerId().isPresent()) {
+					jobFound = false;
+				}
+			}
+		}
+		return jobFound;
 	}
 
 	private boolean validateJob(JobConfiguration jobConfiguration) {
@@ -72,14 +99,14 @@ public class JobRepository {
 		return errors.isEmpty();
 	}
 
-	public boolean jobExists(String jobId) {
+	public boolean jobExists(JobId jobId) {
 		return this.jobs.containsKey(jobId);
 	}
 
-	public void removeJob(String jobId) {
+	public void removeJob(JobId jobId) {
 		RepositoryJob repositoryJob = this.jobs.remove(jobId);
 		if (repositoryJob != null) {
-			JobDefinition removedJob = repositoryJob.getJobDefinition();
+			Job removedJob = repositoryJob.getJobDefinition();
 			LOG.debug("Job {} removed from repository.", jobId);
 			notifyJobRemoved(removedJob);
 		} else {
@@ -91,11 +118,11 @@ public class JobRepository {
 		return Arrays
 				.asList(this.jobs.values().toArray(new RepositoryJob[this.jobs.size()]))
 				.stream()
-				.map(job -> new JobConfiguration(job.getJobConfiguration()))
+				.map(job -> new JobConfiguration(job.getEvaluatedConfiguration()))
 				.collect(Collectors.toList());
 	}
 
-	public Optional<JobConfiguration> findJob(String jobId) {
+	public Optional<JobConfiguration> findJob(JobId jobId) {
 		LOG.debug("Repository listing job: {}", jobId);
 		RepositoryJob found = this.jobs.get(jobId);
 		if (found != null) {
@@ -106,22 +133,20 @@ public class JobRepository {
 		}
 	}
 
-	private void notifyJobRemoved(JobDefinition removedJob) {
-		JobDefinition jobClone = new JobDefinition(removedJob);
+	private void notifyJobRemoved(Job removedJob) {
 		List<WeakReference<IJobRepositoryListener>> notifications = new ArrayList<>(listeners);
 		notifications
 				.parallelStream()
 				.filter(notified -> notified.get() != null)
-				.forEach(notification -> notification.get().jobRemoved(jobClone));
+				.forEach(notification -> notification.get().jobRemoved(removedJob));
 	}
 
-	private void notifyJobAdded(JobDefinition jobDefinition) {
-		JobDefinition jobClone = new JobDefinition(jobDefinition);
+	private void notifyJobAdded(Job jobDefinition) {
 		List<WeakReference<IJobRepositoryListener>> notifications = new ArrayList<>(listeners);
 		notifications
 				.parallelStream()
 				.filter(notified -> notified.get() != null)
-				.forEach(notification -> notification.get().jobAdded(jobClone));
+				.forEach(notification -> notification.get().jobAdded(jobDefinition));
 	}
 
 	public Global getGlobalConfiguration() {

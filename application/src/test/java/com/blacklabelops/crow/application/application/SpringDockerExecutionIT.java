@@ -28,6 +28,7 @@ import com.blacklabelops.crow.application.CrowDemon;
 import com.blacklabelops.crow.application.config.JobConfiguration;
 import com.blacklabelops.crow.application.dispatcher.JobDispatcher;
 import com.blacklabelops.crow.application.repository.JobRepository;
+import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
 import com.blacklabelops.crow.console.executor.docker.DockerTestContainerFactory;
 import com.blacklabelops.crow.console.logger.IJobLogger;
@@ -93,7 +94,7 @@ public class SpringDockerExecutionIT implements IJobLogger {
 				.getName())).findFirst();
 		this.containerFactory.runContainer(CONTAINER_NAME);
 
-		this.dispatcher.execute(job.get().resolveJobId(), null, logger);
+		this.dispatcher.execute(JobId.of(job.get().getId()), null, logger);
 		latch.await();
 
 		String output = new String(this.outStream.toByteArray());
@@ -107,7 +108,7 @@ public class SpringDockerExecutionIT implements IJobLogger {
 				.getName())).findFirst();
 		this.containerFactory.runContainer(CONTAINER_NAME);
 
-		this.dispatcher.testExecute(job.get().resolveJobId(), null, logger);
+		this.dispatcher.testExecute(JobId.of(job.get().getId()), null, logger);
 		latch.await();
 
 		String output = new String(this.outStream.toByteArray());

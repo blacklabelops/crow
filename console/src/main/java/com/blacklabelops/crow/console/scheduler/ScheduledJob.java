@@ -2,21 +2,23 @@ package com.blacklabelops.crow.console.scheduler;
 
 import java.time.ZonedDateTime;
 
-public class Job {
+import com.blacklabelops.crow.console.definition.JobId;
+
+public class ScheduledJob {
 
 	private final IExecutionTime jobExcutionTime;
 
 	private ZonedDateTime lastExecution = ZonedDateTime.now();
 
-	private final String jobId;
+	private final JobId jobId;
 
-	public Job(String jobId, IExecutionTime executionTime) {
+	public ScheduledJob(JobId jobId, IExecutionTime executionTime) {
 		super();
 		this.jobId = jobId;
 		jobExcutionTime = executionTime;
 	}
 
-	public String getJobId() {
+	public JobId getJobId() {
 		return jobId;
 	}
 

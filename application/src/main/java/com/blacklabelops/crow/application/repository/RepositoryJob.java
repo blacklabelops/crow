@@ -1,16 +1,16 @@
 package com.blacklabelops.crow.application.repository;
 
 import com.blacklabelops.crow.application.config.JobConfiguration;
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
 
 class RepositoryJob {
-	
+
 	private JobConfiguration jobConfiguration;
-	
+
 	private JobConfiguration evaluatedConfiguration;
-	
-	private JobDefinition jobDefinition;
-	
+
+	private Job jobDefinition;
+
 	public RepositoryJob() {
 		super();
 	}
@@ -23,11 +23,11 @@ class RepositoryJob {
 		this.jobConfiguration = jobConfiguration;
 	}
 
-	public JobDefinition getJobDefinition() {
+	public Job getJobDefinition() {
 		return jobDefinition;
 	}
 
-	public void setJobDefinition(JobDefinition jobDefinition) {
+	public void setJobDefinition(Job jobDefinition) {
 		this.jobDefinition = jobDefinition;
 	}
 
@@ -38,5 +38,5 @@ class RepositoryJob {
 	public void setEvaluatedConfiguration(JobConfiguration evaluatedConfiguration) {
 		this.evaluatedConfiguration = evaluatedConfiguration;
 	}
-	
+
 }

@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
+import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.logger.IJobLogger;
 import com.blacklabelops.crow.console.logger.IJobLoggerFactory;
 import com.blacklabelops.crow.console.reporter.IJobReporter;
@@ -12,18 +13,18 @@ import com.blacklabelops.crow.console.reporter.IJobReporterFactory;
 
 public abstract class JobExecutorTemplate implements IExecutorTemplate {
 
-	private final String jobId;
+	private final JobId jobId;
 
-	private final JobDefinition jobDefinition;
+	private final Job jobDefinition;
 
 	private final List<IJobReporterFactory> jobReporterFactories = new ArrayList<>();
 
 	private final List<IJobLoggerFactory> jobLoggerFactories = new ArrayList<>();
 
-	public JobExecutorTemplate(JobDefinition definition, List<IJobReporterFactory> reporter,
+	public JobExecutorTemplate(Job definition, List<IJobReporterFactory> reporter,
 			List<IJobLoggerFactory> logger) {
 		super();
-		jobId = definition.resolveJobId();
+		jobId = definition.getId();
 		jobDefinition = definition;
 		if (reporter != null) {
 			reporter
@@ -55,12 +56,12 @@ public abstract class JobExecutorTemplate implements IExecutorTemplate {
 	}
 
 	@Override
-	public String getJobId() {
+	public JobId getJobId() {
 		return jobId;
 	}
 
-	protected JobDefinition getJobDefinition() {
-		return new JobDefinition(jobDefinition);
+	protected Job getJobDefinition() {
+		return this.jobDefinition;
 	}
 
 }

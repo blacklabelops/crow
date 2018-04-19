@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.AfterClass;
@@ -13,9 +14,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
-import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
-import com.blacklabelops.crow.console.executor.docker.RemoteContainer;
+import com.blacklabelops.crow.console.definition.Job;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerException;
 
@@ -23,7 +22,7 @@ public class ContainerRemoteTestIT {
 
 	public RemoteContainer cli;
 
-	public JobDefinition definition;
+	public Job definition;
 
 	public static DockerTestContainerFactory containerFactory;
 
@@ -57,10 +56,8 @@ public class ContainerRemoteTestIT {
 	@Test
 	public void testRun_ExecuteCommandInContainer_OutputCorrect() throws DockerException, InterruptedException {
 		String containerId = containerFactory.runContainer();
-		JobDefinition jobDefinition = new JobDefinition();
-		jobDefinition.setJobName("A");
-		jobDefinition.setCommand("echo", "HelloWorld");
-		jobDefinition.setContainerId(containerId);
+		Job jobDefinition = Job.builder().name("A").id("A").command(Arrays.asList("echo", "HelloWorld")).containerId(
+				containerId).build();
 
 		cli.execute(jobDefinition);
 
@@ -73,10 +70,8 @@ public class ContainerRemoteTestIT {
 	public void testRun_ExecuteErrorCommandInContainer_ResultInErrorFile()
 			throws DockerException, InterruptedException {
 		String containerId = containerFactory.runContainer();
-		JobDefinition jobDefinition = new JobDefinition();
-		jobDefinition.setJobName("A");
-		jobDefinition.setCommand("sh", "-c", ">&2 echo error");
-		jobDefinition.setContainerId(containerId);
+		Job jobDefinition = Job.builder().name("A").id("A").command(Arrays.asList("sh", "-c", ">&2 echo error"))
+				.containerId(containerId).build();
 
 		cli.execute(jobDefinition);
 
@@ -88,10 +83,8 @@ public class ContainerRemoteTestIT {
 	@Test
 	public void testRun_FaultyCommand_ReturnCodeNotZero() throws DockerException, InterruptedException {
 		String containerId = containerFactory.runContainer();
-		JobDefinition jobDefinition = new JobDefinition();
-		jobDefinition.setJobName("A");
-		jobDefinition.setCommand("bash", "-c", "echo HelloWorld");
-		jobDefinition.setContainerId(containerId);
+		Job jobDefinition = Job.builder().name("A").id("A").command(Arrays.asList("bash", "-c", "echo HelloWorld"))
+				.containerId(containerId).build();
 
 		cli.execute(jobDefinition);
 
@@ -101,12 +94,9 @@ public class ContainerRemoteTestIT {
 	@Test
 	public void testRun_ExecuteAllCommands_AllOutputsInFile() throws DockerException, InterruptedException {
 		String containerId = containerFactory.runContainer();
-		JobDefinition jobDefinition = new JobDefinition();
-		jobDefinition.setJobName("A");
-		jobDefinition.setCommand("echo", "command");
-		jobDefinition.setPreCommand("echo", "preCommand");
-		jobDefinition.setPostCommand("echo", "postCommand");
-		jobDefinition.setContainerId(containerId);
+		Job jobDefinition = Job.builder().id("A").name("A").command(Arrays.asList("echo", "command")).preCommand(Arrays
+				.asList("echo", "preCommand"))
+				.postCommand(Arrays.asList("echo", "postCommand")).containerId(containerId).build();
 
 		cli.execute(jobDefinition);
 

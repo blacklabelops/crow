@@ -13,6 +13,8 @@ import com.cronutils.utils.StringUtils;
 
 public class JobConfiguration implements IConfigModel {
 
+	private String id;
+
 	@NotEmpty(message = "A unique name for each job has to be defined!")
 	@Pattern(regexp = "[a-zA-Z0-9_\\.]+", message = "Only numbers and chars are allowed in job names! Regex: [a-zA-Z0-9_\\\\.]+")
 	private String name;
@@ -56,6 +58,14 @@ public class JobConfiguration implements IConfigModel {
 		} else {
 			this.environments = null;
 		}
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getName() {

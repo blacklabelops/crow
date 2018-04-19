@@ -10,9 +10,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.executor.ExecutorException;
-import com.cronutils.utils.StringUtils;
 
 class LocalConsole {
 
@@ -32,56 +31,57 @@ class LocalConsole {
 		super();
 	}
 
-	private void checkDefinition(JobDefinition executionDefinition) {
+	private void checkDefinition(Job executionDefinition) {
 		if (executionDefinition == null)
 			throw new ExecutorException("Executor has no job definition!");
-		if (executionDefinition.getCommand() == null)
+		if (!executionDefinition.getCommand().isPresent())
 			throw new ExecutorException("Executor has no command specified");
 	}
 
-	public void execute(JobDefinition executionDefinition) {
+	public void execute(Job executionDefinition) {
 		checkDefinition(executionDefinition);
 		boolean preResult = true;
-		if (executionDefinition.getPreCommand() != null && !executionDefinition.getPreCommand().isEmpty()) {
+		if (executionDefinition.getPreCommand().isPresent() && !executionDefinition.getPreCommand().get().isEmpty()) {
 			preResult = executePreCommands(executionDefinition);
 		}
 		boolean result = preResult ? executeCommands(executionDefinition) : preResult;
-		if (result && executionDefinition.getPostCommand() != null && !executionDefinition.getPostCommand().isEmpty()) {
+		if (result && executionDefinition.getPostCommand().isPresent() && !executionDefinition.getPostCommand().get()
+				.isEmpty()) {
 			executePostCommands(executionDefinition);
 		}
 	}
 
-	private void executePostCommands(JobDefinition executionDefinition) {
+	private void executePostCommands(Job executionDefinition) {
 		ProcessBuilder processBuilder = new ProcessBuilder();
-		processBuilder.command(executionDefinition.getPostCommand());
+		processBuilder.command(executionDefinition.getPostCommand().get());
 		extendEnvironmentVariables(processBuilder, executionDefinition);
 		setWorkingDirectory(executionDefinition, processBuilder);
 		prepareRedirects(processBuilder);
-		if (executionDefinition.getTimeoutMinutes() != null) {
-			executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes());
+		if (executionDefinition.getTimeoutMinutes().isPresent()) {
+			executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes().get());
 		} else {
 			executeCommand(processBuilder);
 		}
 	}
 
-	private void setWorkingDirectory(JobDefinition executionDefinition, ProcessBuilder processBuilder) {
-		if (!StringUtils.isEmpty(executionDefinition.getWorkingDir())) {
-			File workingDirectory = new File(executionDefinition.getWorkingDir());
+	private void setWorkingDirectory(Job executionDefinition, ProcessBuilder processBuilder) {
+		if (executionDefinition.getWorkingDir().isPresent()) {
+			File workingDirectory = new File(executionDefinition.getWorkingDir().get());
 			if (workingDirectory.exists() && workingDirectory.isDirectory()) {
 				processBuilder.directory(workingDirectory);
 			}
 		}
 	}
 
-	private boolean executePreCommands(JobDefinition executionDefinition) {
+	private boolean executePreCommands(Job executionDefinition) {
 		boolean result = false;
 		ProcessBuilder processBuilder = new ProcessBuilder();
-		processBuilder.command(executionDefinition.getPreCommand());
+		processBuilder.command(executionDefinition.getPreCommand().get());
 		extendEnvironmentVariables(processBuilder, executionDefinition);
 		setWorkingDirectory(executionDefinition, processBuilder);
 		prepareRedirects(processBuilder);
-		if (executionDefinition.getTimeoutMinutes() != null) {
-			executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes());
+		if (executionDefinition.getTimeoutMinutes().isPresent()) {
+			executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes().get());
 		} else {
 			executeCommand(processBuilder);
 		}
@@ -91,15 +91,15 @@ class LocalConsole {
 		return result;
 	}
 
-	private boolean executeCommands(JobDefinition executionDefinition) {
+	private boolean executeCommands(Job executionDefinition) {
 		boolean result = false;
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.command(takeOverCommands(executionDefinition));
 		extendEnvironmentVariables(processBuilder, executionDefinition);
 		setWorkingDirectory(executionDefinition, processBuilder);
 		prepareRedirects(processBuilder);
-		if (executionDefinition.getTimeoutMinutes() != null) {
-			executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes());
+		if (executionDefinition.getTimeoutMinutes().isPresent()) {
+			executeCommandWithTimeout(processBuilder, executionDefinition.getTimeoutMinutes().get());
 		} else {
 			executeCommand(processBuilder);
 		}
@@ -109,8 +109,8 @@ class LocalConsole {
 		return result;
 	}
 
-	private List<String> takeOverCommands(JobDefinition executionDefinition) {
-		List<String> command = executionDefinition.getCommand();
+	private List<String> takeOverCommands(Job executionDefinition) {
+		List<String> command = executionDefinition.getCommand().get();
 		LOG.debug("Executing command: {}", command);
 		return command;
 	}
@@ -150,11 +150,12 @@ class LocalConsole {
 		}
 	}
 
-	private void extendEnvironmentVariables(ProcessBuilder processBuilder, JobDefinition executionDefinition) {
+	private void extendEnvironmentVariables(ProcessBuilder processBuilder, Job executionDefinition) {
 		Map<String, String> environmentVariables = processBuilder.environment();
-		if (executionDefinition.getEnvironmentVariables() != null && !executionDefinition.getEnvironmentVariables()
+		if (executionDefinition.getEnvironmentVariables().isPresent() && !executionDefinition.getEnvironmentVariables()
+				.get()
 				.isEmpty()) {
-			environmentVariables.putAll(executionDefinition.getEnvironmentVariables());
+			environmentVariables.putAll(executionDefinition.getEnvironmentVariables().get());
 		}
 	}
 

@@ -1,6 +1,7 @@
 package com.blacklabelops.crow.application.repository;
 
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -11,12 +12,14 @@ import com.blacklabelops.crow.application.config.Global;
 import com.blacklabelops.crow.application.config.JobConfiguration;
 import com.blacklabelops.crow.console.definition.ErrorMode;
 import com.blacklabelops.crow.console.definition.ExecutionMode;
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
 import com.cronutils.utils.StringUtils;
 
 class JobConverter {
 
 	private final Optional<Global> global;
+
+	private final JobIdGenerator generator = new JobIdGenerator();
 
 	public JobConverter(Global globalConfiguration) {
 		super();
@@ -30,118 +33,133 @@ class JobConverter {
 	public RepositoryJob convertJob(JobConfiguration jobConfiguration) {
 		RepositoryJob repositoryJob = new RepositoryJob();
 		repositoryJob.setJobConfiguration(new JobConfiguration(jobConfiguration));
-		repositoryJob.setJobDefinition(new JobDefinition());
-		repositoryJob.getJobDefinition().setJobName(jobConfiguration.getName());
-		repositoryJob.getJobDefinition().setCron(jobConfiguration.getCron());
-		repositoryJob.getJobDefinition().setContainerName(jobConfiguration.getContainerName());
-		repositoryJob.getJobDefinition().setContainerId(jobConfiguration.getContainerId());
-		evaluateShellCommand(jobConfiguration, repositoryJob.getJobDefinition());
-		evaluateCommand(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-		evaluatePreCommand(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-		evaluatePostCommand(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-		evaluateWorkingDirectory(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-		evaluateEnvironmentVariables(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-		evaluateTimeout(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-		evaluateExecutionMode(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-		evaluateErrorMode(repositoryJob.getJobConfiguration(), repositoryJob.getJobDefinition());
-		repositoryJob.setEvaluatedConfiguration(evaluateConfiguration(repositoryJob.getJobDefinition()));
+
+		String shellCommand = evaluateShellCommand(jobConfiguration);
+
+		Job job = Job.builder()
+				.id(generator.generate()) //
+				.shellCommand(Optional.ofNullable(shellCommand)) //
+				.name(jobConfiguration.getName()) //
+				.cron(jobConfiguration.getCron()) //
+				.containerName(Optional.ofNullable(jobConfiguration.getContainerName())) //
+				.containerId(Optional.ofNullable(jobConfiguration.getContainerId())) //
+				.timeoutMinutes(Optional.ofNullable(jobConfiguration.getTimeOutMinutes())) //
+				.environmentVariables(Optional.ofNullable(evaluateEnvironmentVariables(repositoryJob
+						.getJobConfiguration()))) //
+				.command(evaluateCommand(repositoryJob.getJobConfiguration(), shellCommand)) //
+				.preCommand(Optional.ofNullable(evaluatePreCommand(repositoryJob.getJobConfiguration(), shellCommand))) //
+				.postCommand(Optional.ofNullable(evaluatePostCommand(repositoryJob.getJobConfiguration(),
+						shellCommand))) //
+				.workingDir(Optional.ofNullable(evaluateWorkingDirectory(repositoryJob.getJobConfiguration()))) //
+				.executorMode(evaluateExecutionMode(repositoryJob.getJobConfiguration())) //
+				.errorMode(evaluateErrorMode(repositoryJob.getJobConfiguration())).build();
+
+		repositoryJob.setEvaluatedConfiguration(evaluateConfiguration(job));
+		repositoryJob.setJobDefinition(job);
 		return repositoryJob;
 	}
 
-	private JobConfiguration evaluateConfiguration(JobDefinition jobDefinition) {
+	private JobConfiguration evaluateConfiguration(Job jobDefinition) {
 		JobConfiguration config = new JobConfiguration();
-		config.setName(jobDefinition.getJobName());
-		config.setCron(jobDefinition.getCron());
-		config.setShellCommand(jobDefinition.getShellCommand());
-		config.setCommand(jobDefinition.getCommand().stream().collect(Collectors.joining()));
-		if (jobDefinition.getPreCommand() != null) {
-			config.setPreCommand(jobDefinition.getPreCommand().stream().collect(Collectors.joining()));
+		config.setId(jobDefinition.getId().getId());
+		config.setName(jobDefinition.getName());
+		config.setCron(jobDefinition.getCron().orElse(null));
+		config.setShellCommand(jobDefinition.getShellCommand().orElse(null));
+		config.setCommand(jobDefinition.getCommand().orElse(null).stream().collect(Collectors.joining()));
+		if (jobDefinition.getPreCommand().isPresent()) {
+			config.setPreCommand(jobDefinition.getPreCommand().orElse(null).stream().collect(Collectors.joining()));
 		}
-		if (jobDefinition.getPostCommand() != null) {
-			config.setPostCommand(jobDefinition.getPostCommand().stream().collect(Collectors.joining()));
+		if (jobDefinition.getPostCommand().isPresent()) {
+			config.setPostCommand(jobDefinition.getPostCommand().orElse(null).stream().collect(Collectors.joining()));
 		}
-		config.setWorkingDirectory(jobDefinition.getWorkingDir());
-		config.setEnvironments(jobDefinition.getEnvironmentVariables());
-		config.setTimeOutMinutes(jobDefinition.getTimeoutMinutes());
-		config.setExecution(jobDefinition.getExecutionMode().name());
+		config.setWorkingDirectory(jobDefinition.getWorkingDir().orElse(null));
+		config.setEnvironments(jobDefinition.getEnvironmentVariables().orElse(null));
+		config.setTimeOutMinutes(jobDefinition.getTimeoutMinutes().orElse(null));
+		config.setExecution(jobDefinition.getExecutorMode().name());
 		config.setErrorMode(jobDefinition.getErrorMode().name());
+		config.setContainerName(jobDefinition.getContainerName().orElse(null));
+		config.setContainerId(jobDefinition.getContainerId().orElse(null));
 		return config;
 	}
 
-	private void evaluateErrorMode(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
+	private ErrorMode evaluateErrorMode(JobConfiguration jobConfiguration) {
+		ErrorMode mode = null;
 		if (!StringUtils.isEmpty(jobConfiguration.getErrorMode())) {
-			jobDefinition.setErrorMode(ErrorMode.getMode(jobConfiguration.getErrorMode()));
+			mode = ErrorMode.getMode(jobConfiguration.getErrorMode());
 		} else if (global.isPresent()) {
-			jobDefinition.setErrorMode(ErrorMode.getMode(global.get().getErrorMode()));
+			mode = ErrorMode.getMode(global.get().getErrorMode());
 		} else {
-			jobDefinition.setErrorMode(ErrorMode.CONTINUE);
+			mode = ErrorMode.CONTINUE;
 		}
+		return mode;
 	}
 
-	private void evaluateExecutionMode(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
+	private ExecutionMode evaluateExecutionMode(JobConfiguration jobConfiguration) {
+		ExecutionMode mode = null;
 		if (!StringUtils.isEmpty(jobConfiguration.getExecution())) {
-			jobDefinition.setExecutionMode(ExecutionMode.getMode(jobConfiguration.getExecution()));
+			mode = ExecutionMode.getMode(jobConfiguration.getExecution());
 		} else if (global.isPresent()) {
-			jobDefinition.setExecutionMode(ExecutionMode.getMode(global.get().getExecution()));
+			mode = ExecutionMode.getMode(global.get().getExecution());
 		} else {
-			jobDefinition.setExecutionMode(ExecutionMode.SEQUENTIAL);
+			mode = ExecutionMode.SEQUENTIAL;
 		}
+		return mode;
 	}
 
-	private void evaluateTimeout(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
-		jobDefinition.setTimeoutMinutes(jobConfiguration.getTimeOutMinutes());
-	}
-
-	private void evaluateEnvironmentVariables(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
+	private Map<String, String> evaluateEnvironmentVariables(JobConfiguration jobConfiguration) {
+		Map<String, String> envVariables = null;
 		if (jobConfiguration.getEnvironments() != null && !jobConfiguration.getEnvironments().isEmpty()) {
-			jobDefinition.setEnvironmentVariables(createEnvironmentVariables(jobConfiguration.getEnvironments()));
+			envVariables = jobConfiguration.getEnvironments();
 		}
-		this.global.ifPresent(g -> {
-			if (g.getEnvironments() != null && !g.getEnvironments().isEmpty()) {
-				Map<String, String> environments = g.getEnvironments();
-				if (environments != null) {
-					if (jobDefinition.getEnvironmentVariables() != null) {
-						environments.putAll(jobDefinition.getEnvironmentVariables());
+		if (this.global.isPresent()) {
+			if (global.get().getEnvironments() != null && !global.get().getEnvironments().isEmpty()) {
+				Map<String, String> environments = global.get().getEnvironments();
+				if (envVariables != null) {
+					if (envVariables != null) {
+						envVariables.putAll(environments);
 					}
 				} else {
-					environments = jobDefinition.getEnvironmentVariables();
+					envVariables = environments;
 				}
-				jobDefinition.setEnvironmentVariables(environments);
 			}
-		});
+		}
+
+		return envVariables;
 	}
 
-	private void evaluatePostCommand(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
+	private List<String> evaluatePostCommand(JobConfiguration jobConfiguration, String shellCommand) {
 		if (jobConfiguration.getPostCommand() != null && !jobConfiguration.getPostCommand().isEmpty()) {
-			jobDefinition.setPostCommand(takeOverCommand(jobConfiguration.getPostCommand(), jobDefinition
-					.getShellCommand()));
+			return takeOverCommand(jobConfiguration.getPostCommand(), shellCommand);
 		}
+		return null;
 	}
 
-	private void evaluatePreCommand(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
+	private List<String> evaluatePreCommand(JobConfiguration jobConfiguration, String shellCommand) {
 		if (jobConfiguration.getPreCommand() != null && !jobConfiguration.getPreCommand().isEmpty()) {
-			jobDefinition.setPreCommand(takeOverCommand(jobConfiguration.getPreCommand(), jobDefinition
-					.getShellCommand()));
+			return takeOverCommand(jobConfiguration.getPreCommand(), shellCommand);
 		}
+		return null;
 	}
 
-	private void evaluateCommand(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
-		jobDefinition.setCommand(takeOverCommand(jobConfiguration.getCommand(), jobDefinition.getShellCommand()));
+	private List<String> evaluateCommand(JobConfiguration jobConfiguration, String shellCommand) {
+		return takeOverCommand(jobConfiguration.getCommand(), shellCommand);
 	}
 
-	private void evaluateWorkingDirectory(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
+	private String evaluateWorkingDirectory(JobConfiguration jobConfiguration) {
+		String workingDir = null;
 		if (!StringUtils.isEmpty(jobConfiguration.getWorkingDirectory())) {
-			jobDefinition.setWorkingDir(jobConfiguration.getWorkingDirectory());
+			workingDir = jobConfiguration.getWorkingDirectory();
 		} else {
-			global.ifPresent(g -> {
-				if (!StringUtils.isEmpty(g.getWorkingDirectory())) {
-					jobDefinition.setWorkingDir(g.getWorkingDirectory());
+			if (global.isPresent()) {
+				if (!StringUtils.isEmpty(global.get().getWorkingDirectory())) {
+					workingDir = global.get().getWorkingDirectory();
 				}
-			});
+			}
 		}
+		return workingDir;
 	}
 
-	private String[] takeOverCommand(String command, String shellCommand) {
+	private List<String> takeOverCommand(String command, String shellCommand) {
 		Commandline commandLine = null;
 		if (!StringUtils.isEmpty(shellCommand)) {
 			commandLine = new Commandline(shellCommand);
@@ -149,28 +167,21 @@ class JobConverter {
 		} else {
 			commandLine = new Commandline(command);
 		}
-		return commandLine.getCommandline();
+		return Arrays.asList(commandLine.getCommandline());
 	}
 
-	private void evaluateShellCommand(JobConfiguration jobConfiguration, JobDefinition jobDefinition) {
+	private String evaluateShellCommand(JobConfiguration jobConfiguration) {
+		String shellCommand = null;
 		if (!StringUtils.isEmpty(jobConfiguration.getShellCommand())) {
-			jobDefinition.setShellCommand(jobConfiguration.getShellCommand());
+			shellCommand = jobConfiguration.getShellCommand();
 		} else {
-			global.ifPresent(g -> {
-				if (!StringUtils.isEmpty(g.getShellCommand())) {
-					jobDefinition.setShellCommand(g.getShellCommand());
+			if (global.isPresent()) {
+				if (!StringUtils.isEmpty(global.get().getShellCommand())) {
+					shellCommand = global.get().getShellCommand();
 				}
-			});
+			}
 		}
-	}
-
-	private Map<String, String> createEnvironmentVariables(Map<String, String> environments) {
-		Map<String, String> environmentVariables = new HashMap<>();
-		environments
-				.keySet()
-				.stream().forEach(key -> environmentVariables.put(key, environments.get(key) != null ? environments.get(
-						key) : ""));
-		return environmentVariables;
+		return shellCommand;
 	}
 
 }

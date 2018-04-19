@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,8 +19,8 @@ import org.junit.rules.ExpectedException;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
-import com.blacklabelops.crow.console.executor.console.ConsoleExecutor;
+import com.blacklabelops.crow.console.definition.Job;
+import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.logger.JobLogLogger;
 import com.blacklabelops.crow.console.logger.TestableJobLogger;
 
@@ -27,7 +28,7 @@ public class SimpleConsoleUnixIntegrationIT {
 
 	public ConsoleExecutor simpleConsole;
 
-	public JobDefinition jobDefinition;
+	public Job jobDefinition;
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -38,7 +39,7 @@ public class SimpleConsoleUnixIntegrationIT {
 	@Before
 	public void setup() {
 		assert !System.getProperty("os.name").startsWith("Windows");
-		jobDefinition = new JobDefinition();
+		jobDefinition = Job.of(JobId.of("id"), "name");
 	}
 
 	@After
@@ -55,8 +56,7 @@ public class SimpleConsoleUnixIntegrationIT {
 
 	@Test
 	public void whenEchoConsoleThenHelloOnLogs() {
-		jobDefinition.setCommand("echo", "hello world");
-		jobDefinition.setJobName("echoJob");
+		jobDefinition = jobDefinition.withCommand(Arrays.asList("echo", "hello world")).withName("echoJob");
 		TestableJobLogger logger = new TestableJobLogger();
 		simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(logger).collect(
 				Collectors.toList()));
@@ -69,8 +69,8 @@ public class SimpleConsoleUnixIntegrationIT {
 
 	@Test
 	public void whenEchoErrorConsoleThenErrorOnLogs() {
-		jobDefinition.setCommand("/bin/bash", "-c", ">&2 echo error");
-		jobDefinition.setJobName("errorJob");
+		jobDefinition = jobDefinition.withCommand(Arrays.asList("/bin/bash", "-c", ">&2 echo error")).withName(
+				"errorJob");
 		TestableJobLogger logger = new TestableJobLogger();
 		simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(logger).collect(
 				Collectors.toList()));
@@ -83,9 +83,8 @@ public class SimpleConsoleUnixIntegrationIT {
 
 	@Test(timeout = 120000)
 	public void testRun_WhenTimeOutDefined_ProcessTimedout() {
-		jobDefinition.setCommand("sleep", "200");
-		jobDefinition.setTimeoutMinutes(1);
-		jobDefinition.setJobName("echoJob");
+		jobDefinition = jobDefinition.withCommand(Arrays.asList("sleep", "200")).withTimeoutMinutes(1).withName(
+				"echoJob");
 		simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(
 				Collectors.toList()));
 		simpleConsole.run();
@@ -94,9 +93,8 @@ public class SimpleConsoleUnixIntegrationIT {
 
 	@Test(timeout = 5000)
 	public void testRun_WhenTimeOutDefinedShortJob_JobIsNotTimedOut() {
-		jobDefinition.setCommand("sleep", "2");
-		jobDefinition.setTimeoutMinutes(1);
-		jobDefinition.setJobName("echoJob");
+		jobDefinition = jobDefinition.withCommand(Arrays.asList("sleep", "2")).withTimeoutMinutes(1).withName(
+				"echoJob");
 		simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(
 				Collectors.toList()));
 		simpleConsole.run();
@@ -108,9 +106,8 @@ public class SimpleConsoleUnixIntegrationIT {
 	@Ignore
 	public void testRun_WhenWorkingDirectoryIsDefined_ExecuteInWorkDirectory() {
 		String tempDirectory = System.getProperty("java.io.tmpdir");
-		jobDefinition.setCommand("pwd");
-		jobDefinition.setJobName("workdirJob");
-		jobDefinition.setWorkingDir(tempDirectory);
+		jobDefinition = jobDefinition.withCommand(Arrays.asList("pwd")).withWorkingDir(tempDirectory).withName(
+				"workdirJob");
 		simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("workdirJob")).collect(
 				Collectors.toList()));
 		simpleConsole.run();
@@ -119,9 +116,10 @@ public class SimpleConsoleUnixIntegrationIT {
 	@Test
 	@Ignore
 	public void testRun_WhenPreCommandDefined_ExecutePreCommandsAndCommands() {
-		jobDefinition.setCommand("echo", "hello world");
-		jobDefinition.setPreCommand("echo", "hello preCommand");
-		jobDefinition.setPostCommand("echo", "hello postCommand");
+		jobDefinition = jobDefinition.withCommand(Arrays.asList("echo", "hello world")) //
+				.withPreCommand(Arrays.asList("echo", "hello preCommand")) //
+				.withPostCommand(Arrays.asList("echo", "hello postCommand"))
+				.withName("echoJob");
 		simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(
 				Collectors.toList()));
 		simpleConsole.run();

@@ -2,7 +2,8 @@ package com.blacklabelops.crow.console.executor;
 
 import java.util.List;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
+import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.logger.IJobLogger;
 import com.blacklabelops.crow.console.reporter.IJobReporter;
 
@@ -10,11 +11,11 @@ public interface IExecutor extends Runnable {
 
 	public void run();
 
-	public String getJobId();
+	public JobId getJobId();
 
 	public List<IJobReporter> getReporter();
 
-	JobDefinition getJobDefinition();
+	Job getJobDefinition();
 
 	ExecutionResult getExecutionResult();
 

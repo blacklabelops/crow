@@ -3,12 +3,10 @@ package com.blacklabelops.crow.application.dispatcher;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.blacklabelops.crow.application.repository.JobRepository;
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
+import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.dispatcher.Dispatcher;
 import com.blacklabelops.crow.console.dispatcher.IDispatcher;
 import com.blacklabelops.crow.console.executor.IExecutorTemplate;
@@ -20,12 +18,9 @@ import com.blacklabelops.crow.console.logger.JobLoggerFactory;
 import com.blacklabelops.crow.console.reporter.ConsoleReporterFactory;
 import com.blacklabelops.crow.console.reporter.IJobReporter;
 import com.blacklabelops.crow.console.reporter.IJobReporterFactory;
-import com.cronutils.utils.StringUtils;
 
 @Component
 public class JobDispatcher {
-
-	private static Logger LOG = LoggerFactory.getLogger(JobRepository.class);
 
 	public IDispatcher dispatcher = new Dispatcher();
 
@@ -33,9 +28,9 @@ public class JobDispatcher {
 		super();
 	}
 
-	public String addJob(JobDefinition jobDefinition, List<IJobReporterFactory> reporters,
+	public JobId addJob(Job jobDefinition, List<IJobReporterFactory> reporters,
 			List<IJobLoggerFactory> loggers) {
-		String jobId = jobDefinition.resolveJobId();
+		JobId jobId = jobDefinition.getId();
 		List<IJobReporterFactory> reporter = initializeReporters(jobDefinition, reporters);
 		List<IJobLoggerFactory> logger = initializeLoggers(jobDefinition, loggers);
 		IExecutorTemplate jobTemplate = initializeTemplate(jobDefinition, reporter, logger);
@@ -43,7 +38,7 @@ public class JobDispatcher {
 		return jobId;
 	}
 
-	private IExecutorTemplate initializeTemplate(JobDefinition jobDefinition, List<IJobReporterFactory> reporter,
+	private IExecutorTemplate initializeTemplate(Job jobDefinition, List<IJobReporterFactory> reporter,
 			List<IJobLoggerFactory> logger) {
 		IExecutorTemplate jobTemplate = null;
 		if (isDockerJob(jobDefinition)) {
@@ -54,7 +49,7 @@ public class JobDispatcher {
 		return jobTemplate;
 	}
 
-	private List<IJobReporterFactory> initializeReporters(JobDefinition jobDefinition,
+	private List<IJobReporterFactory> initializeReporters(Job jobDefinition,
 			List<IJobReporterFactory> reporters) {
 		List<IJobReporterFactory> reporter = new ArrayList<>();
 		if (reporters != null) {
@@ -64,46 +59,35 @@ public class JobDispatcher {
 		return reporter;
 	}
 
-	private List<IJobLoggerFactory> initializeLoggers(JobDefinition jobDefinition, List<IJobLoggerFactory> loggers) {
+	private List<IJobLoggerFactory> initializeLoggers(Job jobDefinition, List<IJobLoggerFactory> loggers) {
 		List<IJobLoggerFactory> logger = new ArrayList<>();
 		if (loggers != null) {
 			logger.addAll(loggers);
 		}
-		logger.add(new JobLoggerFactory(getLoggerLabel(jobDefinition)));
+		logger.add(new JobLoggerFactory(jobDefinition.jobLabel()));
 		return logger;
 	}
 
-	private String getLoggerLabel(JobDefinition jobDefinition) {
-		String loggerLabel = jobDefinition.getJobName();
-		if (!StringUtils.isEmpty(jobDefinition.getContainerName())) {
-			loggerLabel = loggerLabel.concat(" - ").concat(jobDefinition.getContainerName());
-		} else if (!StringUtils.isEmpty(jobDefinition.getContainerId())) {
-			loggerLabel = loggerLabel.concat(" - ").concat(jobDefinition.getContainerId());
-		}
-		return loggerLabel;
-	}
-
-	private boolean isDockerJob(JobDefinition addedJobDefinition) {
-		if (!StringUtils.isEmpty(addedJobDefinition.getContainerName()) || !StringUtils.isEmpty(addedJobDefinition
-				.getContainerId())) {
+	private boolean isDockerJob(Job addedJobDefinition) {
+		if (addedJobDefinition.getContainerName().isPresent() || addedJobDefinition.getContainerId().isPresent()) {
 			return true;
 		}
 		return false;
 	}
 
-	public void removeJob(String jobId) {
+	public void removeJob(JobId jobId) {
 		this.dispatcher.removeJob(jobId);
 	}
 
-	public void execute(String jobId) {
+	public void execute(JobId jobId) {
 		this.dispatcher.execute(jobId);
 	}
 
-	public void execute(String jobId, List<IJobReporter> reporters, List<IJobLogger> loggers) {
+	public void execute(JobId jobId, List<IJobReporter> reporters, List<IJobLogger> loggers) {
 		this.dispatcher.execute(jobId, reporters, loggers);
 	}
 
-	public void testExecute(String jobId, List<IJobReporter> reporters, List<IJobLogger> loggers) {
+	public void testExecute(JobId jobId, List<IJobReporter> reporters, List<IJobLogger> loggers) {
 		this.dispatcher.testExecute(jobId, reporters, loggers);
 	}
 

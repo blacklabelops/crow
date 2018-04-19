@@ -1,11 +1,11 @@
 package com.blacklabelops.crow.application.repository;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
 
 public interface IJobRepositoryListener {
 
-	void jobAdded(JobDefinition addedJobDefinition);
+	void jobAdded(Job addedJobDefinition);
 
-	void jobRemoved(JobDefinition removedJobDefinition);
+	void jobRemoved(Job removedJobDefinition);
 
 }

@@ -9,14 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerClient.ExecCreateParam;
 import com.spotify.docker.client.LogStream;
@@ -28,28 +27,27 @@ import com.spotify.docker.client.messages.ExecCreation;
 import com.spotify.docker.client.messages.ExecState;
 import com.spotify.docker.client.messages.Info;
 
-@Ignore
 public class DockerSmokeIT {
 
 	private Logger LOG = LoggerFactory.getLogger(DockerSmokeIT.class);
 
-	public static DockerTestContainerFactory containerFactory;
+	public DockerTestContainerFactory containerFactory;
 
-	public static int numberOfContainers = 5;
+	public int numberOfContainers = 5;
 
-	public static List<String> containers = new ArrayList<>(numberOfContainers);
+	public List<String> containers = new ArrayList<>(numberOfContainers);
 
-	public static DockerClient dockerClient;
+	public DockerClient dockerClient;
 
-	@BeforeClass
-	public static void setupClass() throws DockerCertificateException, DockerException, InterruptedException {
+	@Before
+	public void setupClass() throws DockerCertificateException, DockerException, InterruptedException {
 		dockerClient = DockerClientFactory.initializeDockerClient();
 		containerFactory = new DockerTestContainerFactory(dockerClient);
 		containerFactory.runSomeContainers(numberOfContainers);
 	}
 
-	@AfterClass
-	public static void tearDownClass() {
+	@After
+	public void tearDownClass() {
 		containerFactory.deleteContainers();
 	}
 

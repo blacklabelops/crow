@@ -12,7 +12,8 @@ import org.bouncycastle.util.io.TeeOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
+import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.executor.ExecutionResult;
 import com.blacklabelops.crow.console.executor.IExecutor;
 import com.blacklabelops.crow.console.logger.IJobLogger;
@@ -26,9 +27,9 @@ class DockerExecutor implements IExecutor {
 
 	private final String jobName;
 
-	private final String jobId;
+	private final JobId jobId;
 
-	private final JobDefinition jobDefinition;
+	private final Job jobDefinition;
 
 	private final List<IJobReporter> jobReporter = new ArrayList<>();
 
@@ -36,11 +37,11 @@ class DockerExecutor implements IExecutor {
 
 	private ExecutionResult executionResult;
 
-	public DockerExecutor(JobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger) {
+	public DockerExecutor(Job definition, List<IJobReporter> reporter, List<IJobLogger> logger) {
 		super();
-		jobId = definition.resolveJobId();
-		jobName = definition.getJobName();
-		jobDefinition = new JobDefinition(definition);
+		jobId = definition.getId();
+		jobName = definition.getName();
+		jobDefinition = definition;
 		this.executionResult = new ExecutionResult(jobDefinition);
 		if (reporter != null) {
 			reporter.stream().filter(Objects::nonNull).forEach(report -> jobReporter.add(report));
@@ -76,7 +77,7 @@ class DockerExecutor implements IExecutor {
 						.forEach(reporter -> reporter.failingJob(new ExecutionResult(this.executionResult)));
 			}
 		} catch (Exception e) {
-			LOG.error("Execution of Job {} failed!", this.jobDefinition.resolveJobLabel(), e);
+			LOG.error("Execution of Job {} failed!", this.jobDefinition.jobLabel(), e);
 			jobReporter.parallelStream()
 					.forEach(reporter -> reporter.failingJob(new ExecutionResult(this.executionResult)));
 		} finally {
@@ -135,8 +136,8 @@ class DockerExecutor implements IExecutor {
 	}
 
 	@Override
-	public JobDefinition getJobDefinition() {
-		return new JobDefinition(jobDefinition);
+	public Job getJobDefinition() {
+		return jobDefinition;
 	}
 
 	@Override
@@ -145,7 +146,7 @@ class DockerExecutor implements IExecutor {
 	}
 
 	@Override
-	public String getJobId() {
+	public JobId getJobId() {
 		return jobId;
 	}
 

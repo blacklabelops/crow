@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.blacklabelops.crow.console.dispatcher.DispatcherResult;
-import com.blacklabelops.crow.console.dispatcher.DispatchingResult;
+import com.blacklabelops.crow.console.dispatcher.AbstractDispatchingResult;
 import com.blacklabelops.crow.console.dispatcher.IDispatcher;
 
 public class MultiJobScheduler implements Runnable {
@@ -32,7 +32,7 @@ public class MultiJobScheduler implements Runnable {
 	public void run() {
 		ChronoUnit chronoUnit = ChronoUnit.MILLIS;
 		do {
-			Job nextJob = jobScheduler.getNextExecutableJob();
+			ScheduledJob nextJob = jobScheduler.getNextExecutableJob();
 			if (nextJob != null) {
 				ZonedDateTime nextExecution = nextJob.getNextExecution();
 				boolean waitFornextExecution = true;
@@ -40,7 +40,7 @@ public class MultiJobScheduler implements Runnable {
 					long timeToNextExecution = chronoUnit.between(ZonedDateTime.now(), nextExecution);
 					if (timeToNextExecution <= 0) {
 						LOG.debug("Executing job {}.", nextJob.getJobId());
-						DispatchingResult dispatchingResult = dispatcher.execute(nextJob.getJobId());
+						AbstractDispatchingResult dispatchingResult = dispatcher.execute(nextJob.getJobId());
 						if (!DispatcherResult.EXECUTED.equals(dispatchingResult.getDispatcherResult())) {
 							jobScheduler.notifyDispatchingError(dispatchingResult);
 						}
@@ -57,7 +57,7 @@ public class MultiJobScheduler implements Runnable {
 		} while (keepRunning);
 	}
 
-	private boolean checkJob(Job nextJob) {
+	private boolean checkJob(ScheduledJob nextJob) {
 		return jobScheduler.getNextExecutableJob() == nextJob;
 	}
 

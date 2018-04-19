@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.blacklabelops.crow.console.definition.ExecutionMode;
+import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.executor.IExecutor;
 import com.blacklabelops.crow.console.executor.IExecutorTemplate;
 import com.blacklabelops.crow.console.logger.IJobLogger;
@@ -19,9 +20,9 @@ public class Dispatcher implements IDispatcher {
 
 	private static Logger LOG = LoggerFactory.getLogger(Dispatcher.class);
 
-	private Map<String, IExecutorTemplate> jobs = Collections.synchronizedMap(new HashMap<>());
+	private Map<JobId, IExecutorTemplate> jobs = Collections.synchronizedMap(new HashMap<>());
 
-	private Map<String, WeakReference<Thread>> runningExecutors = Collections.synchronizedMap(new HashMap<>());
+	private Map<JobId, WeakReference<Thread>> runningExecutors = Collections.synchronizedMap(new HashMap<>());
 
 	public Dispatcher() {
 		super();
@@ -33,18 +34,19 @@ public class Dispatcher implements IDispatcher {
 	}
 
 	@Override
-	public void removeJob(String jobId) {
+	public void removeJob(JobId jobId) {
 		jobs.remove(jobId);
 	}
 
 	@Override
-	public DispatchingResult execute(String jobId) {
+	public AbstractDispatchingResult execute(JobId jobId) {
 		IExecutorTemplate executor = jobs.get(jobId);
 		return addExecution(executor.createExecutor());
 	}
 
 	@Override
-	public DispatchingResult execute(String jobId, List<IJobReporter> reporters, List<IJobLogger> loggers) {
+	public AbstractDispatchingResult execute(JobId jobId, List<IJobReporter> reporters,
+			List<IJobLogger> loggers) {
 		IExecutorTemplate executorTemplate = jobs.get(jobId);
 		IExecutor executor = executorTemplate.createExecutor();
 		if (loggers != null) {
@@ -57,7 +59,7 @@ public class Dispatcher implements IDispatcher {
 	}
 
 	@Override
-	public void testExecute(String jobId, List<IJobReporter> reporters, List<IJobLogger> loggers) {
+	public void testExecute(JobId jobId, List<IJobReporter> reporters, List<IJobLogger> loggers) {
 		IExecutorTemplate executorTemplate = jobs.get(jobId);
 		IExecutor executor = executorTemplate.createExecutor();
 		executor.deleteReporters();
@@ -73,8 +75,7 @@ public class Dispatcher implements IDispatcher {
 	}
 
 	protected DispatchingResult addExecution(IExecutor executor) {
-		DispatchingResult dispatcherResult = new DispatchingResult(executor.getJobDefinition());
-		ExecutionMode executionMode = executor.getJobDefinition().getExecutionMode();
+		ExecutionMode executionMode = executor.getJobDefinition().getExecutorMode();
 		DispatcherResult result = DispatcherResult.EXECUTED;
 		boolean canBeExecuted = ExecutionMode.PARALLEL.equals(executionMode) || !checkRunning(executor);
 		if (canBeExecuted) {
@@ -86,8 +87,7 @@ public class Dispatcher implements IDispatcher {
 			LOG.debug("Skipping Job {}, already running!", executor.getJobId());
 			result = DispatcherResult.DROPPED_ALREADY_RUNNING;
 		}
-		dispatcherResult.setDispatcherResult(result);
-		return dispatcherResult;
+		return DispatchingResult.of(executor.getJobDefinition(), result);
 	}
 
 	protected boolean checkRunning(IExecutor executor) {

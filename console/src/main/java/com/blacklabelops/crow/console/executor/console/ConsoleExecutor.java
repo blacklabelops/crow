@@ -9,7 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
+import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.executor.ExecutionResult;
 import com.blacklabelops.crow.console.executor.FileAccessor;
 import com.blacklabelops.crow.console.executor.IExecutor;
@@ -23,9 +24,9 @@ public class ConsoleExecutor implements IExecutor {
 
 	private final String jobName;
 
-	private final String jobId;
+	private final JobId jobId;
 
-	private final JobDefinition jobDefinition;
+	private final Job jobDefinition;
 
 	private final List<IJobReporter> jobReporter = new ArrayList<>();
 
@@ -47,11 +48,11 @@ public class ConsoleExecutor implements IExecutor {
 
 	private ExecutionResult executionResult;
 
-	public ConsoleExecutor(JobDefinition definition, List<IJobReporter> reporter, List<IJobLogger> logger) {
+	public ConsoleExecutor(Job definition, List<IJobReporter> reporter, List<IJobLogger> logger) {
 		super();
-		jobName = definition.getJobName();
-		jobId = definition.resolveJobId();
-		jobDefinition = new JobDefinition(definition);
+		jobName = definition.getName();
+		jobId = definition.getId();
+		jobDefinition = definition;
 		this.executionResult = new ExecutionResult(jobDefinition);
 		if (reporter != null) {
 			reporter
@@ -153,8 +154,8 @@ public class ConsoleExecutor implements IExecutor {
 	}
 
 	@Override
-	public JobDefinition getJobDefinition() {
-		return new JobDefinition(jobDefinition);
+	public Job getJobDefinition() {
+		return jobDefinition;
 	}
 
 	@Override
@@ -163,7 +164,7 @@ public class ConsoleExecutor implements IExecutor {
 	}
 
 	@Override
-	public String getJobId() {
+	public JobId getJobId() {
 		return jobId;
 	}
 

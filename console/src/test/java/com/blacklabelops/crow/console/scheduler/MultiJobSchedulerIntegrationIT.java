@@ -7,6 +7,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,18 +19,13 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.dispatcher.Dispatcher;
 import com.blacklabelops.crow.console.dispatcher.IDispatcher;
 import com.blacklabelops.crow.console.executor.IExecutorTemplate;
 import com.blacklabelops.crow.console.executor.console.ConsoleExecutor;
 import com.blacklabelops.crow.console.logger.IJobLogger;
 import com.blacklabelops.crow.console.logger.JobLogLogger;
-import com.blacklabelops.crow.console.scheduler.CronUtilsExecutionTime;
-import com.blacklabelops.crow.console.scheduler.IScheduler;
-import com.blacklabelops.crow.console.scheduler.Job;
-import com.blacklabelops.crow.console.scheduler.JobScheduler;
-import com.blacklabelops.crow.console.scheduler.MultiJobScheduler;
 
 public class MultiJobSchedulerIntegrationIT {
 
@@ -45,8 +41,8 @@ public class MultiJobSchedulerIntegrationIT {
 		IScheduler scheduler = new JobScheduler();
 		IDispatcher dispatcher = new Dispatcher();
 		MultiJobScheduler multischeduler = new MultiJobScheduler(scheduler, dispatcher);
-		Job job1 = createJob("A", "* * * * *");
-		Job job2 = createJob("B", "* * * * *");
+		ScheduledJob job1 = createJob("A", "* * * * *");
+		ScheduledJob job2 = createJob("B", "* * * * *");
 		dispatcher.addJob(createExecutorTemplate("A", 1));
 		scheduler.addJob(job1);
 		dispatcher.addJob(createExecutorTemplate("B", 1));
@@ -66,8 +62,8 @@ public class MultiJobSchedulerIntegrationIT {
 		IScheduler scheduler = new JobScheduler();
 		IDispatcher dispatcher = new Dispatcher();
 		MultiJobScheduler multischeduler = new MultiJobScheduler(scheduler, dispatcher);
-		Job job1 = createJob("A", "* * * * *");
-		Job job2 = createJob("B", "* * * * *");
+		ScheduledJob job1 = createJob("A", "* * * * *");
+		ScheduledJob job2 = createJob("B", "* * * * *");
 		dispatcher.addJob(createExecutorTemplate("A", 2));
 		scheduler.addJob(job1);
 		dispatcher.addJob(createExecutorTemplate("B", 2));
@@ -82,19 +78,15 @@ public class MultiJobSchedulerIntegrationIT {
 		assertEquals("Job B must have been executed", 0, latch.get("B").getCount());
 	}
 
-	private Job createJob(final String name, String cronString) {
-		JobDefinition defConsole = new JobDefinition();
-		defConsole.setCommand("echo", "Hello" + name);
-		defConsole.setJobName(name);
-		return new Job(name, new CronUtilsExecutionTime(cronString));
+	private ScheduledJob createJob(final String name, String cronString) {
+		Job defConsole = Job.builder().id(name).name(name).command(Arrays.asList("echo", "Hello" + name)).build();
+		return new ScheduledJob(defConsole.getId(), new CronUtilsExecutionTime(cronString));
 	}
 
 	private IExecutorTemplate createExecutorTemplate(final String name, int latches) {
 		List<IJobLogger> loggers = new ArrayList<>();
 		loggers.add(new JobLogLogger(name));
-		JobDefinition defConsole = new JobDefinition();
-		defConsole.setCommand("echo", "Hello" + name);
-		defConsole.setJobName(name);
+		Job defConsole = Job.builder().id(name).name(name).command(Arrays.asList("echo", "Hello" + name)).build();
 		ConsoleExecutor console = new ConsoleExecutor(defConsole, null, loggers);
 		latch.put(name, new CountDownLatch(latches));
 		ConsoleExecutor spyConsole = spy(console);
@@ -107,7 +99,7 @@ public class MultiJobSchedulerIntegrationIT {
 		}).when(spyConsole).run();
 		IExecutorTemplate template = mock(IExecutorTemplate.class);
 		when(template.createExecutor()).thenReturn(spyConsole);
-		when(template.getJobId()).thenReturn(name);
+		when(template.getJobId()).thenReturn(defConsole.getId());
 		return template;
 	}
 }

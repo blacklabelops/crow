@@ -14,14 +14,15 @@ import com.blacklabelops.crow.application.config.JobConfiguration;
 import com.blacklabelops.crow.application.repository.JobRepository;
 import com.blacklabelops.crow.console.definition.ErrorMode;
 import com.blacklabelops.crow.console.definition.ExecutionMode;
+import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.scheduler.CronUtilsExecutionTime;
 import com.cronutils.utils.StringUtils;
 
 @Component
 public class JobService implements IJobService {
-	
+
 	private final JobRepository repository;
-	
+
 	@Autowired
 	public JobService(JobRepository repository) {
 		super();
@@ -45,7 +46,7 @@ public class JobService implements IJobService {
 				} else {
 					description.setErrorMode(ErrorMode.CONTINUE.toString().toLowerCase());
 				}
-				if (job.getExecution() != null ) {
+				if (job.getExecution() != null) {
 					description.setExecution(job.getExecution().toString().toLowerCase());
 				} else {
 					description.setExecution(ExecutionMode.SEQUENTIAL.toString().toLowerCase());
@@ -57,11 +58,11 @@ public class JobService implements IJobService {
 	}
 
 	@Override
-	public JobDescription getJobDescription(String jobName) {
+	public JobDescription getJobDescription(JobId jobName) {
 		JobDescription foundJob = new JobDescription();
 		Optional<JobConfiguration> job = repository.findJob(jobName);
 		job.ifPresent(j -> BeanUtils.copyProperties(j, foundJob));
 		return foundJob;
 	}
-	
+
 }

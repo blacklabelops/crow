@@ -9,32 +9,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.blacklabelops.crow.console.definition.ErrorMode;
-import com.blacklabelops.crow.console.dispatcher.DispatchingResult;
+import com.blacklabelops.crow.console.definition.JobId;
+import com.blacklabelops.crow.console.dispatcher.AbstractDispatchingResult;
 import com.blacklabelops.crow.console.executor.ExecutionResult;
 
 public class JobScheduler implements IScheduler {
 
 	private static Logger LOG = LoggerFactory.getLogger(JobScheduler.class);
 
-	private List<Job> jobs = Collections.synchronizedList(new ArrayList<Job>());
+	private List<ScheduledJob> jobs = Collections.synchronizedList(new ArrayList<ScheduledJob>());
 
-	private List<Job> scheduledJobs = Collections.synchronizedList(new ArrayList<Job>());
+	private List<ScheduledJob> scheduledJobs = Collections.synchronizedList(new ArrayList<ScheduledJob>());
 
-	private List<Job> failedJobs = Collections.synchronizedList(new ArrayList<Job>());
+	private List<ScheduledJob> failedJobs = Collections.synchronizedList(new ArrayList<ScheduledJob>());
 
 	public JobScheduler() {
 		super();
 	}
 
 	@Override
-	public void addJob(Job job) {
+	public void addJob(ScheduledJob job) {
 		jobs.add(job);
 		scheduledJobs.add(job);
 		LOG.debug("Added job to the scheduler: {}", job);
 	}
 
 	@Override
-	public void removeJob(Job job) {
+	public void removeJob(ScheduledJob job) {
 		jobs.remove(job);
 		scheduledJobs.remove(job);
 		failedJobs.remove(job);
@@ -42,36 +43,36 @@ public class JobScheduler implements IScheduler {
 	}
 
 	@Override
-	public Job getNextExecutableJob() {
+	public ScheduledJob getNextExecutableJob() {
 		return scheduledJobs.stream().sorted(new JobComparator()).reduce((first, second) -> second).orElse(null);
 	}
 
 	@Override
-	public void notifyDispatchingError(DispatchingResult dispatcherResult) {
+	public void notifyDispatchingError(AbstractDispatchingResult dispatcherResult) {
 		if (dispatcherResult.getJobName() != null) {
-			decideUnscheduling(dispatcherResult.getJobDefinition().getErrorMode(), dispatcherResult.getJobName());
+			decideUnscheduling(dispatcherResult.getJobDefinition().getErrorMode(), dispatcherResult.getJobId());
 		}
 	}
 
-	private void decideUnscheduling(ErrorMode errorMode, String jobName) {
+	private void decideUnscheduling(ErrorMode errorMode, JobId jobId) {
 		if (errorMode != null && !ErrorMode.CONTINUE.equals(errorMode)) {
-			Optional<Job> foundJob = findJob(jobName);
+			Optional<ScheduledJob> foundJob = findJob(jobId);
 			foundJob.ifPresent(job -> unscheduleJob(job));
 		}
 	}
 
 	@Override
 	public void notifyExecutionError(ExecutionResult executionResult) {
-		decideUnscheduling(executionResult.getJobDefinition().getErrorMode(), executionResult.getJobName());
+		decideUnscheduling(executionResult.getJobDefinition().getErrorMode(), executionResult.getJobId());
 	}
 
-	private void unscheduleJob(Job foundJob) {
+	private void unscheduleJob(ScheduledJob foundJob) {
 		scheduledJobs.remove(foundJob);
 		failedJobs.add(foundJob);
 	}
 
-	private Optional<Job> findJob(String jobName) {
-		return jobs.stream().filter(job -> job.getJobId().equals(jobName)).findFirst();
+	private Optional<ScheduledJob> findJob(JobId jobId) {
+		return jobs.stream().filter(job -> job.getJobId().equals(jobId)).findFirst();
 	}
 
 }

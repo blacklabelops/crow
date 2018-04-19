@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -16,9 +17,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
-import com.blacklabelops.crow.console.dispatcher.Dispatcher;
-import com.blacklabelops.crow.console.dispatcher.IDispatcher;
+import com.blacklabelops.crow.console.definition.Job;
+import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
 import com.blacklabelops.crow.console.executor.docker.DockerExecutorTemplate;
 import com.blacklabelops.crow.console.executor.docker.DockerTestContainerFactory;
@@ -71,15 +71,17 @@ public class DockerExecutionIT implements IJobLogger, IJobLoggerFactory {
 
 	@Test
 	public void testExecution_ExecuteManually_OutputCorrect() throws DockerException, InterruptedException {
-		JobDefinition definition = new JobDefinition();
-		definition.setJobName("EchoTest");
-		definition.setCommand("echo", "Hello Docker World!");
-		definition.setContainerName(CONTAINER_NAME);
+		Job definition = Job.builder() //
+				.id(JobId.builder().id("EchoTest").build())
+				.name("EchoTest") //
+				.command(Arrays.asList("echo", "Hello Docker World!")) //
+				.containerName(CONTAINER_NAME) //
+				.build();
 		DockerExecutorTemplate jobTemplate = new DockerExecutorTemplate(definition, null, loggerFactory);
 		this.containerFactory.runContainer(CONTAINER_NAME);
 
 		this.dispatcher.addJob(jobTemplate);
-		this.dispatcher.execute(definition.resolveJobId());
+		this.dispatcher.execute(definition.getId());
 		latch.await();
 
 		assertEquals("Hello Docker World!\n", new String(this.outStream.toByteArray()));

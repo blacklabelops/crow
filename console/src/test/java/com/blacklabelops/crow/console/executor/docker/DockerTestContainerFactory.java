@@ -93,6 +93,7 @@ public class DockerTestContainerFactory {
 
 	private void stopContainer(String c) throws DockerException, InterruptedException {
 		dockerClient.removeContainer(c, RemoveContainerParam.forceKill(true), RemoveContainerParam.removeVolumes(true));
+		containers.remove(c);
 	}
 
 	private String startContainer() throws DockerException, InterruptedException {

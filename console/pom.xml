@@ -62,6 +62,13 @@
 		    <version>2.6</version>
 		</dependency>
 		
+		<dependency>
+		  <groupId>org.immutables</groupId>
+		  <artifactId>value</artifactId>
+		  <version>2.5.6</version>
+		  <scope>provided</scope>
+		</dependency>
+		
 		<!-- Required for Spring Boot 2.x -->
 		<!--  dependency>
 		    <groupId>org.glassfish.jersey.inject</groupId>

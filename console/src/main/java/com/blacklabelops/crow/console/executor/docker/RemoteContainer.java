@@ -13,11 +13,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.executor.ExecutorException;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerClient.ExecCreateParam;
@@ -40,7 +39,7 @@ class RemoteContainer {
 
 	private DockerClient dockerClient;
 
-	private JobDefinition jobDefinition;
+	private Job jobDefinition;
 
 	private String container;
 
@@ -48,28 +47,29 @@ class RemoteContainer {
 		super();
 	}
 
-	private void checkDefinition(JobDefinition executionDefinition) {
+	private void checkDefinition(Job executionDefinition) {
 		if (executionDefinition == null)
 			throw new ExecutorException("Executor has no job definition!");
-		if (executionDefinition.getCommand() == null)
+		if (!executionDefinition.getCommand().isPresent())
 			throw new ExecutorException("Executor has no command specified!");
-		if (executionDefinition.getContainerId() == null && executionDefinition.getContainerName() == null)
+		if (executionDefinition.getContainerId().isPresent() && executionDefinition.getContainerName().isPresent())
 			throw new ExecutorException("No container had been defined!");
-		jobDefinition = new JobDefinition(executionDefinition);
+		jobDefinition = executionDefinition;
 	}
 
-	public void execute(JobDefinition executionDefinition) {
+	public void execute(Job executionDefinition) {
 		checkDefinition(executionDefinition);
 		evaluateContainer(executionDefinition);
 		dockerClient = DockerClientFactory.initializeDockerClient();
 		boolean preResult = true;
 		try {
-			if (executionDefinition.getPreCommand() != null && !executionDefinition.getPreCommand().isEmpty()) {
+			if (executionDefinition.getPreCommand().isPresent() && !executionDefinition.getPreCommand().get()
+					.isEmpty()) {
 				preResult = executePreCommands(executionDefinition);
 			}
 			boolean result = preResult ? executeCommands(executionDefinition) : preResult;
-			if (result && executionDefinition.getPostCommand() != null
-					&& !executionDefinition.getPostCommand().isEmpty()) {
+			if (result && executionDefinition.getPostCommand().isPresent()
+					&& !executionDefinition.getPostCommand().get().isEmpty()) {
 				executePostCommands(executionDefinition);
 			}
 		} finally {
@@ -78,36 +78,24 @@ class RemoteContainer {
 		}
 	}
 
-	private void evaluateContainer(JobDefinition executionDefinition) {
-		if (!StringUtils.isEmpty(executionDefinition.getContainerName())) {
-			this.container = executionDefinition.getContainerName();
-		} else if (!StringUtils.isEmpty(executionDefinition.getContainerId())) {
-			this.container = executionDefinition.getContainerId();
+	private void evaluateContainer(Job executionDefinition) {
+		if (executionDefinition.getContainerName().isPresent()) {
+			this.container = executionDefinition.getContainerName().get();
+		} else if (executionDefinition.getContainerId().isPresent()) {
+			this.container = executionDefinition.getContainerId().get();
 		}
 	}
 
-	private void executePostCommands(JobDefinition executionDefinition) {
-		String[] command = executionDefinition.getPostCommand()
-				.toArray(new String[executionDefinition.getPostCommand().size()]);
+	private void executePostCommands(Job executionDefinition) {
+		String[] command = executionDefinition.getPostCommand().get()
+				.toArray(new String[executionDefinition.getPostCommand().get().size()]);
 		ExecCreation execCreation = prepareExecution(executionDefinition, command);
 		executeCommand(execCreation);
 	}
 
-	private boolean executePreCommands(JobDefinition executionDefinition) {
-		String[] command = executionDefinition.getPreCommand()
-				.toArray(new String[executionDefinition.getPreCommand().size()]);
-		ExecCreation execCreation = prepareExecution(executionDefinition, command);
-		boolean result = false;
-		executeCommand(execCreation);
-		if (!timedOut && Integer.valueOf(0).equals(returnCode)) {
-			result = true;
-		}
-		return result;
-	}
-
-	private boolean executeCommands(JobDefinition executionDefinition) {
-		String[] command = executionDefinition.getCommand()
-				.toArray(new String[executionDefinition.getCommand().size()]);
+	private boolean executePreCommands(Job executionDefinition) {
+		String[] command = executionDefinition.getPreCommand().get()
+				.toArray(new String[executionDefinition.getPreCommand().get().size()]);
 		ExecCreation execCreation = prepareExecution(executionDefinition, command);
 		boolean result = false;
 		executeCommand(execCreation);
@@ -117,12 +105,24 @@ class RemoteContainer {
 		return result;
 	}
 
-	private ExecCreation prepareExecution(JobDefinition executionDefinition, String[] command) {
+	private boolean executeCommands(Job executionDefinition) {
+		String[] command = executionDefinition.getCommand().get()
+				.toArray(new String[executionDefinition.getCommand().get().size()]);
+		ExecCreation execCreation = prepareExecution(executionDefinition, command);
+		boolean result = false;
+		executeCommand(execCreation);
+		if (!timedOut && Integer.valueOf(0).equals(returnCode)) {
+			result = true;
+		}
+		return result;
+	}
+
+	private ExecCreation prepareExecution(Job executionDefinition, String[] command) {
 		List<ExecCreateParam> parameters = new ArrayList<>();
 		parameters.add(DockerClient.ExecCreateParam.attachStderr());
 		parameters.add(DockerClient.ExecCreateParam.attachStdout());
-		if (!StringUtils.isEmpty(executionDefinition.getWorkingDir())) {
-			parameters.add(new ExecCreateParam("WorkingDir", executionDefinition.getWorkingDir()));
+		if (executionDefinition.getWorkingDir().isPresent()) {
+			parameters.add(new ExecCreateParam("WorkingDir", executionDefinition.getWorkingDir().get()));
 		}
 		ExecCreateParam[] executionParams = parameters.toArray(new ExecCreateParam[parameters.size()]);
 		ExecCreation execCreation = null;
@@ -130,7 +130,7 @@ class RemoteContainer {
 			execCreation = dockerClient.execCreate(this.container, command, executionParams);
 		} catch (DockerException | InterruptedException e) {
 			String message = String.format("Execution creation for job %s failed!",
-					executionDefinition.resolveJobLabel());
+					executionDefinition.jobLabel());
 			LOG.error(message, e);
 			throw new ExecutorException(message, e);
 		}
@@ -149,7 +149,7 @@ class RemoteContainer {
 					RemoteContainer.this.returnCode = state.exitCode();
 				} catch (DockerException | InterruptedException | IOException e) {
 					String message = String.format("Error executing job %s !",
-							RemoteContainer.this.jobDefinition.resolveJobLabel());
+							RemoteContainer.this.jobDefinition.jobLabel());
 					LOG.error(message, e);
 					throw new ExecutorException(message, e);
 				} finally {
@@ -167,16 +167,16 @@ class RemoteContainer {
 
 	private void executeTask(ExecutorService executor, Callable<Void> task) {
 		Future<Void> future = executor.submit(task);
-		if (this.jobDefinition.getTimeoutMinutes() != null) {
+		if (this.jobDefinition.getTimeoutMinutes().isPresent()) {
 			try {
-				future.get(this.jobDefinition.getTimeoutMinutes(), TimeUnit.MINUTES);
+				future.get(this.jobDefinition.getTimeoutMinutes().get(), TimeUnit.MINUTES);
 			} catch (InterruptedException | ExecutionException e) {
 				String message = String.format("Error executing job %s!",
-						RemoteContainer.this.jobDefinition.resolveJobLabel());
+						RemoteContainer.this.jobDefinition.jobLabel());
 				LOG.error(message, e);
 				throw new ExecutorException(message, e);
 			} catch (TimeoutException e) {
-				LOG.error("Job timed out {}!", this.jobDefinition.resolveJobLabel());
+				LOG.error("Job timed out {}!", this.jobDefinition.jobLabel());
 				this.timedOut = true;
 			}
 		} else {
@@ -184,7 +184,7 @@ class RemoteContainer {
 				future.get();
 			} catch (InterruptedException | ExecutionException e) {
 				String message = String.format("Error executing job %s!",
-						this.jobDefinition.resolveJobLabel());
+						this.jobDefinition.jobLabel());
 				LOG.error(message, e);
 
 			}

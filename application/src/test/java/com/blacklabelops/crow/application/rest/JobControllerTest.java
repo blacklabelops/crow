@@ -31,61 +31,53 @@ import com.blacklabelops.crow.application.CrowDemon;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes=CrowDemon.class)
-@TestPropertySource(locations="classpath:resttest.properties")
+@ContextConfiguration(classes = CrowDemon.class)
+@TestPropertySource(locations = "classpath:resttest.properties")
 public class JobControllerTest {
-	
+
 	private MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
-            MediaType.APPLICATION_JSON.getSubtype(),
-            Charset.forName("utf8"));
+			MediaType.APPLICATION_JSON.getSubtype(),
+			Charset.forName("utf8"));
 
-    private MockMvc mockMvc;
-    
-    @SuppressWarnings("rawtypes")
+	private MockMvc mockMvc;
+
+	@SuppressWarnings("rawtypes")
 	private HttpMessageConverter mappingJackson2HttpMessageConverter;
-    
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-    
-    @Autowired
-    void setConverters(HttpMessageConverter<?>[] converters) {
 
-        this.mappingJackson2HttpMessageConverter = Arrays.asList(converters).stream()
-            .filter(hmc -> hmc instanceof MappingJackson2HttpMessageConverter)
-            .findAny()
-            .orElse(null);
+	@Autowired
+	private WebApplicationContext webApplicationContext;
 
-        assertNotNull("the JSON message converter must not be null",
-                this.mappingJackson2HttpMessageConverter);
-    }
-    
-    @Before
-    public void setup() throws Exception {
-        this.mockMvc = webAppContextSetup(webApplicationContext).build();
-    }
-    
-    @Test
-    public void testListJobs_ListConfiguredJobs_JobsSizeAndNameFromConfig() throws Exception {
-    		mockMvc.perform(get("/crow/jobs"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].name", anyOf(is("HelloWorld"), is("HelloUniverse"))));
-    }
-    
-    @Test
-    public void testFetJobDescription_GetHelloWorldJob_GetJobFromConfig() throws Exception {
-    		mockMvc.perform(get("/crow/jobs/HelloWorld"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$.name", is("HelloWorld")));
-    }
-    
-    @Test
-    public void testGetServerVersion_GetVersionString_UndefinedInTestContest() throws Exception {
-    		mockMvc.perform(get("/crow/version"))
-    			.andExpect(status().isOk())
-    			.andExpect(content().contentType(contentType))
-             .andExpect(jsonPath("$.version", is("undefined")));
-    }
+	@Autowired
+	void setConverters(HttpMessageConverter<?>[] converters) {
+
+		this.mappingJackson2HttpMessageConverter = Arrays.asList(converters).stream()
+				.filter(hmc -> hmc instanceof MappingJackson2HttpMessageConverter)
+				.findAny()
+				.orElse(null);
+
+		assertNotNull("the JSON message converter must not be null",
+				this.mappingJackson2HttpMessageConverter);
+	}
+
+	@Before
+	public void setup() throws Exception {
+		this.mockMvc = webAppContextSetup(webApplicationContext).build();
+	}
+
+	@Test
+	public void testListJobs_ListConfiguredJobs_JobsSizeAndNameFromConfig() throws Exception {
+		mockMvc.perform(get("/crow/jobs"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(contentType))
+				.andExpect(jsonPath("$", hasSize(3)))
+				.andExpect(jsonPath("$[0].name", anyOf(is("HelloWorld"), is("HelloUniverse"))));
+	}
+
+	@Test
+	public void testGetServerVersion_GetVersionString_UndefinedInTestContest() throws Exception {
+		mockMvc.perform(get("/crow/version"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(contentType))
+				.andExpect(jsonPath("$.version", is("undefined")));
+	}
 }

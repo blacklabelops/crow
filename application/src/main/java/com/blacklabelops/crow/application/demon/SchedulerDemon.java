@@ -22,15 +22,15 @@ import com.blacklabelops.crow.application.dispatcher.JobDispatcher;
 import com.blacklabelops.crow.application.repository.IJobRepositoryListener;
 import com.blacklabelops.crow.application.repository.JobRepository;
 import com.blacklabelops.crow.console.definition.ErrorMode;
-import com.blacklabelops.crow.console.definition.JobDefinition;
+import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.reporter.ExecutionErrorReporterFactory;
 import com.blacklabelops.crow.console.reporter.IJobReporterFactory;
 import com.blacklabelops.crow.console.scheduler.CronUtilsExecutionTime;
 import com.blacklabelops.crow.console.scheduler.IExecutionTime;
 import com.blacklabelops.crow.console.scheduler.IScheduler;
-import com.blacklabelops.crow.console.scheduler.Job;
 import com.blacklabelops.crow.console.scheduler.JobScheduler;
 import com.blacklabelops.crow.console.scheduler.MultiJobScheduler;
+import com.blacklabelops.crow.console.scheduler.ScheduledJob;
 
 @Component
 public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRepositoryListener {
@@ -118,19 +118,19 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 	}
 
 	@Override
-	public void jobAdded(JobDefinition addedJobDefinition) {
+	public void jobAdded(Job addedJobDefinition) {
 		List<IJobReporterFactory> reporter = new ArrayList<>();
 		if (!ErrorMode.CONTINUE.equals(addedJobDefinition.getErrorMode())) {
 			reporter.add(new ExecutionErrorReporterFactory(jobScheduler));
 		}
-		IExecutionTime cronTime = new CronUtilsExecutionTime(addedJobDefinition.getCron());
-		Job workJob = new Job(addedJobDefinition.resolveJobId(), cronTime);
+		IExecutionTime cronTime = new CronUtilsExecutionTime(addedJobDefinition.getCron().get());
+		ScheduledJob workJob = new ScheduledJob(addedJobDefinition.getId(), cronTime);
 		jobScheduler.addJob(workJob);
 		jobDispatcher.addJob(addedJobDefinition, reporter, null);
 	}
 
 	@Override
-	public void jobRemoved(JobDefinition removedJobDefinition) {
+	public void jobRemoved(Job removedJobDefinition) {
 
 	}
 
