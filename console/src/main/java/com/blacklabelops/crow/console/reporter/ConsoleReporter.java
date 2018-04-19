@@ -31,7 +31,7 @@ public class ConsoleReporter implements IJobReporter {
 
 	@Override
 	public void startingJob(ExecutionResult pExecutingJob) {
-		String time = formatter.format(pExecutingJob.getStartingTime());
+		String time = formatter.format(pExecutingJob.getStartingTime().get());
 		String message = String.format(startMessageFormat, pExecutingJob.getJobDefinition().jobLabel(),
 				time);
 		logger.info(message);
@@ -39,9 +39,9 @@ public class ConsoleReporter implements IJobReporter {
 
 	@Override
 	public void finishedJob(ExecutionResult pExecutingJob) {
-		String time = formatter.format(pExecutingJob.getFinishingTime());
+		String time = formatter.format(pExecutingJob.getFinishingTime().get());
 		String message = String.format(finishMessageFormat, pExecutingJob.getJobDefinition().jobLabel(), pExecutingJob
-				.getReturnCode(),
+				.getReturnCode().orElse(null),
 				time);
 		logger.info(message);
 	}

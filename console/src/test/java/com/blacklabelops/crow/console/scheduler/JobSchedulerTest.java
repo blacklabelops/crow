@@ -113,7 +113,7 @@ public class JobSchedulerTest {
 		Job jobDefinition = Job.builder().id(jobId).name("A").errorMode(ErrorMode.STOP).build();
 		ScheduledJob job = createJob(jobId, ZonedDateTime.now().plusMinutes(1));
 		scheduler.addJob(job);
-		ExecutionResult result = new ExecutionResult(jobDefinition);
+		ExecutionResult result = ExecutionResult.of(jobDefinition);
 
 		scheduler.notifyExecutionError(result);
 
@@ -126,7 +126,7 @@ public class JobSchedulerTest {
 		Job jobDefinition = Job.builder().id(jobId).name("A").errorMode(ErrorMode.CONTINUE).build();
 		ScheduledJob job = createJob(jobId, ZonedDateTime.now().plusMinutes(1));
 		scheduler.addJob(job);
-		ExecutionResult result = new ExecutionResult(jobDefinition);
+		ExecutionResult result = ExecutionResult.of(jobDefinition);
 
 		scheduler.notifyExecutionError(result);
 
@@ -139,7 +139,7 @@ public class JobSchedulerTest {
 		Job jobDefinition = Job.builder().id(jobId).name("A").build();
 		ScheduledJob job = createJob(jobId, ZonedDateTime.now().plusMinutes(1));
 		scheduler.addJob(job);
-		ExecutionResult result = new ExecutionResult(jobDefinition);
+		ExecutionResult result = ExecutionResult.of(jobDefinition);
 
 		scheduler.notifyExecutionError(result);
 

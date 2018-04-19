@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -27,14 +26,13 @@ public class ExecutionErrorReporterTest {
 	@Mock
 	IScheduler scheduler;
 
-	@Spy
 	ExecutionResult result;
 
 	@Before
 	public void setup() {
 		reporter = new ExecutionErrorReporter(scheduler);
 		Job job = Job.builder().id("id").name("name").build();
-		result = new ExecutionResult(job);
+		result = ExecutionResult.of(job);
 	}
 
 	@After
@@ -51,7 +49,7 @@ public class ExecutionErrorReporterTest {
 	@Test
 	public void testFailingJob_WhenFailingWithReturnCode_ThenNotifyErrorWithReturnCode() {
 		Integer errorCode = Integer.valueOf(5);
-		result.setReturnCode(errorCode);
+		result = result.withReturnCode(errorCode);
 		reporter.failingJob(result);
 		verify(scheduler, times(1)).notifyExecutionError(eq(result));
 	}

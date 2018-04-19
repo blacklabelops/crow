@@ -88,7 +88,7 @@ public class SimpleConsoleUnixIntegrationIT {
 		simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(
 				Collectors.toList()));
 		simpleConsole.run();
-		assertTrue(simpleConsole.getExecutionResult().isTimedOut());
+		assertTrue(simpleConsole.getExecutionResult().isTimedOut().get());
 	}
 
 	@Test(timeout = 5000)
@@ -98,8 +98,8 @@ public class SimpleConsoleUnixIntegrationIT {
 		simpleConsole = new ConsoleExecutor(jobDefinition, null, Stream.of(new JobLogLogger("echoJob")).collect(
 				Collectors.toList()));
 		simpleConsole.run();
-		assertFalse(simpleConsole.getExecutionResult().isTimedOut());
-		assertEquals(Integer.valueOf(0), simpleConsole.getExecutionResult().getReturnCode());
+		assertFalse(simpleConsole.getExecutionResult().isTimedOut().get());
+		assertEquals(Integer.valueOf(0), simpleConsole.getExecutionResult().getReturnCode().get());
 	}
 
 	@Test

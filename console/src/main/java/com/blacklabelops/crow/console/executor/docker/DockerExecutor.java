@@ -42,7 +42,7 @@ class DockerExecutor implements IExecutor {
 		jobId = definition.getId();
 		jobName = definition.getName();
 		jobDefinition = definition;
-		this.executionResult = new ExecutionResult(jobDefinition);
+		this.executionResult = ExecutionResult.of(jobDefinition);
 		if (reporter != null) {
 			reporter.stream().filter(Objects::nonNull).forEach(report -> jobReporter.add(report));
 		}
@@ -57,29 +57,30 @@ class DockerExecutor implements IExecutor {
 			jobLogger.forEach(IJobLogger::initializeLogger);
 			RemoteContainer executor = new RemoteContainer();
 			initializeStreams(executor);
-			this.executionResult.setStartingTime(LocalDateTime.now());
+			this.executionResult = this.executionResult.withStartingTime(LocalDateTime.now());
 			jobReporter.parallelStream()
-					.forEach(reporter -> reporter.startingJob(new ExecutionResult(this.executionResult)));
+					.forEach(reporter -> reporter.startingJob(this.executionResult));
 			executor.execute(jobDefinition);
-			this.executionResult.setTimedOut(executor.isTimedOut());
-			this.executionResult.setReturnCode(executor.getReturnCode());
-			this.executionResult.setFinishingTime(LocalDateTime.now());
+			this.executionResult = this.executionResult
+					.withTimedOut(Optional.ofNullable(executor.isTimedOut())) //
+					.withReturnCode(Optional.ofNullable(executor.getReturnCode())) //
+					.withFinishingTime(LocalDateTime.now());
 			jobReporter.parallelStream()
-					.forEach(reporter -> reporter.finishedJob(new ExecutionResult(this.executionResult)));
-			if (!this.executionResult.isTimedOut()) {
-				if (this.executionResult.getReturnCode() == null || RETURN_CODE_OKAY != this.executionResult
-						.getReturnCode()) {
+					.forEach(reporter -> reporter.finishedJob(this.executionResult));
+			if (!this.executionResult.isTimedOut().orElse(Boolean.FALSE)) {
+				if (this.executionResult.getReturnCode().isPresent() || RETURN_CODE_OKAY != this.executionResult
+						.getReturnCode().get()) {
 					jobReporter.parallelStream()
-							.forEach(reporter -> reporter.failingJob(new ExecutionResult(this.executionResult)));
+							.forEach(reporter -> reporter.failingJob(this.executionResult));
 				}
 			} else {
 				jobReporter.parallelStream()
-						.forEach(reporter -> reporter.failingJob(new ExecutionResult(this.executionResult)));
+						.forEach(reporter -> reporter.failingJob(this.executionResult));
 			}
 		} catch (Exception e) {
 			LOG.error("Execution of Job {} failed!", this.jobDefinition.jobLabel(), e);
 			jobReporter.parallelStream()
-					.forEach(reporter -> reporter.failingJob(new ExecutionResult(this.executionResult)));
+					.forEach(reporter -> reporter.failingJob(this.executionResult));
 		} finally {
 			jobLogger.forEach(IJobLogger::finishLogger);
 		}
@@ -142,7 +143,7 @@ class DockerExecutor implements IExecutor {
 
 	@Override
 	public ExecutionResult getExecutionResult() {
-		return new ExecutionResult(this.executionResult);
+		return this.executionResult;
 	}
 
 	@Override

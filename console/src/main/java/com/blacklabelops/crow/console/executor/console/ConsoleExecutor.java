@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.definition.JobId;
@@ -53,7 +54,7 @@ public class ConsoleExecutor implements IExecutor {
 		jobName = definition.getName();
 		jobId = definition.getId();
 		jobDefinition = definition;
-		this.executionResult = new ExecutionResult(jobDefinition);
+		this.executionResult = ExecutionResult.of(jobDefinition);
 		if (reporter != null) {
 			reporter
 					.stream()
@@ -75,13 +76,14 @@ public class ConsoleExecutor implements IExecutor {
 			LocalConsole executor = new LocalConsole();
 			createDefaultOutputFiles(executor);
 			startLogTrailing();
-			this.executionResult.setStartingTime(LocalDateTime.now());
-			jobReporter.parallelStream().forEach(reporter -> reporter.startingJob(new ExecutionResult(
-					this.executionResult)));
+			this.executionResult = this.executionResult.withStartingTime(LocalDateTime.now());
+			jobReporter.parallelStream().forEach(reporter -> reporter.startingJob(
+					this.executionResult));
 			executor.execute(jobDefinition);
-			this.executionResult.setTimedOut(executor.isTimedOut());
-			this.executionResult.setReturnCode(executor.getReturnCode());
-			this.executionResult.setFinishingTime(LocalDateTime.now());
+			this.executionResult = this.executionResult
+					.withTimedOut(Optional.ofNullable(executor.isTimedOut())) //
+					.withReturnCode(Optional.ofNullable(executor.getReturnCode())) //
+					.withFinishingTime(LocalDateTime.now());
 		} finally {
 			stopLogTrailing();
 			deleteOutputFiles();
@@ -92,16 +94,17 @@ public class ConsoleExecutor implements IExecutor {
 	}
 
 	private void reportResults() {
-		jobReporter.parallelStream().forEach(reporter -> reporter.finishedJob(new ExecutionResult(
-				this.executionResult)));
-		if (!this.executionResult.isTimedOut()) {
-			if (RETURN_CODE_OKAY != this.executionResult.getReturnCode()) {
-				jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(new ExecutionResult(
-						this.executionResult)));
+		jobReporter.parallelStream().forEach(reporter -> reporter.finishedJob(
+				this.executionResult));
+		if (!this.executionResult.isTimedOut().orElse(Boolean.FALSE)) {
+			if (this.executionResult.getReturnCode().isPresent() && RETURN_CODE_OKAY != this.executionResult
+					.getReturnCode().get()) {
+				jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(
+						this.executionResult));
 			}
 		} else {
-			jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(new ExecutionResult(
-					this.executionResult)));
+			jobReporter.parallelStream().forEach(reporter -> reporter.failingJob(
+					this.executionResult));
 		}
 	}
 
@@ -160,7 +163,7 @@ public class ConsoleExecutor implements IExecutor {
 
 	@Override
 	public ExecutionResult getExecutionResult() {
-		return new ExecutionResult(this.executionResult);
+		return this.executionResult;
 	}
 
 	@Override

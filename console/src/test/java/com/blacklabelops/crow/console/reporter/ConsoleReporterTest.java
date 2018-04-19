@@ -25,8 +25,8 @@ public class ConsoleReporterTest {
 	@Test
 	public void testStartingJob() {
 		Job jobDefinition = Job.builder().name("Name").id("Name").build();
-		ExecutionResult result = new ExecutionResult(jobDefinition);
-		result.setStartingTime(LocalDateTime.now());
+		ExecutionResult result = ExecutionResult.of(jobDefinition);
+		result = result.withStartingTime(LocalDateTime.now());
 
 		reporter.startingJob(result);
 	}
@@ -34,9 +34,8 @@ public class ConsoleReporterTest {
 	@Test
 	public void finishedJob() {
 		Job jobDefinition = Job.builder().name("Name").id("Name").build();
-		ExecutionResult result = new ExecutionResult(jobDefinition);
-		result.setFinishingTime(LocalDateTime.now());
-		result.setReturnCode(Integer.valueOf(5));
+		ExecutionResult result = ExecutionResult.of(jobDefinition);
+		result = result.withFinishingTime(LocalDateTime.now()).withReturnCode(Integer.valueOf(5));
 
 		reporter.finishedJob(result);
 	}
