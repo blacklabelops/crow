@@ -10,13 +10,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.blacklabelops.crow.application.config.JobConfiguration;
 import com.blacklabelops.crow.application.repository.JobRepository;
-import com.blacklabelops.crow.console.definition.ErrorMode;
-import com.blacklabelops.crow.console.definition.ExecutionMode;
+import com.blacklabelops.crow.application.util.CrowConfiguration;
 import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.scheduler.CronUtilsExecutionTime;
-import com.cronutils.utils.StringUtils;
 
 @Component
 public class JobService implements IJobService {
@@ -31,36 +28,40 @@ public class JobService implements IJobService {
 
 	@Override
 	public List<JobInformation> listJobs() {
-		List<JobConfiguration> jobs = repository.listJobs();
+		List<CrowConfiguration> jobs = repository.listJobs();
 		List<JobInformation> descriptions = new ArrayList<>(jobs.size());
-		for (JobConfiguration job : jobs) {
+		for (CrowConfiguration job : jobs) {
 			JobInformation description = new JobInformation();
-			BeanUtils.copyProperties(job, description);
-			if (!StringUtils.isEmpty(job.getCron())) {
-				CronUtilsExecutionTime time = new CronUtilsExecutionTime(job.getCron());
+			description.setName(getDescriptionLabel(job));
+			description.setCron(job.getCron().orElse(""));
+			description.setErrorMode(job.getErrorMode().orElse(""));
+			description.setExecution(job.getExecution().orElse(""));
+			if (job.getCron().isPresent()) {
+				CronUtilsExecutionTime time = new CronUtilsExecutionTime(job.getCron().get());
 				ZonedDateTime nextExecution = time.nextExecution(ZonedDateTime.now());
 				Date nextDateExecution = Date.from(nextExecution.toInstant());
 				description.setNextExecution(nextDateExecution);
-				if (job.getErrorMode() != null) {
-					description.setErrorMode(job.getErrorMode().toString().toLowerCase());
-				} else {
-					description.setErrorMode(ErrorMode.CONTINUE.toString().toLowerCase());
-				}
-				if (job.getExecution() != null) {
-					description.setExecution(job.getExecution().toString().toLowerCase());
-				} else {
-					description.setExecution(ExecutionMode.SEQUENTIAL.toString().toLowerCase());
-				}
 			}
 			descriptions.add(description);
 		}
 		return descriptions;
 	}
 
+	private String getDescriptionLabel(CrowConfiguration job) {
+		StringBuilder label = new StringBuilder();
+		label.append(job.getJobName().get());
+		if (job.getContainerName().isPresent()) {
+			label.append(" - ").append(job.getContainerName().get());
+		} else if (job.getContainerId().isPresent()) {
+			label.append(" - ").append(job.getContainerId().get());
+		}
+		return label.toString();
+	}
+
 	@Override
 	public JobDescription getJobDescription(JobId jobName) {
 		JobDescription foundJob = new JobDescription();
-		Optional<JobConfiguration> job = repository.findJob(jobName);
+		Optional<CrowConfiguration> job = repository.findJob(jobName);
 		job.ifPresent(j -> BeanUtils.copyProperties(j, foundJob));
 		return foundJob;
 	}

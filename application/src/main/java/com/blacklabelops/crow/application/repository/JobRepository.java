@@ -19,8 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.blacklabelops.crow.application.config.Global;
-import com.blacklabelops.crow.application.config.JobConfiguration;
+import com.blacklabelops.crow.application.util.CrowConfiguration;
 import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.definition.JobId;
 
@@ -30,8 +29,6 @@ public class JobRepository {
 	private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();;
 
 	private static Logger LOG = LoggerFactory.getLogger(JobRepository.class);
-
-	private Global globalConfiguration;
 
 	private final Map<JobId, RepositoryJob> jobs = Collections.synchronizedMap(new HashMap<>());
 
@@ -50,12 +47,12 @@ public class JobRepository {
 		listeners.add(new WeakReference<>(repositoryListener));
 	}
 
-	public JobId addJob(JobConfiguration jobConfiguration) {
+	public JobId addJob(CrowConfiguration jobConfiguration) {
 		JobId result = null;
-		JobConverter jobConverter = new JobConverter(globalConfiguration);
+		RepositoryJobConverter jobConverter = new RepositoryJobConverter();
 		RepositoryJob repositoryJob = jobConverter.convertJob(jobConfiguration);
-		if (validateJob(repositoryJob.getEvaluatedConfiguration()) && nonExistentJob(repositoryJob
-				.getEvaluatedConfiguration())) {
+		if (validateJob(repositoryJob.getJobConfiguration()) && nonExistentJob(repositoryJob
+				.getJobConfiguration())) {
 			RepositoryJob addedJob = jobs.putIfAbsent(repositoryJob.getJobDefinition().getId(), repositoryJob);
 			if (addedJob == null) {
 				LOG.debug("Job added to repository: {}", repositoryJob.getJobDefinition());
@@ -68,18 +65,18 @@ public class JobRepository {
 		return result;
 	}
 
-	private boolean nonExistentJob(JobConfiguration evaluatedConfiguration) {
+	private boolean nonExistentJob(CrowConfiguration evaluatedConfiguration) {
 		boolean jobFound = true;
 		List<RepositoryJob> jobList = Arrays.asList(this.jobs.values().toArray(new RepositoryJob[this.jobs.size()]));
 		for (RepositoryJob job : jobList) {
 			Job definition = job.getJobDefinition();
-			if (definition.getName().equals(evaluatedConfiguration.getName())) {
+			if (definition.getName().equals(evaluatedConfiguration.getJobName().get())) {
 				// Job with Docker Container Name => Job Name with Container Name must be unique
 				if (definition.getContainerName().isPresent() && definition.getContainerName().get().equals(
-						evaluatedConfiguration.getContainerName())) {
+						evaluatedConfiguration.getContainerName().get())) {
 					// Job with Docker Container Id => Job Name with Container Id must be unique
 				} else if (definition.getContainerId().isPresent() && definition.getContainerId().get().equals(
-						evaluatedConfiguration.getContainerId())) {
+						evaluatedConfiguration.getContainerId().get())) {
 					jobFound = false;
 					// Job without Docker Container Name => Job Name must be unique
 				} else if (!definition.getContainerName().isPresent() && !definition.getContainerId().isPresent()) {
@@ -90,10 +87,10 @@ public class JobRepository {
 		return jobFound;
 	}
 
-	private boolean validateJob(JobConfiguration jobConfiguration) {
-		Set<ConstraintViolation<JobConfiguration>> errors = validator.validate(jobConfiguration);
+	private boolean validateJob(CrowConfiguration jobConfiguration) {
+		Set<ConstraintViolation<CrowConfiguration>> errors = validator.validate(jobConfiguration);
 		if (!errors.isEmpty()) {
-			LOG.error("Job definition invalid, jobname: {}", jobConfiguration.getName());
+			LOG.error("Job definition invalid: {}", jobConfiguration.getJobName());
 			errors.stream().forEach(error -> LOG.error(error.getMessage()));
 		}
 		return errors.isEmpty();
@@ -114,20 +111,19 @@ public class JobRepository {
 		}
 	}
 
-	public List<JobConfiguration> listJobs() {
+	public List<CrowConfiguration> listJobs() {
 		return Arrays
 				.asList(this.jobs.values().toArray(new RepositoryJob[this.jobs.size()]))
 				.stream()
-				.map(job -> new JobConfiguration(job.getEvaluatedConfiguration()))
+				.map(job -> job.getJobConfiguration())
 				.collect(Collectors.toList());
 	}
 
-	public Optional<JobConfiguration> findJob(JobId jobId) {
+	public Optional<CrowConfiguration> findJob(JobId jobId) {
 		LOG.debug("Repository listing job: {}", jobId);
 		RepositoryJob found = this.jobs.get(jobId);
 		if (found != null) {
-			JobConfiguration clone = new JobConfiguration(found.getJobConfiguration());
-			return Optional.of(clone);
+			return Optional.of(found.getJobConfiguration());
 		} else {
 			return Optional.empty();
 		}
@@ -147,15 +143,6 @@ public class JobRepository {
 				.parallelStream()
 				.filter(notified -> notified.get() != null)
 				.forEach(notification -> notification.get().jobAdded(jobDefinition));
-	}
-
-	public Global getGlobalConfiguration() {
-		return new Global(globalConfiguration);
-	}
-
-	public void setGlobalConfiguration(Global globalConfiguration) {
-		LOG.debug("Setting global configuration: {}", globalConfiguration);
-		this.globalConfiguration = new Global(globalConfiguration);
 	}
 
 }

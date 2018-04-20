@@ -12,8 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.blacklabelops.crow.application.config.Global;
-import com.blacklabelops.crow.application.config.JobConfiguration;
+import com.blacklabelops.crow.application.util.CrowConfiguration;
+import com.blacklabelops.crow.application.util.GlobalCrowConfiguration;
+import com.blacklabelops.crow.application.util.GlobalExtractor;
+import com.blacklabelops.crow.application.util.JobExtractor;
 
 @Component
 public class LocalConfigDiscover {
@@ -27,9 +29,9 @@ public class LocalConfigDiscover {
 		this.configuration = configuration;
 	}
 
-	public Optional<Global> discoverGlobalConfiguration() {
+	public Optional<GlobalCrowConfiguration> discoverGlobalConfiguration() {
 		LOG.debug("Looking for global configuration with property prefix: {}", configuration.getStandardGlobalPrefix());
-		Optional<Global> global = new GlobalExtractor(configuration.getStandardGlobalPrefix())
+		Optional<GlobalCrowConfiguration> global = new GlobalExtractor(configuration.getStandardGlobalPrefix())
 				.extractGlobalFromProperties(getProperties());
 		if (!global.isPresent()) {
 			LOG.debug("Looking for global configuration with env prefix: {}", configuration
@@ -41,8 +43,8 @@ public class LocalConfigDiscover {
 		return global;
 	}
 
-	public List<JobConfiguration> discoverJobs() {
-		List<JobConfiguration> jobs = new ArrayList<>();
+	public List<CrowConfiguration> discoverJobs() {
+		List<CrowConfiguration> jobs = new ArrayList<>();
 		LOG.debug("Looking for jobs with job prefix: {})", configuration.getStandardJobPrefix());
 		jobs.addAll(new JobExtractor(configuration.getStandardJobPrefix()).extractFromProperties(getProperties()));
 		LOG.debug("Looking for jobs with job prefix: {})", configuration.getStandardJobEnvPrefix());

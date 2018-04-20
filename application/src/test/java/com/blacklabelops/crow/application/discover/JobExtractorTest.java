@@ -10,8 +10,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.blacklabelops.crow.application.config.JobConfiguration;
-import com.blacklabelops.crow.application.discover.JobExtractor;
+import com.blacklabelops.crow.application.util.CrowConfiguration;
+import com.blacklabelops.crow.application.util.JobExtractor;
 
 public class JobExtractorTest {
 
@@ -25,7 +25,7 @@ public class JobExtractorTest {
 	@Test
 	public void testExtraction_WhenNoValuesDefined_EmptyJobs() {
 		JobExtractor extractor = new JobExtractor("JOB");
-		List<JobConfiguration> jobs = extractor.extractFromEnvironmentVariables(values);
+		List<CrowConfiguration> jobs = extractor.extractFromEnvironmentVariables(values);
 		assertTrue(jobs.isEmpty());
 	}
 
@@ -33,36 +33,36 @@ public class JobExtractorTest {
 	public void testExtraction_WhenJobNameDEfined_JobIsFound() {
 		JobExtractor extractor = new JobExtractor("JOB");
 		values.put("JOB1NAME", "name");
-		List<JobConfiguration> jobs = extractor.extractFromEnvironmentVariables(values);
+		List<CrowConfiguration> jobs = extractor.extractFromEnvironmentVariables(values);
 		assertEquals(1, jobs.size());
-		assertEquals("name", jobs.get(0).getName());
+		assertEquals("name", jobs.get(0).getJobName().orElse(null));
 	}
 
 	@Test
 	public void testExtraction_WhenJobNameInPropertiesDefined_JobIsFound() {
 		JobExtractor extractor = new JobExtractor("job.");
 		values.put("job.1.name", "name");
-		List<JobConfiguration> jobs = extractor.extractFromProperties(values);
+		List<CrowConfiguration> jobs = extractor.extractFromProperties(values);
 		assertEquals(1, jobs.size());
-		assertEquals("name", jobs.get(0).getName());
+		assertEquals("name", jobs.get(0).getJobName().orElse(null));
 	}
 
 	@Test
 	public void testExtraction_WhenContainerNameInPropertiesDefined_JobIsFound() {
 		JobExtractor extractor = new JobExtractor("job.");
 		values.put("job.1.container.name", "containerName");
-		List<JobConfiguration> jobs = extractor.extractFromProperties(values);
+		List<CrowConfiguration> jobs = extractor.extractFromProperties(values);
 		assertEquals(1, jobs.size());
-		assertEquals("containerName", jobs.get(0).getContainerName());
+		assertEquals("containerName", jobs.get(0).getContainerName().orElse(null));
 	}
 
 	@Test
 	public void testExtraction_WhenContainerIdInPropertiesDefined_JobIsFound() {
 		JobExtractor extractor = new JobExtractor("job.");
 		values.put("job.1.container.id", "containerId");
-		List<JobConfiguration> jobs = extractor.extractFromProperties(values);
+		List<CrowConfiguration> jobs = extractor.extractFromProperties(values);
 		assertEquals(1, jobs.size());
-		assertEquals("containerId", jobs.get(0).getContainerId());
+		assertEquals("containerId", jobs.get(0).getContainerId().orElse(null));
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class JobExtractorTest {
 		JobExtractor extractor = new JobExtractor("job.");
 		values.put("job.1.name", "name");
 		values.put("job.1.timeout.minutes", "invalid");
-		List<JobConfiguration> jobs = extractor.extractFromProperties(values);
+		List<CrowConfiguration> jobs = extractor.extractFromProperties(values);
 		assertTrue(jobs.isEmpty());
 	}
 }

@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application.discover;
+package com.blacklabelops.crow.application.util;
 
 enum JobField {
 

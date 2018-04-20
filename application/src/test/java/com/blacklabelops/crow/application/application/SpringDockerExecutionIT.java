@@ -25,9 +25,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.blacklabelops.crow.application.CrowDemon;
-import com.blacklabelops.crow.application.config.JobConfiguration;
 import com.blacklabelops.crow.application.dispatcher.JobDispatcher;
 import com.blacklabelops.crow.application.repository.JobRepository;
+import com.blacklabelops.crow.application.util.CrowConfiguration;
 import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
 import com.blacklabelops.crow.console.executor.docker.DockerTestContainerFactory;
@@ -82,19 +82,19 @@ public class SpringDockerExecutionIT implements IJobLogger {
 
 	@Test
 	public void testRepository_ListJobs_TwoDockerJobsAdded() {
-		List<JobConfiguration> jobs = repository.listJobs();
+		List<CrowConfiguration> jobs = repository.listJobs();
 
 		assertEquals(Integer.valueOf(1), Integer.valueOf(jobs.size()));
-		jobs.stream().forEach(j -> assertNotNull(j.getContainerName()));
+		jobs.stream().forEach(j -> assertNotNull(j.getContainerName().orElse(null)));
 	}
 
 	@Test
 	public void testExecution_ExecuteManually_OutputCorrect() throws DockerException, InterruptedException {
-		Optional<JobConfiguration> job = repository.listJobs().stream().filter(j -> "EchoDockerContainer".equals(j
-				.getName())).findFirst();
+		Optional<CrowConfiguration> job = repository.listJobs().stream().filter(j -> "EchoDockerContainer".equals(j
+				.getJobName().orElse(null))).findFirst();
 		this.containerFactory.runContainer(CONTAINER_NAME);
 
-		this.dispatcher.execute(JobId.of(job.get().getId()), null, logger);
+		this.dispatcher.execute(JobId.of(job.get().getJobId().orElse(null)), null, logger);
 		latch.await();
 
 		String output = new String(this.outStream.toByteArray());
@@ -104,11 +104,11 @@ public class SpringDockerExecutionIT implements IJobLogger {
 	@Test
 	public void testExecution_ExecuteTestExecutionManually_OutputCorrect() throws DockerException,
 			InterruptedException {
-		Optional<JobConfiguration> job = repository.listJobs().stream().filter(j -> "EchoDockerContainer".equals(j
-				.getName())).findFirst();
+		Optional<CrowConfiguration> job = repository.listJobs().stream().filter(j -> "EchoDockerContainer".equals(j
+				.getJobName().orElse(null))).findFirst();
 		this.containerFactory.runContainer(CONTAINER_NAME);
 
-		this.dispatcher.testExecute(JobId.of(job.get().getId()), null, logger);
+		this.dispatcher.testExecute(JobId.of(job.get().getJobId().orElse(null)), null, logger);
 		latch.await();
 
 		String output = new String(this.outStream.toByteArray());

@@ -2,7 +2,6 @@ package com.blacklabelops.crow.application.demon;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.annotation.PreDestroy;
 import javax.validation.Valid;
@@ -21,6 +20,10 @@ import com.blacklabelops.crow.application.discover.LocalConfigDiscover;
 import com.blacklabelops.crow.application.dispatcher.JobDispatcher;
 import com.blacklabelops.crow.application.repository.IJobRepositoryListener;
 import com.blacklabelops.crow.application.repository.JobRepository;
+import com.blacklabelops.crow.application.util.CrowConfiguration;
+import com.blacklabelops.crow.application.util.GlobalCrowConfiguration;
+import com.blacklabelops.crow.application.util.JobConfigurationConverter;
+import com.blacklabelops.crow.application.util.JobConverter;
 import com.blacklabelops.crow.console.definition.ErrorMode;
 import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.reporter.ExecutionErrorReporterFactory;
@@ -67,8 +70,8 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 		this.jobRepository.addListener(this);
 	}
 
-	private void createJob(JobConfiguration job) {
-		LOG.info("Adding job '{}' to scheduler. Cron schedule '{}'", job.getName(), job.getCron());
+	private void createJob(CrowConfiguration job) {
+		LOG.info("Adding job '{}' to scheduler. Cron schedule '{}'", job.getJobName(), job.getCron());
 		this.jobRepository.addJob(job);
 	}
 
@@ -91,22 +94,27 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 
 	@Override
 	public void run(String... strings) throws Exception {
-		evaluateGlobalConfiguration().ifPresent(c -> this.jobRepository.setGlobalConfiguration(c));
-		crowConfig.getJobs().stream().forEach(job -> createJob(job));
+		createConfigurationJobs();
 		localDiscoverer.discoverJobs().stream().forEach(job -> createJob(job));
 		start();
 	}
 
-	private Optional<Global> evaluateGlobalConfiguration() {
-		Optional<Global> global = localDiscoverer.discoverGlobalConfiguration();
-		if (!global.isPresent()) {
-			if (this.crowConfig != null && this.crowConfig.getGlobal() != null) {
-				global = Optional.of(this.crowConfig.getGlobal());
-			} else {
-				global = Optional.empty();
-			}
+	private void createConfigurationJobs() {
+		this.crowConfig.getJobs().stream().forEach(j -> createConfigurationJob(j, this.crowConfig.getGlobal()));
+	}
+
+	private void createConfigurationJob(JobConfiguration j, Global global) {
+		JobConfigurationConverter crowConverter = new JobConfigurationConverter();
+		GlobalCrowConfiguration crowGlobal = null;
+		if (this.crowConfig.getGlobal() != null) {
+			crowGlobal = crowConverter.convertGlobal(this.crowConfig.getGlobal());
+		} else {
+			crowGlobal = GlobalCrowConfiguration.builder().build();
 		}
-		return global;
+		CrowConfiguration crowConfig = crowConverter.convertJob(j);
+		JobConverter converter = new JobConverter(crowGlobal);
+		CrowConfiguration config = converter.convertJob(crowConfig);
+		createJob(config);
 	}
 
 	@Override

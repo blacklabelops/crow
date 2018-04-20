@@ -70,7 +70,7 @@ public class JobControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(contentType))
 				.andExpect(jsonPath("$", hasSize(3)))
-				.andExpect(jsonPath("$[0].name", anyOf(is("HelloWorld"), is("HelloUniverse"))));
+				.andExpect(jsonPath("$[0].name", anyOf(is("HelloWorld"), is("HelloUniverse"), is("ShellCommand"))));
 	}
 
 	@Test

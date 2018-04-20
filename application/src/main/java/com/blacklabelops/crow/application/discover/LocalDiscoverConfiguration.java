@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-class LocalDiscoverConfiguration {
+public class LocalDiscoverConfiguration {
 
 	@Value("${crow.global.property.prefix:crow.}")
 	private String standardGlobalPrefix;

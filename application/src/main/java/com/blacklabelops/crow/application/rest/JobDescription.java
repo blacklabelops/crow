@@ -3,100 +3,97 @@ package com.blacklabelops.crow.application.rest;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.BeanUtils;
-
-
 public class JobDescription {
 
-    private String name;
+	private String name;
 
-    private String cron;
+	private String cron;
 
-    private String command;
-    
-    private String preCommand;
-    
-    private String postCommand;
-    
-    private String shellCommand;
+	private String command;
 
-    private String workingDirectory;
+	private String preCommand;
 
-    private String execution;
+	private String postCommand;
 
-    private String errorMode;
-    
-    private Integer timeOutMinutes;
+	private String shellCommand;
 
-    private Map<String, String> environments = new HashMap<>();
+	private String workingDirectory;
 
-    public JobDescription() {
-        super();
-    }
+	private String execution;
 
-    public String getName() {
-        return name;
-    }
+	private String errorMode;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	private Integer timeOutMinutes;
 
-    public String getCron() {
-        return cron;
-    }
+	private Map<String, String> environments = new HashMap<>();
 
-    public void setCron(String cron) {
-        this.cron = cron;
-    }
+	public JobDescription() {
+		super();
+	}
 
-    public String getCommand() {
-        return command;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setCommand(String command) {
-        this.command = command;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public Map<String, String> getEnvironments() {
-        return environments;
-    }
+	public String getCron() {
+		return cron;
+	}
 
-    public void setEnvironments(Map<String, String> environments) {
-        this.environments = environments;
-    }
+	public void setCron(String cron) {
+		this.cron = cron;
+	}
 
-    public String getExecution() {
-        return execution;
-    }
+	public String getCommand() {
+		return command;
+	}
 
-    public void setExecution(String execution) {
-        this.execution = execution;
-    }
+	public void setCommand(String command) {
+		this.command = command;
+	}
 
-    public String getErrorMode() {
-        return errorMode;
-    }
+	public Map<String, String> getEnvironments() {
+		return environments;
+	}
 
-    public void setErrorMode(String errorMode) {
-        this.errorMode = errorMode;
-    }
+	public void setEnvironments(Map<String, String> environments) {
+		this.environments = environments;
+	}
 
-    public String getShellCommand() {
-        return shellCommand;
-    }
+	public String getExecution() {
+		return execution;
+	}
 
-    public void setShellCommand(String shellCommand) {
-        this.shellCommand = shellCommand;
-    }
+	public void setExecution(String execution) {
+		this.execution = execution;
+	}
 
-    public String getWorkingDirectory() {
-        return workingDirectory;
-    }
+	public String getErrorMode() {
+		return errorMode;
+	}
 
-    public void setWorkingDirectory(String workingDirectory) {
-        this.workingDirectory = workingDirectory;
-    }
+	public void setErrorMode(String errorMode) {
+		this.errorMode = errorMode;
+	}
+
+	public String getShellCommand() {
+		return shellCommand;
+	}
+
+	public void setShellCommand(String shellCommand) {
+		this.shellCommand = shellCommand;
+	}
+
+	public String getWorkingDirectory() {
+		return workingDirectory;
+	}
+
+	public void setWorkingDirectory(String workingDirectory) {
+		this.workingDirectory = workingDirectory;
+	}
 
 	public String getPreCommand() {
 		return preCommand;
@@ -121,5 +118,5 @@ public class JobDescription {
 	public void setTimeOutMinutes(Integer timeOutMinutes) {
 		this.timeOutMinutes = timeOutMinutes;
 	}
-    
+
 }

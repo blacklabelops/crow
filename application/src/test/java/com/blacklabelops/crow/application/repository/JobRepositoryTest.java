@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import com.blacklabelops.crow.application.config.JobConfiguration;
+import com.blacklabelops.crow.application.util.CrowConfiguration;
 import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.definition.JobId;
 
@@ -30,10 +30,10 @@ public class JobRepositoryTest {
 
 	@Test
 	public void testAddJob_WhenAddingTwoJobs_SecondWillBeDismissed() {
-		JobConfiguration config = new JobConfiguration();
-		config.setName("a");
-		config.setCommand(COMMAND);
-		config.setCron(CRON);
+		CrowConfiguration config = CrowConfiguration.builder()
+				.jobName("a")
+				.command(COMMAND)
+				.cron(CRON).build();
 		JobRepository rep = new JobRepository();
 		rep.addListener(listener);
 
@@ -45,18 +45,18 @@ public class JobRepositoryTest {
 
 	@Test
 	public void testAddJob_WhenAddingTwoDifferentJobs_BothWillBeAdded() {
-		JobConfiguration config = new JobConfiguration();
-		config.setName("a");
-		config.setCommand(COMMAND);
-		config.setCron(CRON);
+		CrowConfiguration config = CrowConfiguration.builder()
+				.jobName("a")
+				.command(COMMAND)
+				.cron(CRON).build();
 		JobRepository rep = new JobRepository();
 		rep.addListener(listener);
 
 		rep.addJob(config);
-		JobConfiguration configB = new JobConfiguration();
-		configB.setName("b");
-		configB.setCommand(COMMAND);
-		configB.setCron(CRON);
+		CrowConfiguration configB = CrowConfiguration.builder()
+				.jobName("b")
+				.command(COMMAND)
+				.cron(CRON).build();
 		rep.addJob(configB);
 
 		verify(listener, times(2)).jobAdded(any(Job.class));
@@ -64,10 +64,10 @@ public class JobRepositoryTest {
 
 	@Test
 	public void testRemoveJob_WhenRemovingJob_JobWillBeRemoved() {
-		JobConfiguration config = new JobConfiguration();
-		config.setName("a");
-		config.setCommand(COMMAND);
-		config.setCron(CRON);
+		CrowConfiguration config = CrowConfiguration.builder()
+				.jobName("a")
+				.command(COMMAND)
+				.cron(CRON).build();
 		JobRepository rep = new JobRepository();
 		rep.addListener(listener);
 		JobId jobId = rep.addJob(config);
@@ -80,10 +80,10 @@ public class JobRepositoryTest {
 
 	@Test
 	public void testRemoveJob_WhenRemovingUnknownJob_NoJobWillBeRemoved() {
-		JobConfiguration config = new JobConfiguration();
-		config.setName("a");
-		config.setCommand(COMMAND);
-		config.setCron(CRON);
+		CrowConfiguration config = CrowConfiguration.builder()
+				.jobName("a")
+				.command(COMMAND)
+				.cron(CRON).build();
 		JobRepository rep = new JobRepository();
 		rep.addListener(listener);
 		rep.addJob(config);
