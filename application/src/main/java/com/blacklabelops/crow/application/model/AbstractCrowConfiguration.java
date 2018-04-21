@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application.util;
+package com.blacklabelops.crow.application.model;
 
 import java.util.Map;
 import java.util.Optional;

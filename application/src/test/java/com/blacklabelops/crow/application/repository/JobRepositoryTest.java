@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import com.blacklabelops.crow.application.util.CrowConfiguration;
+import com.blacklabelops.crow.application.model.CrowConfiguration;
 import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.definition.JobId;
 

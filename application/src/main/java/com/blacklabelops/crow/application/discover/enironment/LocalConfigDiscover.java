@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 
 import com.blacklabelops.crow.application.discover.GlobalExtractor;
 import com.blacklabelops.crow.application.discover.JobExtractor;
-import com.blacklabelops.crow.application.util.CrowConfiguration;
-import com.blacklabelops.crow.application.util.GlobalCrowConfiguration;
+import com.blacklabelops.crow.application.model.CrowConfiguration;
+import com.blacklabelops.crow.application.model.GlobalCrowConfiguration;
 
 @Component
 public class LocalConfigDiscover {

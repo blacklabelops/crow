@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import com.blacklabelops.crow.application.config.Global;
 import com.blacklabelops.crow.application.config.JobConfiguration;
-import com.blacklabelops.crow.application.util.CrowConfiguration;
-import com.blacklabelops.crow.application.util.GlobalCrowConfiguration;
+import com.blacklabelops.crow.application.model.CrowConfiguration;
+import com.blacklabelops.crow.application.model.GlobalCrowConfiguration;
 import com.cronutils.utils.StringUtils;
 
 public class JobConfigurationConverter {

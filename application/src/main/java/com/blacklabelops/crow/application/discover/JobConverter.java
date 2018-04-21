@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.apache.tools.ant.types.Commandline;
 
 import com.blacklabelops.crow.application.config.JobConfiguration;
-import com.blacklabelops.crow.application.util.CrowConfiguration;
-import com.blacklabelops.crow.application.util.GlobalCrowConfiguration;
+import com.blacklabelops.crow.application.model.CrowConfiguration;
+import com.blacklabelops.crow.application.model.GlobalCrowConfiguration;
 import com.blacklabelops.crow.console.definition.ErrorMode;
 import com.blacklabelops.crow.console.definition.ExecutionMode;
 

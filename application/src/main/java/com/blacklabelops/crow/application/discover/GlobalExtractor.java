@@ -3,7 +3,7 @@ package com.blacklabelops.crow.application.discover;
 import java.util.Map;
 import java.util.Optional;
 
-import com.blacklabelops.crow.application.util.GlobalCrowConfiguration;
+import com.blacklabelops.crow.application.model.GlobalCrowConfiguration;
 import com.cronutils.utils.StringUtils;
 
 public class GlobalExtractor {

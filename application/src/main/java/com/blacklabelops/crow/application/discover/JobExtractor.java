@@ -8,8 +8,8 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blacklabelops.crow.application.util.CrowConfiguration;
-import com.blacklabelops.crow.application.util.CrowConfiguration.Builder;
+import com.blacklabelops.crow.application.model.CrowConfiguration;
+import com.blacklabelops.crow.application.model.CrowConfiguration.Builder;
 import com.cronutils.utils.StringUtils;
 
 public class JobExtractor {

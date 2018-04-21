@@ -10,8 +10,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.blacklabelops.crow.application.model.CrowConfiguration;
 import com.blacklabelops.crow.application.repository.JobRepository;
-import com.blacklabelops.crow.application.util.CrowConfiguration;
 import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.scheduler.CronUtilsExecutionTime;
 

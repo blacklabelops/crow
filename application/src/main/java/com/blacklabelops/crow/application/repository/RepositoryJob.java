@@ -1,6 +1,6 @@
 package com.blacklabelops.crow.application.repository;
 
-import com.blacklabelops.crow.application.util.CrowConfiguration;
+import com.blacklabelops.crow.application.model.CrowConfiguration;
 import com.blacklabelops.crow.console.definition.Job;
 
 class RepositoryJob {

@@ -26,8 +26,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.blacklabelops.crow.application.CrowDemon;
 import com.blacklabelops.crow.application.dispatcher.JobDispatcher;
+import com.blacklabelops.crow.application.model.CrowConfiguration;
 import com.blacklabelops.crow.application.repository.JobRepository;
-import com.blacklabelops.crow.application.util.CrowConfiguration;
 import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
 import com.blacklabelops.crow.console.executor.docker.DockerTestContainerFactory;

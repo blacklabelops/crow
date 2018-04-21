@@ -10,7 +10,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.blacklabelops.crow.application.util.GlobalCrowConfiguration;
+import com.blacklabelops.crow.application.model.GlobalCrowConfiguration;
 
 public class GlobalExtractorTest {
 
