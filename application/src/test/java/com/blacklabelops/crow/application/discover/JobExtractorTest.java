@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.blacklabelops.crow.application.util.CrowConfiguration;
-import com.blacklabelops.crow.application.util.JobExtractor;
 
 public class JobExtractorTest {
 

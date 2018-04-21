@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application.dockercrawler;
+package com.blacklabelops.crow.application.discover.docker;
 
 import java.util.List;
 import java.util.Map;

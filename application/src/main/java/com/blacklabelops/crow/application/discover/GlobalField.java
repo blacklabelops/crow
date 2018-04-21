@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application.util;
+package com.blacklabelops.crow.application.discover;
 
 enum GlobalField {
 	

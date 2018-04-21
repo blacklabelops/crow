@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application.dockercrawler;
+package com.blacklabelops.crow.application.discover.docker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.blacklabelops.crow.application.config.Global;
 import com.blacklabelops.crow.application.config.JobConfiguration;
-import com.blacklabelops.crow.application.discover.LocalDiscoverConfiguration;
+import com.blacklabelops.crow.application.discover.enironment.LocalDiscoverConfiguration;
 import com.blacklabelops.crow.application.repository.JobRepository;
 import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
 import com.spotify.docker.client.DockerClient;

@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application.util;
+package com.blacklabelops.crow.application.discover;
 
 import java.util.Map;
 import java.util.Optional;
@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.apache.tools.ant.types.Commandline;
 
 import com.blacklabelops.crow.application.config.JobConfiguration;
+import com.blacklabelops.crow.application.util.CrowConfiguration;
+import com.blacklabelops.crow.application.util.GlobalCrowConfiguration;
 import com.blacklabelops.crow.console.definition.ErrorMode;
 import com.blacklabelops.crow.console.definition.ExecutionMode;
 

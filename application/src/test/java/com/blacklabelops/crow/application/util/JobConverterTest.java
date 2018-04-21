@@ -9,6 +9,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.blacklabelops.crow.application.discover.JobConverter;
 import com.blacklabelops.crow.console.definition.ErrorMode;
 import com.blacklabelops.crow.console.definition.ExecutionMode;
 

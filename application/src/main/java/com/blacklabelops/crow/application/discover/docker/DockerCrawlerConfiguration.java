@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application.dockercrawler;
+package com.blacklabelops.crow.application.discover.docker;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

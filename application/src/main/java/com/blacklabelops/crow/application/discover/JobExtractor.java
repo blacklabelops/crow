@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application.util;
+package com.blacklabelops.crow.application.discover;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.blacklabelops.crow.application.util.CrowConfiguration;
 import com.blacklabelops.crow.application.util.CrowConfiguration.Builder;
 import com.cronutils.utils.StringUtils;
 

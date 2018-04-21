@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application.discover;
+package com.blacklabelops.crow.application.discover.enironment;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

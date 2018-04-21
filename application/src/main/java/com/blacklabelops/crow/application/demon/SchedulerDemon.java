@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PreDestroy;
-import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,17 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.blacklabelops.crow.application.config.Crow;
-import com.blacklabelops.crow.application.config.Global;
-import com.blacklabelops.crow.application.config.JobConfiguration;
-import com.blacklabelops.crow.application.discover.LocalConfigDiscover;
+import com.blacklabelops.crow.application.discover.enironment.LocalConfigDiscover;
+import com.blacklabelops.crow.application.discover.file.ConfigFileDiscover;
 import com.blacklabelops.crow.application.dispatcher.JobDispatcher;
 import com.blacklabelops.crow.application.repository.IJobRepositoryListener;
 import com.blacklabelops.crow.application.repository.JobRepository;
 import com.blacklabelops.crow.application.util.CrowConfiguration;
-import com.blacklabelops.crow.application.util.GlobalCrowConfiguration;
-import com.blacklabelops.crow.application.util.JobConfigurationConverter;
-import com.blacklabelops.crow.application.util.JobConverter;
 import com.blacklabelops.crow.console.definition.ErrorMode;
 import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.reporter.ExecutionErrorReporterFactory;
@@ -40,11 +34,11 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 
 	public static Logger LOG = LoggerFactory.getLogger(SchedulerDemon.class);
 
-	private Crow crowConfig;
-
 	private IScheduler jobScheduler;
 
 	private JobDispatcher jobDispatcher;
+
+	private ConfigFileDiscover configurationDiscoverer;
 
 	private MultiJobScheduler scheduler;
 
@@ -55,10 +49,10 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 	private LocalConfigDiscover localDiscoverer;
 
 	@Autowired
-	public SchedulerDemon(@Valid Crow config, JobRepository jobRepository, LocalConfigDiscover localDiscoverer,
-			JobDispatcher jobDispatcher) {
+	public SchedulerDemon(JobRepository jobRepository, LocalConfigDiscover localDiscoverer,
+			JobDispatcher jobDispatcher, ConfigFileDiscover configurationDiscoverer) {
+		this.configurationDiscoverer = configurationDiscoverer;
 		this.jobRepository = jobRepository;
-		this.crowConfig = config;
 		this.localDiscoverer = localDiscoverer;
 		this.jobDispatcher = jobDispatcher;
 		initialize();
@@ -94,35 +88,13 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 
 	@Override
 	public void run(String... strings) throws Exception {
-		createConfigurationJobs();
+		this.configurationDiscoverer.discoverJobs().stream().forEach(j -> this.createJob(j));
 		localDiscoverer.discoverJobs().stream().forEach(job -> createJob(job));
 		start();
 	}
 
-	private void createConfigurationJobs() {
-		this.crowConfig.getJobs().stream().forEach(j -> createConfigurationJob(j, this.crowConfig.getGlobal()));
-	}
-
-	private void createConfigurationJob(JobConfiguration j, Global global) {
-		JobConfigurationConverter crowConverter = new JobConfigurationConverter();
-		GlobalCrowConfiguration crowGlobal = null;
-		if (this.crowConfig.getGlobal() != null) {
-			crowGlobal = crowConverter.convertGlobal(this.crowConfig.getGlobal());
-		} else {
-			crowGlobal = GlobalCrowConfiguration.builder().build();
-		}
-		CrowConfiguration crowConfig = crowConverter.convertJob(j);
-		JobConverter converter = new JobConverter(crowGlobal);
-		CrowConfiguration config = converter.convertJob(crowConfig);
-		createJob(config);
-	}
-
 	@Override
 	public void destroy() throws Exception {
-	}
-
-	public List<JobConfiguration> listJobs() {
-		return crowConfig.getJobs();
 	}
 
 	@Override

@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.blacklabelops.crow.application.util.GlobalCrowConfiguration;
-import com.blacklabelops.crow.application.util.GlobalExtractor;
 
 public class GlobalExtractorTest {
 

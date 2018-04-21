@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application.dockercrawler;
+package com.blacklabelops.crow.application.discover.docker;
 
 import com.blacklabelops.crow.application.config.JobConfiguration;
 import com.blacklabelops.crow.console.definition.JobId;
