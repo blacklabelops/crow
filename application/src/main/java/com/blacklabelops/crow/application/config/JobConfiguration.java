@@ -3,10 +3,6 @@ package com.blacklabelops.crow.application.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.BeanUtils;
 
 import com.cronutils.utils.StringUtils;
@@ -15,14 +11,10 @@ public class JobConfiguration implements IConfigModel {
 
 	private String id;
 
-	@NotEmpty(message = "A unique name for each job has to be defined!")
-	@Pattern(regexp = "[a-zA-Z0-9_\\.]+", message = "Only numbers and chars are allowed in job names! Regex: [a-zA-Z0-9_\\\\.]+")
 	private String name;
 
-	@Cron(message = "Cron expression must be valid!")
 	private String cron;
 
-	@NotEmpty(message = "Your command is not allowed to be empty!")
 	private String command;
 
 	private String preCommand;
@@ -41,7 +33,6 @@ public class JobConfiguration implements IConfigModel {
 
 	private String containerName;
 
-	@Min(value = 0L, message = "The value must be positive")
 	private Integer timeOutMinutes;
 
 	private Map<String, String> environments = new HashMap<>();

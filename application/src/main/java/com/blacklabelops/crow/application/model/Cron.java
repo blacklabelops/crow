@@ -1,7 +1,8 @@
-package com.blacklabelops.crow.application.config;
+package com.blacklabelops.crow.application.model;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
+
 import java.lang.annotation.*;
 
 

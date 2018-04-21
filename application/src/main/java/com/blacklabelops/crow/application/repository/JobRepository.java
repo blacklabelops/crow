@@ -7,26 +7,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import com.blacklabelops.crow.application.model.CrowConfiguration;
 import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.definition.JobId;
 
 @Component
+@Validated
 public class JobRepository {
-
-	private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();;
 
 	private static Logger LOG = LoggerFactory.getLogger(JobRepository.class);
 
@@ -47,12 +45,11 @@ public class JobRepository {
 		listeners.add(new WeakReference<>(repositoryListener));
 	}
 
-	public JobId addJob(CrowConfiguration jobConfiguration) {
+	public JobId addJob(@Valid CrowConfiguration jobConfiguration) {
 		JobId result = null;
 		RepositoryJobConverter jobConverter = new RepositoryJobConverter();
 		RepositoryJob repositoryJob = jobConverter.convertJob(jobConfiguration);
-		if (validateJob(repositoryJob.getJobConfiguration()) && nonExistentJob(repositoryJob
-				.getJobConfiguration())) {
+		if (nonExistentJob(repositoryJob.getJobConfiguration())) {
 			RepositoryJob addedJob = jobs.putIfAbsent(repositoryJob.getJobDefinition().getId(), repositoryJob);
 			if (addedJob == null) {
 				LOG.debug("Job added to repository: {}", repositoryJob.getJobDefinition());
@@ -85,15 +82,6 @@ public class JobRepository {
 			}
 		}
 		return jobFound;
-	}
-
-	private boolean validateJob(CrowConfiguration jobConfiguration) {
-		Set<ConstraintViolation<CrowConfiguration>> errors = validator.validate(jobConfiguration);
-		if (!errors.isEmpty()) {
-			LOG.error("Job definition invalid: {}", jobConfiguration.getJobName());
-			errors.stream().forEach(error -> LOG.error(error.getMessage()));
-		}
-		return errors.isEmpty();
 	}
 
 	public boolean jobExists(JobId jobId) {
@@ -133,16 +121,18 @@ public class JobRepository {
 		List<WeakReference<IJobRepositoryListener>> notifications = new ArrayList<>(listeners);
 		notifications
 				.parallelStream()
-				.filter(notified -> notified.get() != null)
-				.forEach(notification -> notification.get().jobRemoved(removedJob));
+				.map(notified -> notified.get())
+				.filter(Objects::nonNull)
+				.forEach(notification -> notification.jobRemoved(removedJob));
 	}
 
 	private void notifyJobAdded(Job jobDefinition) {
 		List<WeakReference<IJobRepositoryListener>> notifications = new ArrayList<>(listeners);
 		notifications
 				.parallelStream()
-				.filter(notified -> notified.get() != null)
-				.forEach(notification -> notification.get().jobAdded(jobDefinition));
+				.map(notified -> notified.get())
+				.filter(Objects::nonNull)
+				.forEach(notification -> notification.jobAdded(jobDefinition));
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.application.config;
+package com.blacklabelops.crow.application.model;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

@@ -1,32 +1,28 @@
 package com.blacklabelops.crow.application.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix="crow")
+@ConfigurationProperties(prefix = "crow")
 public class Crow implements IConfigModel {
 
-    @Valid
-    @UniqueJobNames
-    private List<JobConfiguration> jobs = new ArrayList<>();
-    
-    private Global global;
+	private List<JobConfiguration> jobs = new ArrayList<>();
 
-    public Crow() {
-        super();
-    }
+	private Global global;
 
-    public List<JobConfiguration> getJobs() {
-        return jobs;
-    }
+	public Crow() {
+		super();
+	}
 
-    public void setJobs(List<JobConfiguration> jobs) {
-        this.jobs = jobs;
-    }
+	public List<JobConfiguration> getJobs() {
+		return jobs;
+	}
+
+	public void setJobs(List<JobConfiguration> jobs) {
+		this.jobs = jobs;
+	}
 
 	public Global getGlobal() {
 		return global;
@@ -35,6 +31,5 @@ public class Crow implements IConfigModel {
 	public void setGlobal(Global global) {
 		this.global = global;
 	}
-    
-    
+
 }
