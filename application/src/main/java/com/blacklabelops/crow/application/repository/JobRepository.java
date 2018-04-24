@@ -99,6 +99,19 @@ public class JobRepository {
 		}
 	}
 
+	public void updateJob(JobId jobId, @Valid CrowConfiguration ju) {
+		RepositoryJobConverter jobConverter = new RepositoryJobConverter();
+		RepositoryJob newJob = jobConverter.convertJob(Optional.of(jobId), ju);
+		RepositoryJob oldJob = this.jobs.replace(jobId, newJob);
+		if (oldJob != null) {
+			LOG.debug("Job {} updated in repository.", jobId);
+			notifyJobUpdated(oldJob.getJobDefinition(), newJob.getJobDefinition());
+		} else {
+			LOG.debug("Job {} added in repository.", jobId);
+			notifyJobAdded(newJob.getJobDefinition());
+		}
+	}
+
 	public List<CrowConfiguration> listJobs() {
 		return Arrays
 				.asList(this.jobs.values().toArray(new RepositoryJob[this.jobs.size()]))
@@ -133,6 +146,16 @@ public class JobRepository {
 				.map(notified -> notified.get())
 				.filter(Objects::nonNull)
 				.forEach(notification -> notification.jobAdded(jobDefinition));
+	}
+
+	private void notifyJobUpdated(Job oldJob, Job newJob) {
+		List<WeakReference<IJobRepositoryListener>> notifications = new ArrayList<>(listeners);
+		notifications
+				.parallelStream()
+				.map(notified -> notified.get())
+				.filter(Objects::nonNull)
+				.forEach(notification -> notification.jobUpdated(oldJob, newJob));
+
 	}
 
 }

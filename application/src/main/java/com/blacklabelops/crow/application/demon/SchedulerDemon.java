@@ -114,4 +114,10 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 
 	}
 
+	@Override
+	public void jobUpdated(Job oldJob, Job newJob) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

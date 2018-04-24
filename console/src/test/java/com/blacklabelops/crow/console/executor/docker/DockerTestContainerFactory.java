@@ -3,6 +3,8 @@ package com.blacklabelops.crow.console.executor.docker;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -41,13 +43,17 @@ public class DockerTestContainerFactory {
 	}
 
 	public String runContainer(String name) throws DockerException, InterruptedException {
+		return this.runContainer(name, null);
+	}
+
+	public String runContainer(String name, Map<String, String> envs) throws DockerException, InterruptedException {
 		if (!checkTestImage()) {
 			try {
 				dockerClient.pull(TEST_IMAGE);
 			} catch (DockerException | InterruptedException e) {
 			}
 		}
-		String id = startContainer(name);
+		String id = startContainer(name, envs);
 		containers.add(id);
 		return id;
 	}
@@ -97,14 +103,17 @@ public class DockerTestContainerFactory {
 	}
 
 	private String startContainer() throws DockerException, InterruptedException {
-		return this.startContainer(null);
+		return this.startContainer(null, null);
 	}
 
-	private String startContainer(String name) throws DockerException, InterruptedException {
+	private String startContainer(String name, Map<String, String> envs) throws DockerException, InterruptedException {
 		String[] command = new String[] { "sh", "-c", "while sleep 1; do :; done" };
 		Builder builder = ContainerConfig.builder()
 				.image(TEST_IMAGE)
 				.cmd(command);
+		if (envs != null) {
+			builder.env(envsToEnv(envs));
+		}
 		ContainerConfig containerConfig = builder.build();
 		ContainerCreation creation = dockerClient.createContainer(containerConfig);
 		if (!StringUtils.isEmpty(name)) {
@@ -112,6 +121,11 @@ public class DockerTestContainerFactory {
 		}
 		dockerClient.startContainer(creation.id());
 		return creation.id();
+	}
+
+	private List<String> envsToEnv(Map<String, String> envs) {
+		return envs.entrySet().stream().map(e -> e.getKey().concat("=").concat(e.getValue())).collect(Collectors
+				.toList());
 	}
 
 	public List<String> getContainerIds() {

@@ -8,4 +8,6 @@ public interface IJobRepositoryListener {
 
 	void jobRemoved(Job removedJobDefinition);
 
+	void jobUpdated(Job oldJob, Job newJob);
+
 }

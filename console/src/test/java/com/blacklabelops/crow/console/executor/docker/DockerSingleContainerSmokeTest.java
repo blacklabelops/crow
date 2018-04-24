@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -13,7 +15,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.ContainerRenameConflictException;
@@ -86,6 +87,17 @@ public class DockerSingleContainerSmokeTest {
 		ContainerInfo inspect = dockerClient.inspectContainer(CONTAINER_NAME);
 
 		assertTrue(inspect.state().running());
+	}
+
+	@Test
+	public void testStartAndInspection_StartContainerWithEnvs_EnvFound() throws InterruptedException,
+			IOException, DockerException {
+		Map<String, String> envs = new HashMap<>();
+		envs.put("CROW_CRON", "* * * * *");
+		containerFactory.runContainer(CONTAINER_NAME, envs);
+		ContainerInfo inspect = dockerClient.inspectContainer(CONTAINER_NAME);
+
+		assertTrue(inspect.config().env().contains("CROW_CRON=* * * * *"));
 	}
 
 }

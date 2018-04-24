@@ -11,6 +11,7 @@ import com.blacklabelops.crow.application.model.CrowConfiguration;
 import com.blacklabelops.crow.console.definition.ErrorMode;
 import com.blacklabelops.crow.console.definition.ExecutionMode;
 import com.blacklabelops.crow.console.definition.Job;
+import com.blacklabelops.crow.console.definition.JobId;
 import com.cronutils.utils.StringUtils;
 
 class RepositoryJobConverter {
@@ -21,13 +22,14 @@ class RepositoryJobConverter {
 		super();
 	}
 
-	public RepositoryJob convertJob(CrowConfiguration jobConfiguration) {
+	public RepositoryJob convertJob(Optional<JobId> id, CrowConfiguration jobConfiguration) {
 		RepositoryJob repositoryJob = new RepositoryJob();
 
 		String shellCommand = jobConfiguration.getShellCommand().orElse(null);
+		JobId jobId = id.isPresent() ? id.get() : generator.generate();
 
 		Job job = Job.builder()
-				.id(generator.generate()) //
+				.id(jobId) //
 				.shellCommand(Optional.ofNullable(shellCommand)) //
 				.name(jobConfiguration.getJobName().orElse(null)) //
 				.cron(jobConfiguration.getCron()) //
@@ -45,6 +47,10 @@ class RepositoryJobConverter {
 		repositoryJob.setJobDefinition(job);
 		repositoryJob.setJobConfiguration(jobConfiguration.withJobId(job.getId().getId()));
 		return repositoryJob;
+	}
+
+	public RepositoryJob convertJob(CrowConfiguration jobConfiguration) {
+		return this.convertJob(Optional.empty(), jobConfiguration);
 	}
 
 	private ErrorMode evaluateErrorMode(CrowConfiguration jobConfiguration) {

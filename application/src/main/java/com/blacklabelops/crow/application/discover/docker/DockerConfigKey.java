@@ -1,8 +1,7 @@
 package com.blacklabelops.crow.application.discover.docker;
 
-import com.blacklabelops.crow.application.config.JobConfiguration;
+import com.blacklabelops.crow.application.model.CrowConfiguration;
 import com.blacklabelops.crow.console.definition.JobId;
-import com.cronutils.utils.StringUtils;
 
 class DockerConfigKey {
 
@@ -16,19 +15,19 @@ class DockerConfigKey {
 		super();
 	}
 
-	public static DockerConfigKey create(JobConfiguration jobConfiguration) {
+	public static DockerConfigKey create(CrowConfiguration jobConfiguration) {
 		DockerConfigKey key = new DockerConfigKey();
-		key.setJobName(jobConfiguration.getName());
+		key.setJobName(jobConfiguration.getJobName().orElse(null));
 		key.setContainer(resolveContainer(jobConfiguration));
 		return key;
 	}
 
-	private static String resolveContainer(JobConfiguration jobConfiguration) {
+	private static String resolveContainer(CrowConfiguration jobConfiguration) {
 		String container = null;
-		if (!StringUtils.isEmpty(jobConfiguration.getContainerName())) {
-			container = jobConfiguration.getContainerName();
-		} else if (!StringUtils.isEmpty(jobConfiguration.getId())) {
-			container = jobConfiguration.getContainerId();
+		if (jobConfiguration.getContainerName().isPresent()) {
+			container = jobConfiguration.getContainerName().get();
+		} else if (jobConfiguration.getContainerId().isPresent()) {
+			container = jobConfiguration.getContainerId().get();
 		}
 		return container;
 	}
