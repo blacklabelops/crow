@@ -99,25 +99,42 @@ public class SchedulerDemon implements CommandLineRunner, DisposableBean, IJobRe
 
 	@Override
 	public void jobAdded(Job addedJobDefinition) {
-		List<IJobReporterFactory> reporter = new ArrayList<>();
-		if (!ErrorMode.CONTINUE.equals(addedJobDefinition.getErrorMode())) {
-			reporter.add(new ExecutionErrorReporterFactory(jobScheduler));
-		}
-		IExecutionTime cronTime = new CronUtilsExecutionTime(addedJobDefinition.getCron().get());
-		ScheduledJob workJob = new ScheduledJob(addedJobDefinition.getId(), cronTime);
-		jobScheduler.addJob(workJob);
-		jobDispatcher.addJob(addedJobDefinition, reporter, null);
+		addedJobDefinition.getCron().ifPresent(j -> {
+			IExecutionTime cronTime = new CronUtilsExecutionTime(addedJobDefinition.getCron().get());
+			ScheduledJob workJob = new ScheduledJob(addedJobDefinition.getId(), cronTime);
+			jobScheduler.addJob(workJob);
+		});
+		addedJobDefinition.getCommand().ifPresent(j -> {
+			List<IJobReporterFactory> reporter = new ArrayList<>();
+			if (!ErrorMode.CONTINUE.equals(addedJobDefinition.getErrorMode())) {
+				reporter.add(new ExecutionErrorReporterFactory(jobScheduler));
+			}
+			jobDispatcher.addJob(addedJobDefinition, reporter, null);
+		});
 	}
 
 	@Override
 	public void jobRemoved(Job removedJobDefinition) {
-
+		jobScheduler.removeJob(removedJobDefinition.getId());
+		jobDispatcher.removeJob(removedJobDefinition.getId());
 	}
 
 	@Override
 	public void jobUpdated(Job oldJob, Job newJob) {
-		// TODO Auto-generated method stub
-
+		jobScheduler.removeJob(oldJob.getId());
+		jobDispatcher.removeJob(oldJob.getId());
+		newJob.getCron().ifPresent(cron -> {
+			IExecutionTime cronTime = new CronUtilsExecutionTime(cron);
+			ScheduledJob workJob = new ScheduledJob(newJob.getId(), cronTime);
+			jobScheduler.addJob(workJob);
+		});
+		newJob.getCommand().ifPresent(command -> {
+			List<IJobReporterFactory> reporter = new ArrayList<>();
+			if (!ErrorMode.CONTINUE.equals(newJob.getErrorMode())) {
+				reporter.add(new ExecutionErrorReporterFactory(jobScheduler));
+			}
+			jobDispatcher.addJob(newJob, reporter, null);
+		});
 	}
 
 }

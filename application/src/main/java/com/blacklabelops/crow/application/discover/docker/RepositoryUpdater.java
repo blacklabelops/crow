@@ -30,8 +30,7 @@ class RepositoryUpdater {
 		this.repository = repository;
 	}
 
-	public synchronized void notifyRepository(List<List<CrowConfiguration>> inspections) {
-		List<CrowConfiguration> jobs = inspections.stream().flatMap(List::stream).collect(Collectors.toList());
+	public synchronized void notifyRepository(List<CrowConfiguration> jobs) {
 		List<CrowConfiguration> newJobs = resolveNewJobs(jobs);
 		List<CrowConfiguration> jobUpdates = resolveJobUpdates(jobs);
 		List<CrowConfiguration> deletedJobs = resolveJobDeletions(jobs);
@@ -90,12 +89,17 @@ class RepositoryUpdater {
 	}
 
 	private List<CrowConfiguration> resolveJobUpdates(List<CrowConfiguration> jobs) {
-		return jobs.stream().filter(j -> lastDiscoveredJobs.containsKey(DockerConfigKey.create(j))
-				&& !j.equals(lastDiscoveredJobs.get(DockerConfigKey.create(j)))).collect(Collectors.toList());
+		return jobs
+				.stream()
+				.filter(j -> lastDiscoveredJobs.containsKey(DockerConfigKey.create(j))
+						&& !j.equals(lastDiscoveredJobs.get(DockerConfigKey.create(j))))
+				.collect(Collectors.toList());
 	}
 
 	private List<CrowConfiguration> resolveNewJobs(List<CrowConfiguration> jobs) {
-		return jobs.stream().filter(j -> !lastDiscoveredJobs.containsKey(DockerConfigKey.create(j))).collect(Collectors
-				.toList());
+		return jobs
+				.stream()
+				.filter(j -> !lastDiscoveredJobs.containsKey(DockerConfigKey.create(j)))
+				.collect(Collectors.toList());
 	}
 }

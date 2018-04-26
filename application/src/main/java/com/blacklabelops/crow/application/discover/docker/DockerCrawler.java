@@ -68,7 +68,7 @@ public class DockerCrawler {
 			}).filter(Objects::nonNull).collect(Collectors.toList());
 			jobs.addAll(inspections.stream().flatMap(l -> l.stream()).collect(Collectors.toList()));
 			if (this.repositoryUpdater != null) {
-				repositoryUpdater.notifyRepository(inspections);
+				repositoryUpdater.notifyRepository(jobs);
 			}
 		} catch (DockerException | InterruptedException e) {
 			LOG.error("Error crawling Docker jobs!", e);

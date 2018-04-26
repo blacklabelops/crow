@@ -39,7 +39,7 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
 						Date lastActualExecutionTime = triggerContext.lastActualExecutionTime();
 						nextExecutionTime.setTime(lastActualExecutionTime != null ? lastActualExecutionTime
 								: new Date());
-						nextExecutionTime.add(Calendar.SECOND, 30);
+						nextExecutionTime.add(Calendar.SECOND, 20);
 						return nextExecutionTime.getTime();
 					}
 				});

@@ -1,8 +1,8 @@
 package com.blacklabelops.crow.console.scheduler;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -17,11 +17,11 @@ public class JobScheduler implements IScheduler {
 
 	private static Logger LOG = LoggerFactory.getLogger(JobScheduler.class);
 
-	private List<ScheduledJob> jobs = Collections.synchronizedList(new ArrayList<ScheduledJob>());
+	private Map<JobId, ScheduledJob> jobs = Collections.synchronizedMap(new HashMap<>());
 
-	private List<ScheduledJob> scheduledJobs = Collections.synchronizedList(new ArrayList<ScheduledJob>());
+	private Map<JobId, ScheduledJob> scheduledJobs = Collections.synchronizedMap(new HashMap<>());
 
-	private List<ScheduledJob> failedJobs = Collections.synchronizedList(new ArrayList<ScheduledJob>());
+	private Map<JobId, ScheduledJob> failedJobs = Collections.synchronizedMap(new HashMap<>());
 
 	public JobScheduler() {
 		super();
@@ -29,13 +29,13 @@ public class JobScheduler implements IScheduler {
 
 	@Override
 	public void addJob(ScheduledJob job) {
-		jobs.add(job);
-		scheduledJobs.add(job);
+		jobs.put(job.getJobId(), job);
+		scheduledJobs.put(job.getJobId(), job);
 		LOG.debug("Added job to the scheduler: {}", job);
 	}
 
 	@Override
-	public void removeJob(ScheduledJob job) {
+	public void removeJob(JobId job) {
 		jobs.remove(job);
 		scheduledJobs.remove(job);
 		failedJobs.remove(job);
@@ -43,8 +43,15 @@ public class JobScheduler implements IScheduler {
 	}
 
 	@Override
+	public void updateJob(JobId jobId, ScheduledJob job) {
+		removeJob(jobId);
+		addJob(job);
+	}
+
+	@Override
 	public ScheduledJob getNextExecutableJob() {
-		return scheduledJobs.stream().sorted(new JobComparator()).reduce((first, second) -> second).orElse(null);
+		return scheduledJobs.values().stream().sorted(new JobComparator()).reduce((first, second) -> second).orElse(
+				null);
 	}
 
 	@Override
@@ -67,12 +74,12 @@ public class JobScheduler implements IScheduler {
 	}
 
 	private void unscheduleJob(ScheduledJob foundJob) {
-		scheduledJobs.remove(foundJob);
-		failedJobs.add(foundJob);
+		scheduledJobs.remove(foundJob.getJobId());
+		failedJobs.put(foundJob.getJobId(), foundJob);
 	}
 
 	private Optional<ScheduledJob> findJob(JobId jobId) {
-		return jobs.stream().filter(job -> job.getJobId().equals(jobId)).findFirst();
+		return Optional.ofNullable(jobs.get(jobId));
 	}
 
 }

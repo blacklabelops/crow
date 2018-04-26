@@ -1,18 +1,21 @@
 package com.blacklabelops.crow.console.scheduler;
 
+import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.dispatcher.AbstractDispatchingResult;
 import com.blacklabelops.crow.console.executor.ExecutionResult;
 
 public interface IScheduler {
 
-    void addJob(ScheduledJob job);
+	void addJob(ScheduledJob job);
 
-    ScheduledJob getNextExecutableJob();
+	ScheduledJob getNextExecutableJob();
 
-    void notifyDispatchingError(AbstractDispatchingResult dispatcherResult);
+	void notifyDispatchingError(AbstractDispatchingResult dispatcherResult);
 
-    void notifyExecutionError(ExecutionResult executionResult);
+	void notifyExecutionError(ExecutionResult executionResult);
 
-	void removeJob(ScheduledJob job);
+	void removeJob(JobId job);
+
+	void updateJob(JobId jobId, ScheduledJob job);
 
 }
