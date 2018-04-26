@@ -13,9 +13,9 @@ public interface IDispatcher {
 
 	void removeJob(JobId jobName);
 
-	AbstractDispatchingResult execute(JobId jobName);
+	DispatchingResult execute(JobId jobName);
 
-	AbstractDispatchingResult execute(JobId jobId, List<IJobReporter> reporters, List<IJobLogger> loggers);
+	DispatchingResult execute(JobId jobId, List<IJobReporter> reporters, List<IJobLogger> loggers);
 
 	void testExecute(JobId jobId, List<IJobReporter> reporters, List<IJobLogger> loggers);
 

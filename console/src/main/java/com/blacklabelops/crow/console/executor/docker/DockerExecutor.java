@@ -42,7 +42,7 @@ class DockerExecutor implements IExecutor {
 		jobId = definition.getId();
 		jobName = definition.getName();
 		jobDefinition = definition;
-		this.executionResult = ExecutionResult.of(jobDefinition);
+		this.executionResult = ExecutionResult.of(Job.copyOf(jobDefinition));
 		if (reporter != null) {
 			reporter.stream().filter(Objects::nonNull).forEach(report -> jobReporter.add(report));
 		}
@@ -68,7 +68,7 @@ class DockerExecutor implements IExecutor {
 			jobReporter.parallelStream()
 					.forEach(reporter -> reporter.finishedJob(this.executionResult));
 			if (!this.executionResult.isTimedOut().orElse(Boolean.FALSE)) {
-				if (this.executionResult.getReturnCode().isPresent() || RETURN_CODE_OKAY != this.executionResult
+				if (this.executionResult.getReturnCode().isPresent() && RETURN_CODE_OKAY != this.executionResult
 						.getReturnCode().get()) {
 					jobReporter.parallelStream()
 							.forEach(reporter -> reporter.failingJob(this.executionResult));

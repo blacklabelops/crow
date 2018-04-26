@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.blacklabelops.crow.console.definition.ExecutionMode;
+import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.definition.JobId;
 import com.blacklabelops.crow.console.executor.IExecutor;
 import com.blacklabelops.crow.console.executor.IExecutorTemplate;
@@ -39,13 +40,13 @@ public class Dispatcher implements IDispatcher {
 	}
 
 	@Override
-	public AbstractDispatchingResult execute(JobId jobId) {
+	public DispatchingResult execute(JobId jobId) {
 		IExecutorTemplate executor = jobs.get(jobId);
 		return addExecution(executor.createExecutor());
 	}
 
 	@Override
-	public AbstractDispatchingResult execute(JobId jobId, List<IJobReporter> reporters,
+	public DispatchingResult execute(JobId jobId, List<IJobReporter> reporters,
 			List<IJobLogger> loggers) {
 		IExecutorTemplate executorTemplate = jobs.get(jobId);
 		IExecutor executor = executorTemplate.createExecutor();
@@ -87,7 +88,7 @@ public class Dispatcher implements IDispatcher {
 			LOG.debug("Skipping Job {}, already running!", executor.getJobId());
 			result = DispatcherResult.DROPPED_ALREADY_RUNNING;
 		}
-		return DispatchingResult.of(executor.getJobDefinition(), result);
+		return DispatchingResult.of(Job.copyOf(executor.getJobDefinition()), result);
 	}
 
 	protected boolean checkRunning(IExecutor executor) {

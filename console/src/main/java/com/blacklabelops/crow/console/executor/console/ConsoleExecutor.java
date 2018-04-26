@@ -54,7 +54,7 @@ public class ConsoleExecutor implements IExecutor {
 		jobName = definition.getName();
 		jobId = definition.getId();
 		jobDefinition = definition;
-		this.executionResult = ExecutionResult.of(jobDefinition);
+		this.executionResult = ExecutionResult.of(Job.copyOf(jobDefinition));
 		if (reporter != null) {
 			reporter
 					.stream()

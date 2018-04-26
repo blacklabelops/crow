@@ -67,6 +67,7 @@ public class DockerCrawler {
 				}
 			}).filter(Objects::nonNull).collect(Collectors.toList());
 			jobs.addAll(inspections.stream().flatMap(l -> l.stream()).collect(Collectors.toList()));
+			LOG.debug("Inspecting environment, jobs found: {}", jobs.size());
 			if (this.repositoryUpdater != null) {
 				repositoryUpdater.notifyRepository(jobs);
 			}

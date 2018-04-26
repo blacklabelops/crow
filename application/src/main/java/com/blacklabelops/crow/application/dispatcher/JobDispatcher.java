@@ -3,6 +3,8 @@ package com.blacklabelops.crow.application.dispatcher;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.blacklabelops.crow.console.definition.Job;
@@ -22,6 +24,8 @@ import com.blacklabelops.crow.console.reporter.IJobReporterFactory;
 @Component
 public class JobDispatcher {
 
+	private static Logger LOG = LoggerFactory.getLogger(JobDispatcher.class);
+
 	public IDispatcher dispatcher = new Dispatcher();
 
 	public JobDispatcher() {
@@ -35,6 +39,7 @@ public class JobDispatcher {
 		List<IJobLoggerFactory> logger = initializeLoggers(jobDefinition, loggers);
 		IExecutorTemplate jobTemplate = initializeTemplate(jobDefinition, reporter, logger);
 		this.dispatcher.addJob(jobTemplate);
+		LOG.debug("Added dispatcher job: {}", jobDefinition);
 		return jobId;
 	}
 
@@ -77,6 +82,7 @@ public class JobDispatcher {
 
 	public void removeJob(JobId jobId) {
 		this.dispatcher.removeJob(jobId);
+		LOG.debug("Removed dispatcher job: {}", jobId);
 	}
 
 	public void execute(JobId jobId) {

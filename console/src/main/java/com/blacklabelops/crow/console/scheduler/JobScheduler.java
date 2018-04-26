@@ -31,7 +31,7 @@ public class JobScheduler implements IScheduler {
 	public void addJob(ScheduledJob job) {
 		jobs.put(job.getJobId(), job);
 		scheduledJobs.put(job.getJobId(), job);
-		LOG.debug("Added job to the scheduler: {}", job);
+		LOG.debug("Added scheduler job: {}", job);
 	}
 
 	@Override
@@ -39,13 +39,14 @@ public class JobScheduler implements IScheduler {
 		jobs.remove(job);
 		scheduledJobs.remove(job);
 		failedJobs.remove(job);
-		LOG.debug("Removed job from the scheduler: {}", job);
+		LOG.debug("Removed scheduler job: {}", job);
 	}
 
 	@Override
 	public void updateJob(JobId jobId, ScheduledJob job) {
 		removeJob(jobId);
 		addJob(job);
+		LOG.debug("Updated scheduler job: {}", job);
 	}
 
 	@Override

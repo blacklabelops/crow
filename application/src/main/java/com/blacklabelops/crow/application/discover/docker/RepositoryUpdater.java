@@ -37,17 +37,22 @@ class RepositoryUpdater {
 		notifyNewJobs(newJobs);
 		notifyDeletedJobs(deletedJobs);
 		notifyJobUpdates(jobUpdates);
+		lastDiscoveredJobs.clear();
+		jobs.stream().forEach(j -> {
+			DockerConfigKey key = DockerConfigKey.create(j);
+			lastDiscoveredJobs.put(key, j);
+		});
 	}
 
 	private void notifyJobUpdates(List<CrowConfiguration> jobUpdates) {
 		jobUpdates.stream().forEach(ju -> {
 			DockerConfigKey key = DockerConfigKey.create(ju);
-			this.lastDiscoveredJobs.put(key, ju);
 			try {
 				this.repository.updateJob(this.addedJobs.get(key), ju);
 			} catch (ConstraintViolationException e) {
 				LOG.debug("Job invalid and ignored: {}", ju);
-				e.getConstraintViolations().stream().forEach(cv -> LOG.debug("Constraint violation: {}", e));
+				e.getConstraintViolations().stream().forEach(cv -> LOG.debug("Constraint violation: {}", cv
+						.getMessage()));
 			}
 		});
 
@@ -56,8 +61,11 @@ class RepositoryUpdater {
 	private void notifyDeletedJobs(List<CrowConfiguration> deletedJobs) {
 		deletedJobs.stream().forEach(dj -> {
 			DockerConfigKey key = DockerConfigKey.create(dj);
-			this.repository.removeJob(this.addedJobs.get(key));
-			this.addedJobs.remove(key);
+			JobId id = this.addedJobs.get(key);
+			if (id != null) {
+				this.repository.removeJob(id);
+				this.addedJobs.remove(key);
+			}
 		});
 
 	}
@@ -65,13 +73,13 @@ class RepositoryUpdater {
 	private void notifyNewJobs(List<CrowConfiguration> newJobs) {
 		newJobs.stream().forEach(j -> {
 			DockerConfigKey key = DockerConfigKey.create(j);
-			this.lastDiscoveredJobs.put(key, j);
 			try {
 				JobId id = this.repository.addJob(j);
 				this.addedJobs.put(key, id);
 			} catch (ConstraintViolationException e) {
 				LOG.debug("Job invalid and ignored: {}", j);
-				e.getConstraintViolations().stream().forEach(cv -> LOG.debug("Constraint violation: {}", e));
+				e.getConstraintViolations().stream().forEach(cv -> LOG.debug("Constraint violation: {}", cv
+						.getMessage()));
 			}
 		});
 	}

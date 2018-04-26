@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.Trigger;
@@ -13,6 +15,8 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 @Configuration
 public class SchedulerConfiguration implements SchedulingConfigurer {
+
+	public static Logger LOG = LoggerFactory.getLogger(SchedulerConfiguration.class);
 
 	@Autowired
 	private DockerCrawler crawler;
@@ -25,6 +29,7 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
 		if (!configuration.resolveCrawlerEnabled()) {
 			return;
 		}
+		LOG.info("Docker crawler enabled!");
 		taskRegistrar.addTriggerTask(
 				new Runnable() {
 					@Override

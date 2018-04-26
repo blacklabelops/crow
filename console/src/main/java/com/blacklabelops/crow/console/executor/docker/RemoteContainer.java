@@ -52,7 +52,7 @@ class RemoteContainer {
 			throw new ExecutorException("Executor has no job definition!");
 		if (!executionDefinition.getCommand().isPresent())
 			throw new ExecutorException("Executor has no command specified!");
-		if (executionDefinition.getContainerId().isPresent() && executionDefinition.getContainerName().isPresent())
+		if (!executionDefinition.getContainerId().isPresent() && !executionDefinition.getContainerName().isPresent())
 			throw new ExecutorException("No container had been defined!");
 		jobDefinition = executionDefinition;
 	}
