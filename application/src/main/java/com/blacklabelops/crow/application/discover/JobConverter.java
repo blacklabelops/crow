@@ -3,8 +3,6 @@ package com.blacklabelops.crow.application.discover;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.tools.ant.types.Commandline;
-
 import com.blacklabelops.crow.application.config.JobConfiguration;
 import com.blacklabelops.crow.application.model.CrowConfiguration;
 import com.blacklabelops.crow.application.model.GlobalCrowConfiguration;
@@ -40,11 +38,9 @@ public class JobConverter {
 				.containerId(jobConfiguration.getContainerId()) //
 				.timeOutMinutes(jobConfiguration.getTimeOutMinutes()) //
 				.environments(Optional.ofNullable(evaluateEnvironmentVariables(jobConfiguration))) //
-				.command(Optional.ofNullable(evaluateCommand(jobConfiguration, shellCommand))) //
-				.preCommand(Optional.ofNullable(evaluatePreCommand(jobConfiguration,
-						shellCommand))) //
-				.postCommand(Optional.ofNullable(evaluatePostCommand(jobConfiguration,
-						shellCommand))) //
+				.command(Optional.ofNullable(evaluateCommand(jobConfiguration))) //
+				.preCommand(Optional.ofNullable(evaluatePreCommand(jobConfiguration))) //
+				.postCommand(Optional.ofNullable(evaluatePostCommand(jobConfiguration))) //
 				.workingDirectory(Optional.ofNullable(evaluateWorkingDirectory(jobConfiguration))) //
 				.execution(evaluateExecutionMode(jobConfiguration)) //
 				.errorMode(evaluateErrorMode(jobConfiguration)).build();
@@ -103,22 +99,22 @@ public class JobConverter {
 		return envVariables;
 	}
 
-	private String evaluatePostCommand(CrowConfiguration jobConfiguration, String shellCommand) {
+	private String evaluatePostCommand(CrowConfiguration jobConfiguration) {
 		if (jobConfiguration.getPostCommand().isPresent()) {
-			return takeOverCommand(jobConfiguration.getPostCommand().get(), shellCommand);
+			return jobConfiguration.getPostCommand().get();
 		}
 		return null;
 	}
 
-	private String evaluatePreCommand(CrowConfiguration jobConfiguration, String shellCommand) {
+	private String evaluatePreCommand(CrowConfiguration jobConfiguration) {
 		if (jobConfiguration.getPreCommand().isPresent()) {
-			return takeOverCommand(jobConfiguration.getPreCommand().get(), shellCommand);
+			return jobConfiguration.getPreCommand().get();
 		}
 		return null;
 	}
 
-	private String evaluateCommand(CrowConfiguration jobConfiguration, String shellCommand) {
-		return takeOverCommand(jobConfiguration.getCommand().orElse(null), shellCommand);
+	private String evaluateCommand(CrowConfiguration jobConfiguration) {
+		return jobConfiguration.getCommand().orElse(null);
 	}
 
 	private String evaluateWorkingDirectory(CrowConfiguration jobConfiguration) {
@@ -131,21 +127,6 @@ public class JobConverter {
 			}
 		}
 		return workingDir;
-	}
-
-	private String takeOverCommand(String command, String shellCommand) {
-		Commandline commandLine = null;
-		if (shellCommand != null) {
-			commandLine = new Commandline(shellCommand);
-			commandLine.addArguments(new String[] { command });
-		} else if (command != null) {
-			commandLine = new Commandline(command);
-		}
-		if (commandLine != null) {
-			return String.join(" ", commandLine.getCommandline());
-		} else {
-			return null;
-		}
 	}
 
 	private String evaluateShellCommand(CrowConfiguration jobConfiguration) {
