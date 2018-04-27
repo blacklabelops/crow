@@ -49,12 +49,12 @@ public abstract class AbstractJob {
 	public abstract Optional<String> getContainerName();
 
 	@Value.Derived
-	public String jobLabel() {
+	public String getJobLabel() {
 		String jobLabel = getName();
 		if (getContainerName().isPresent()) {
-			jobLabel.concat(" - ").concat(getContainerName().get());
+			jobLabel = jobLabel.concat(" - ").concat(getContainerName().get());
 		} else if (getContainerId().isPresent()) {
-			jobLabel.concat(" - ").concat(getContainerId().get());
+			jobLabel = jobLabel.concat(" - ").concat(getContainerId().get());
 		}
 		return jobLabel;
 	}

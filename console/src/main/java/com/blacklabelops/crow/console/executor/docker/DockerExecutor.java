@@ -78,7 +78,7 @@ class DockerExecutor implements IExecutor {
 						.forEach(reporter -> reporter.failingJob(this.executionResult));
 			}
 		} catch (Exception e) {
-			LOG.error("Execution of Job {} failed!", this.jobDefinition.jobLabel(), e);
+			LOG.error("Execution of Job {} failed!", this.jobDefinition.getJobLabel(), e);
 			jobReporter.parallelStream()
 					.forEach(reporter -> reporter.failingJob(this.executionResult));
 		} finally {

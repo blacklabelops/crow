@@ -130,7 +130,7 @@ class RemoteContainer {
 			execCreation = dockerClient.execCreate(this.container, command, executionParams);
 		} catch (DockerException | InterruptedException e) {
 			String message = String.format("Execution creation for job %s failed!",
-					executionDefinition.jobLabel());
+					executionDefinition.getJobLabel());
 			LOG.error(message, e);
 			throw new ExecutorException(message, e);
 		}
@@ -149,7 +149,7 @@ class RemoteContainer {
 					RemoteContainer.this.returnCode = state.exitCode();
 				} catch (DockerException | InterruptedException | IOException e) {
 					String message = String.format("Error executing job %s !",
-							RemoteContainer.this.jobDefinition.jobLabel());
+							RemoteContainer.this.jobDefinition.getJobLabel());
 					LOG.error(message, e);
 					throw new ExecutorException(message, e);
 				} finally {
@@ -172,11 +172,11 @@ class RemoteContainer {
 				future.get(this.jobDefinition.getTimeoutMinutes().get(), TimeUnit.MINUTES);
 			} catch (InterruptedException | ExecutionException e) {
 				String message = String.format("Error executing job %s!",
-						RemoteContainer.this.jobDefinition.jobLabel());
+						RemoteContainer.this.jobDefinition.getJobLabel());
 				LOG.error(message, e);
 				throw new ExecutorException(message, e);
 			} catch (TimeoutException e) {
-				LOG.error("Job timed out {}!", this.jobDefinition.jobLabel());
+				LOG.error("Job timed out {}!", this.jobDefinition.getJobLabel());
 				this.timedOut = true;
 			}
 		} else {
@@ -184,7 +184,7 @@ class RemoteContainer {
 				future.get();
 			} catch (InterruptedException | ExecutionException e) {
 				String message = String.format("Error executing job %s!",
-						this.jobDefinition.jobLabel());
+						this.jobDefinition.getJobLabel());
 				LOG.error(message, e);
 
 			}

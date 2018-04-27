@@ -2,15 +2,15 @@ package com.blacklabelops.crow.console.logger;
 
 public class JobLoggerFactory implements IJobLoggerFactory {
 
-    private final String jobName;
+	private final String jobLabel;
 
-    public JobLoggerFactory(String jobName) {
-        super();
-        this.jobName = jobName;
-    }
+	public JobLoggerFactory(String jobLabel) {
+		super();
+		this.jobLabel = jobLabel;
+	}
 
-    @Override
-    public IJobLogger createInstance() {
-        return new JobLogLogger(this.jobName);
-    }
+	@Override
+	public IJobLogger createInstance() {
+		return new JobLogLogger(this.jobLabel);
+	}
 }

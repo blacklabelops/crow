@@ -69,7 +69,7 @@ public class JobDispatcher {
 		if (loggers != null) {
 			logger.addAll(loggers);
 		}
-		logger.add(new JobLoggerFactory(jobDefinition.jobLabel()));
+		logger.add(new JobLoggerFactory(jobDefinition.getJobLabel()));
 		return logger;
 	}
 

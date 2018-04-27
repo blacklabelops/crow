@@ -41,4 +41,12 @@ public class JobImmutableTest {
 		assertEquals("name", job.getName());
 	}
 
+	@Test
+	public void testImmutable_ImmutableDerivedJobLabel_LabelGenerated() {
+		Job job = Job.builder().id("id").name("name").containerName("TestContainer").build();
+
+		assertNotNull(job);
+		assertEquals("name - TestContainer", job.getJobLabel());
+	}
+
 }
