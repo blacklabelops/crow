@@ -87,4 +87,10 @@ class DockerConfigKey {
 		this.repositoryId = repositoryId;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("DockerConfigKey [jobName=%s, container=%s, repositoryId=%s]", jobName, container,
+				repositoryId);
+	}
+
 }

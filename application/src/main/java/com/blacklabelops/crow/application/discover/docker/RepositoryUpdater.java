@@ -100,14 +100,16 @@ class RepositoryUpdater {
 		return jobs
 				.stream()
 				.filter(j -> lastDiscoveredJobs.containsKey(DockerConfigKey.create(j))
-						&& !j.equals(lastDiscoveredJobs.get(DockerConfigKey.create(j))))
+						&& !j.equals(lastDiscoveredJobs.get(DockerConfigKey.create(j)))
+						&& this.addedJobs.containsKey(DockerConfigKey.create(j)))
 				.collect(Collectors.toList());
 	}
 
 	private List<CrowConfiguration> resolveNewJobs(List<CrowConfiguration> jobs) {
 		return jobs
 				.stream()
-				.filter(j -> !lastDiscoveredJobs.containsKey(DockerConfigKey.create(j)))
+				.filter(j -> !lastDiscoveredJobs.containsKey(DockerConfigKey.create(j))
+						&& !this.addedJobs.containsKey(DockerConfigKey.create(j)))
 				.collect(Collectors.toList());
 	}
 }
