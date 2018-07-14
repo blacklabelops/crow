@@ -69,6 +69,12 @@
 		  <scope>provided</scope>
 		</dependency>
 		
+		<dependency>
+		    <groupId>com.github.jnr</groupId>
+		    <artifactId>jnr-unixsocket</artifactId>
+		    <version>0.19</version>
+		</dependency>
+		
 		<!-- Required for Spring Boot 2.x -->
 		<!--  dependency>
 		    <groupId>org.glassfish.jersey.inject</groupId>
