@@ -146,10 +146,10 @@ class RemoteContainer {
 					try {
 						output = dockerClient.execStart(processBuilder.id());
 						output.attach(outStream, outErrorStream, false);
-					} catch (IOException e) {
+					} catch (Exception e) {
 						// Problem with Unix socket and spotify docker-client library
 						// Must ignore error. Happens around one of three executions
-						if (!"Connection reset by peer".equals(e.getMessage())) {
+						if (!e.getMessage().contains("Connection reset by peer")) {
 							throw e;
 						} else {
 							LOG.debug("Execution error ignored.", e);
