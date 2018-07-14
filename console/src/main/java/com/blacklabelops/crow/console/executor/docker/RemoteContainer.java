@@ -143,8 +143,18 @@ class RemoteContainer {
 			public Void call() {
 				LogStream output = null;
 				try {
-					output = dockerClient.execStart(processBuilder.id());
-					output.attach(outStream, outErrorStream, false);
+					try {
+						output = dockerClient.execStart(processBuilder.id());
+						output.attach(outStream, outErrorStream, false);
+					} catch (IOException e) {
+						// Problem with Unix socket and spotify docker-client library
+						// Must ignore error. Happens around one of three executions
+						if (!"Connection reset by peer".equals(e.getMessage())) {
+							throw e;
+						} else {
+							LOG.debug("Execution error ignored.", e);
+						}
+					}
 					ExecState state = dockerClient.execInspect(processBuilder.id());
 					RemoteContainer.this.returnCode = state.exitCode();
 				} catch (DockerException | InterruptedException | IOException e) {
