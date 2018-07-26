@@ -53,6 +53,8 @@ class RepositoryUpdater {
 				LOG.debug("Job invalid and ignored: {}", ju);
 				e.getConstraintViolations().stream().forEach(cv -> LOG.debug("Constraint violation: {}", cv
 						.getMessage()));
+				this.repository.removeJob(this.addedJobs.get(key));
+				this.addedJobs.remove(key);
 			}
 		});
 
