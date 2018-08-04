@@ -18,6 +18,8 @@
     <modules>
         <module>console</module>
         <module>application</module>
+        <module>docker</module>
+        <module>docker-impl-spotify</module>
     </modules>
 
     <properties>
