@@ -89,6 +89,24 @@
         </dependency>
         
         <dependency>
+			<groupId>com.blacklabelops</groupId>
+			<artifactId>crow-docker-impl-spotify</artifactId>
+			<classifier>tests</classifier>
+			<type>test-jar</type>
+			<version>0.5-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.blacklabelops</groupId>
+			<artifactId>crow-docker-interface</artifactId>
+			<classifier>tests</classifier>
+			<type>test-jar</type>
+			<version>0.5-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+        
+        <dependency>
             <groupId>com.blacklabelops</groupId>
             <artifactId>crow-console</artifactId>
             <version>0.5-SNAPSHOT</version>

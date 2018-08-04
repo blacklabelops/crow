@@ -1,9 +1,6 @@
 package com.blacklabelops.crow.console.executor.docker;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -12,18 +9,17 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.executor.ExecutorException;
-import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.DockerClient.ExecCreateParam;
-import com.spotify.docker.client.LogStream;
-import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.messages.ExecCreation;
-import com.spotify.docker.client.messages.ExecState;
+import com.blacklabelops.crow.docker.client.DockerClientException;
+import com.blacklabelops.crow.docker.client.DockerJob;
+import com.blacklabelops.crow.docker.client.ExecuteCommandResult;
+import com.blacklabelops.crow.docker.client.IDockerClient;
+import com.blacklabelops.crow.docker.client.spotify.DockerClientFactory;
 
 class RemoteContainer {
 
@@ -37,7 +33,7 @@ class RemoteContainer {
 
 	private boolean timedOut;
 
-	private DockerClient dockerClient;
+	private IDockerClient dockerClient;
 
 	private Job jobDefinition;
 
@@ -60,7 +56,11 @@ class RemoteContainer {
 	public void execute(Job executionDefinition) {
 		checkDefinition(executionDefinition);
 		evaluateContainer(executionDefinition);
-		dockerClient = DockerClientFactory.initializeDockerClient();
+		try {
+			dockerClient = DockerClientFactory.initializeDockerClient();
+		} catch (DockerClientException e) {
+			throw new ExecutorException(e);
+		}
 		boolean preResult = true;
 		try {
 			if (executionDefinition.getPreCommand().isPresent() && !executionDefinition.getPreCommand().get()
@@ -85,98 +85,56 @@ class RemoteContainer {
 			this.container = executionDefinition.getContainerId().get();
 		}
 	}
-
+	
+	private DockerJob buildDockerJob(Job executionDefinition) {		
+		return DockerJob.builder()
+				.output(this.outStream)
+				.errorOutput(this.outErrorStream)
+				.workingDir(executionDefinition.getWorkingDir())
+				.jobLabel(executionDefinition.getJobLabel())
+				.containerId(this.container)
+				.build();
+	}
+	
 	private void executePostCommands(Job executionDefinition) {
 		String[] command = executionDefinition.getPostCommand().get()
 				.toArray(new String[executionDefinition.getPostCommand().get().size()]);
-		ExecCreation execCreation = prepareExecution(executionDefinition, command);
-		executeCommand(execCreation);
+		DockerJob dockerJob = buildDockerJob(executionDefinition);
+		Callable<ExecuteCommandResult> execCreation = dockerClient.prepareExecuteCommand(dockerJob, command);
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executeTask(executor, execCreation);
 	}
 
 	private boolean executePreCommands(Job executionDefinition) {
 		String[] command = executionDefinition.getPreCommand().get()
 				.toArray(new String[executionDefinition.getPreCommand().get().size()]);
-		ExecCreation execCreation = prepareExecution(executionDefinition, command);
+		DockerJob dockerJob = buildDockerJob(executionDefinition);
+		Callable<ExecuteCommandResult> execCreation = dockerClient.prepareExecuteCommand(dockerJob, command);
 		boolean result = false;
-		executeCommand(execCreation);
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executeTask(executor, execCreation);
 		if (!timedOut && Integer.valueOf(0).equals(returnCode)) {
 			result = true;
 		}
 		return result;
-	}
+	}	
 
 	private boolean executeCommands(Job executionDefinition) {
 		String[] command = executionDefinition.getCommand().get()
 				.toArray(new String[executionDefinition.getCommand().get().size()]);
-		ExecCreation execCreation = prepareExecution(executionDefinition, command);
+		DockerJob dockerJob = buildDockerJob(executionDefinition);
+		Callable<ExecuteCommandResult> execCreation = dockerClient.prepareExecuteCommand(dockerJob, command);
 		boolean result = false;
-		executeCommand(execCreation);
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executeTask(executor, execCreation);
 		if (!timedOut && Integer.valueOf(0).equals(returnCode)) {
 			result = true;
 		}
 		return result;
-	}
+	}	
 
-	private ExecCreation prepareExecution(Job executionDefinition, String[] command) {
-		List<ExecCreateParam> parameters = new ArrayList<>();
-		parameters.add(DockerClient.ExecCreateParam.attachStderr());
-		parameters.add(DockerClient.ExecCreateParam.attachStdout());
-		if (executionDefinition.getWorkingDir().isPresent()) {
-			parameters.add(new ExecCreateParam("WorkingDir", executionDefinition.getWorkingDir().get()));
-		}
-		ExecCreateParam[] executionParams = parameters.toArray(new ExecCreateParam[parameters.size()]);
-		ExecCreation execCreation = null;
-		try {
-			execCreation = dockerClient.execCreate(this.container, command, executionParams);
-		} catch (DockerException | InterruptedException e) {
-			String message = String.format("Execution creation for job %s failed!",
-					executionDefinition.getJobLabel());
-			LOG.error(message, e);
-			throw new ExecutorException(message, e);
-		}
-		return execCreation;
-	}
-
-	private void executeCommand(ExecCreation processBuilder) {
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		Callable<Void> task = new Callable<Void>() {
-			public Void call() {
-				LogStream output = null;
-				try {
-					try {
-						output = dockerClient.execStart(processBuilder.id());
-						output.attach(outStream, outErrorStream, false);
-					} catch (Exception e) {
-						// Problem with Unix socket and spotify docker-client library
-						// Must ignore error. Happens around one of three executions
-						if (!e.getMessage().contains("Connection reset by peer")) {
-							throw e;
-						} else {
-							LOG.debug("Execution error ignored.", e);
-						}
-					}
-					ExecState state = dockerClient.execInspect(processBuilder.id());
-					RemoteContainer.this.returnCode = state.exitCode();
-				} catch (DockerException | InterruptedException | IOException e) {
-					String message = String.format("Error executing job %s !",
-							RemoteContainer.this.jobDefinition.getJobLabel());
-					LOG.error(message, e);
-					throw new ExecutorException(message, e);
-				} finally {
-					if (output != null) {
-						output.close();
-					}
-				}
-				RemoteContainer.this.timedOut = false;
-				return null;
-			}
-		};
-		executeTask(executor, task);
-
-	}
-
-	private void executeTask(ExecutorService executor, Callable<Void> task) {
-		Future<Void> future = executor.submit(task);
+	private void executeTask(ExecutorService executor, Callable<ExecuteCommandResult> task) {
+		Future<ExecuteCommandResult> future = executor.submit(task);
 		if (this.jobDefinition.getTimeoutMinutes().isPresent()) {
 			try {
 				future.get(this.jobDefinition.getTimeoutMinutes().get(), TimeUnit.MINUTES);
@@ -191,7 +149,9 @@ class RemoteContainer {
 			}
 		} else {
 			try {
-				future.get();
+				ExecuteCommandResult result = future.get();
+				result.getReturnCode().ifPresent(returnCode -> this.returnCode = returnCode);
+				this.timedOut = result.isTimedOut();
 			} catch (InterruptedException | ExecutionException e) {
 				String message = String.format("Error executing job %s!",
 						this.jobDefinition.getJobLabel());

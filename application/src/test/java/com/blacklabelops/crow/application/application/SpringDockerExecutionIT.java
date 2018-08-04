@@ -29,10 +29,11 @@ import com.blacklabelops.crow.application.dispatcher.JobDispatcher;
 import com.blacklabelops.crow.application.model.CrowConfiguration;
 import com.blacklabelops.crow.application.repository.JobRepository;
 import com.blacklabelops.crow.console.definition.JobId;
-import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
-import com.blacklabelops.crow.console.executor.docker.DockerTestContainerFactory;
 import com.blacklabelops.crow.console.logger.IJobLogger;
-import com.spotify.docker.client.DockerClient;
+import com.blacklabelops.crow.docker.client.IDockerClient;
+import com.blacklabelops.crow.docker.client.spotify.DockerClientFactory;
+import com.blacklabelops.crow.docker.client.spotify.test.DockerTestClientFactory;
+import com.blacklabelops.crow.docker.client.test.IDockerClientTest;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 
@@ -46,11 +47,11 @@ public class SpringDockerExecutionIT implements IJobLogger {
 
 	private Logger LOG = LoggerFactory.getLogger(SpringDockerExecutionIT.class);
 
-	public DockerTestContainerFactory containerFactory;
+	public IDockerClientTest containerFactory;
 
 	public List<String> containers = new LinkedList<>();
 
-	public DockerClient dockerClient;
+	public IDockerClient dockerClient;
 
 	public ByteArrayOutputStream outStream;
 
@@ -69,7 +70,7 @@ public class SpringDockerExecutionIT implements IJobLogger {
 	@Before
 	public void setup() throws DockerCertificateException, DockerException, InterruptedException {
 		dockerClient = DockerClientFactory.initializeDockerClient();
-		containerFactory = new DockerTestContainerFactory(dockerClient);
+		containerFactory = DockerTestClientFactory.initializeDockerClient();
 		logger = new ArrayList<>();
 		logger.add(this);
 		latch = new CountDownLatch(1);

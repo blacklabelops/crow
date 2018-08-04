@@ -19,12 +19,12 @@ import org.slf4j.LoggerFactory;
 
 import com.blacklabelops.crow.console.definition.Job;
 import com.blacklabelops.crow.console.definition.JobId;
-import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
 import com.blacklabelops.crow.console.executor.docker.DockerExecutorTemplate;
 import com.blacklabelops.crow.console.executor.docker.DockerTestContainerFactory;
 import com.blacklabelops.crow.console.logger.IJobLogger;
 import com.blacklabelops.crow.console.logger.IJobLoggerFactory;
-import com.spotify.docker.client.DockerClient;
+import com.blacklabelops.crow.docker.client.spotify.test.DockerTestClientFactory;
+import com.blacklabelops.crow.docker.client.test.IDockerClientTest;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 
@@ -34,11 +34,9 @@ public class DockerExecutionIT implements IJobLogger, IJobLoggerFactory {
 
 	public static final String CONTAINER_NAME = "DockerExecutionITContainer";
 
-	public DockerTestContainerFactory containerFactory;
-
 	public List<String> containers = new LinkedList<>();
 
-	public DockerClient dockerClient;
+	public IDockerClientTest containerFactory;
 
 	public ByteArrayOutputStream outStream;
 
@@ -54,8 +52,7 @@ public class DockerExecutionIT implements IJobLogger, IJobLoggerFactory {
 
 	@Before
 	public void setup() throws DockerCertificateException, DockerException, InterruptedException {
-		dockerClient = DockerClientFactory.initializeDockerClient();
-		containerFactory = new DockerTestContainerFactory(dockerClient);
+		containerFactory = DockerTestClientFactory.initializeDockerClient();		
 		logger = new ArrayList<>();
 		logger.add(this);
 		loggerFactory = new ArrayList<>();

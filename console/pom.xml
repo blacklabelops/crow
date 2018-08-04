@@ -31,7 +31,31 @@
         </plugins>
     </build>
 
-    <dependencies>
+    <dependencies>		
+		
+		<dependency>
+		    <groupId>com.blacklabelops</groupId>
+		    <artifactId>crow-docker-impl-spotify</artifactId>
+		    <version>0.5-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.blacklabelops</groupId>
+			<artifactId>crow-docker-impl-spotify</artifactId>
+			<classifier>tests</classifier>
+			<type>test-jar</type>
+			<version>0.5-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.blacklabelops</groupId>
+			<artifactId>crow-docker-interface</artifactId>
+			<classifier>tests</classifier>
+			<type>test-jar</type>
+			<version>0.5-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
 		
 		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
@@ -42,19 +66,7 @@
 		    <groupId>commons-logging</groupId>
 		    <artifactId>commons-logging</artifactId>
 		    <version>1.1.1</version>
-		</dependency>
-		
-		<dependency>
-		  <groupId>com.spotify</groupId>
-		  <artifactId>docker-client</artifactId>
-		  <version>8.11.2</version>
-		  <exclusions>
-		  	<exclusion>
-           		<groupId>commons-io</groupId>
-         		<artifactId>commons-io</artifactId>
-         	</exclusion>
-		  </exclusions>
-		</dependency>
+		</dependency>		
 		
 		<dependency>
 		    <groupId>commons-io</groupId>
@@ -67,26 +79,7 @@
 		  <artifactId>value</artifactId>
 		  <version>2.5.6</version>
 		  <scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-		    <groupId>com.github.jnr</groupId>
-		    <artifactId>jnr-unixsocket</artifactId>
-		    <version>0.19</version>
-		</dependency>
-		
-		<!-- Required for Spring Boot 2.x -->
-		<!--  dependency>
-		    <groupId>org.glassfish.jersey.inject</groupId>
-    			<artifactId>jersey-hk2</artifactId>
-		    <version>2.27</version>
-		</dependency>
-		
-		<dependency>
-		    <groupId>org.glassfish.jersey.bundles.repackaged</groupId>
-		    <artifactId>jersey-guava</artifactId>
-		    <version>2.25.1</version>
-		</dependency -->
+		</dependency>				
 		
     </dependencies>
 

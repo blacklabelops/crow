@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -20,11 +19,10 @@ import com.blacklabelops.crow.application.discover.enironment.LocalDiscoverConfi
 import com.blacklabelops.crow.application.model.CrowConfiguration;
 import com.blacklabelops.crow.application.model.GlobalCrowConfiguration;
 import com.blacklabelops.crow.application.repository.JobRepository;
-import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
+import com.blacklabelops.crow.docker.client.DiscoveredContainer;
+import com.blacklabelops.crow.docker.client.IDockerClient;
+import com.blacklabelops.crow.docker.client.spotify.DockerClientFactory;
 import com.cronutils.utils.StringUtils;
-import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ContainerInfo;
 
 @Component
@@ -53,42 +51,26 @@ public class DockerCrawler {
 
 	private List<CrowConfiguration> discoverDockerJobs() {
 		List<CrowConfiguration> jobs = new ArrayList<>();
-		DockerClient dockerClient = DockerClientFactory.initializeDockerClient();
+		IDockerClient dockerClient = DockerClientFactory.initializeDockerClient();
 		try {
-			List<Container> containers = dockerClient.listContainers();
-			List<List<CrowConfiguration>> inspections = containers.stream().map(c -> {
-				try {
-					ContainerInfo inf = dockerClient.inspectContainer(c.id());
-					List<CrowConfiguration> foundJobs = inspectionToJobConfiguration(inf);
-					return foundJobs;
-				} catch (DockerException | InterruptedException e) {
-					LOG.error("Error inspecting container {}!", c.id());
-					return null;
-				}
-			}).filter(Objects::nonNull).collect(Collectors.toList());
-			jobs.addAll(inspections.stream().flatMap(l -> l.stream()).collect(Collectors.toList()));
+			List<DiscoveredContainer> discoveredJobs = dockerClient.discoverDockerJobs();
+			jobs.addAll(discoveredJobs.stream().map(job -> inspectionToJobConfiguration(job)).flatMap(l -> l.stream()).collect(Collectors.toList()));
 			LOG.debug("Inspecting environment, jobs found: {}", jobs.size());
 			if (this.repositoryUpdater != null) {
 				repositoryUpdater.notifyRepository(jobs);
 			}
-		} catch (DockerException | InterruptedException e) {
+		} catch (Exception e) {
 			LOG.error("Error crawling Docker jobs!", e);
 		}
 		return jobs;
 	}
 
-	private List<CrowConfiguration> inspectionToJobConfiguration(ContainerInfo inf) {
+	private List<CrowConfiguration> inspectionToJobConfiguration(DiscoveredContainer inf) {
 		List<CrowConfiguration> jobs = null;
-		Optional<Map<String, String>> envs = Optional.empty();
-		if (inf.config() != null && inf.config().env() != null && !inf.config().env().isEmpty()) {
-			envs = Optional.of(envsToMap(inf.config().env()));
-		}
-		Optional<Map<String, String>> props = Optional.empty();
-		if (inf.config() != null && inf.config().labels() != null && !inf.config().labels().isEmpty()) {
-			props = Optional.of(inf.config().labels());
-		}
-		Optional<GlobalCrowConfiguration> global = extractGlobalConfiguration(inf, envs, props);
-		jobs = extractJobs(inf, envs, props);
+		Optional<Map<String, String>> envs = inf.getEnvs();
+		Optional<Map<String, String>> props = inf.getProps();		
+		Optional<GlobalCrowConfiguration> global = extractGlobalConfiguration(envs, props);
+		jobs = extractJobs(envs, props);
 		if (global.isPresent()) {
 			JobConverter converter = new JobConverter(global.get());
 			jobs = jobs.stream().map(j -> converter.convertJob(j)).collect(Collectors.toList());
@@ -97,18 +79,14 @@ public class DockerCrawler {
 		return jobs;
 	}
 
-	private CrowConfiguration setContainer(CrowConfiguration j, ContainerInfo inf) {
-		CrowConfiguration cf = j;
-		if (!StringUtils.isEmpty(inf.name())) {
-			cf = cf.withContainerName(inf.name());
-		}
-		if (!StringUtils.isEmpty(inf.id())) {
-			cf = cf.withContainerId(inf.id());
-		}
+	private CrowConfiguration setContainer(CrowConfiguration j, DiscoveredContainer inf) {
+		CrowConfiguration cf = j;				
+		cf = cf.withContainerName(inf.getContainerName());
+		cf = cf.withContainerId(inf.getContainerId());
 		return cf;
 	}
 
-	private List<CrowConfiguration> extractJobs(ContainerInfo inf, Optional<Map<String, String>> envs,
+	private List<CrowConfiguration> extractJobs(Optional<Map<String, String>> envs,
 			Optional<Map<String, String>> props) {
 		List<CrowConfiguration> jobs = new ArrayList<>();
 		if (envs.isPresent()) {
@@ -122,8 +100,7 @@ public class DockerCrawler {
 		return jobs;
 	}
 
-	private Optional<GlobalCrowConfiguration> extractGlobalConfiguration(ContainerInfo inf,
-			Optional<Map<String, String>> envs, Optional<Map<String, String>> props) {
+	private Optional<GlobalCrowConfiguration> extractGlobalConfiguration(Optional<Map<String, String>> envs, Optional<Map<String, String>> props) {
 		Optional<GlobalCrowConfiguration> foundGlobal = Optional.empty();
 		if (envs.isPresent()) {
 			GlobalExtractor extractorEnv = new GlobalExtractor(prefixConfiguration.getStandardGlobalEnvPrefix());
@@ -134,23 +111,6 @@ public class DockerCrawler {
 			foundGlobal = extractorProps.extractGlobalFromProperties(props.get());
 		}
 		return foundGlobal;
-	}
-
-	private Map<String, String> envsToMap(List<String> envs) {
-		Map<String, String> map = new HashMap<>();
-		if (envs != null && !envs.isEmpty()) {
-			for (String env : envs) {
-				fromStringToMap(env, map);
-			}
-		}
-		return map;
-	}
-
-	private void fromStringToMap(String env, Map<String, String> map) {
-		String[] parts = env.split("=", 2);
-		if (parts != null && parts.length == 2) {
-			map.put(parts[0], parts[1]);
-		}
-	}
+	}	
 
 }

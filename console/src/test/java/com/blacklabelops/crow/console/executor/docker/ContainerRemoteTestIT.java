@@ -15,7 +15,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.blacklabelops.crow.console.definition.Job;
-import com.spotify.docker.client.DockerClient;
+import com.blacklabelops.crow.docker.client.IDockerClient;
+import com.blacklabelops.crow.docker.client.spotify.DockerClientFactory;
+import com.blacklabelops.crow.docker.client.spotify.test.DockerTestClientFactory;
+import com.blacklabelops.crow.docker.client.test.IDockerClientTest;
 import com.spotify.docker.client.exceptions.DockerException;
 
 public class ContainerRemoteTestIT {
@@ -24,9 +27,9 @@ public class ContainerRemoteTestIT {
 
 	public Job definition;
 
-	public static DockerTestContainerFactory containerFactory;
+	public static IDockerClientTest containerFactory;
 
-	public static DockerClient dockerClient;
+	public static IDockerClient dockerClient;
 
 	public ByteArrayOutputStream output;
 
@@ -45,7 +48,7 @@ public class ContainerRemoteTestIT {
 	@BeforeClass
 	public static void setupClass() throws InterruptedException, IOException {
 		dockerClient = DockerClientFactory.initializeDockerClient();
-		containerFactory = new DockerTestContainerFactory(dockerClient);
+		containerFactory = DockerTestClientFactory.initializeDockerClient();
 	}
 
 	@AfterClass

@@ -14,9 +14,10 @@ import org.junit.Test;
 
 import com.blacklabelops.crow.application.discover.enironment.LocalDiscoverConfiguration;
 import com.blacklabelops.crow.application.model.CrowConfiguration;
-import com.blacklabelops.crow.console.executor.docker.DockerClientFactory;
-import com.blacklabelops.crow.console.executor.docker.DockerTestContainerFactory;
-import com.spotify.docker.client.DockerClient;
+import com.blacklabelops.crow.docker.client.IDockerClient;
+import com.blacklabelops.crow.docker.client.spotify.DockerClientFactory;
+import com.blacklabelops.crow.docker.client.spotify.test.DockerTestClientFactory;
+import com.blacklabelops.crow.docker.client.test.IDockerClientTest;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 
@@ -24,9 +25,9 @@ public class DockerCrawlerIT {
 
 	public static final String CONTAINER_NAME = "DockerCrawlerITTestContainer";
 
-	public DockerTestContainerFactory containerFactory;
+	public IDockerClientTest containerFactory;
 
-	public DockerClient dockerClient;
+	public IDockerClient dockerClient;
 
 	public DockerCrawler crawler;
 
@@ -35,7 +36,7 @@ public class DockerCrawlerIT {
 	@Before
 	public void setupClass() throws DockerCertificateException, DockerException, InterruptedException {
 		dockerClient = DockerClientFactory.initializeDockerClient();
-		containerFactory = new DockerTestContainerFactory(dockerClient);
+		containerFactory = DockerTestClientFactory.initializeDockerClient();
 		local = new LocalDiscoverConfiguration();
 		local.setStandardGlobalEnvPrefix("CROW_");
 		local.setStandardGlobalPrefix("crow.");
@@ -80,7 +81,7 @@ public class DockerCrawlerIT {
 				.jobName("Job")
 				.command("echo HelloWorld").build();
 		String containerId = containerFactory.runContainer(CONTAINER_NAME, jobToEnvs(config, 1));
-		dockerClient.stopContainer(containerId, 0);
+		containerFactory.stopContainer(containerId);
 
 		List<CrowConfiguration> jobs = crawler.discoverJobs();
 

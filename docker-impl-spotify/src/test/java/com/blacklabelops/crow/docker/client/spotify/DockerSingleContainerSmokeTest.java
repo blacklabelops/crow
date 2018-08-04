@@ -1,4 +1,4 @@
-package com.blacklabelops.crow.console.executor.docker;
+package com.blacklabelops.crow.docker.client.spotify;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -15,6 +15,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.blacklabelops.crow.docker.client.spotify.test.DockerTestClientFactory;
+import com.blacklabelops.crow.docker.client.spotify.test.SpotifyDockerTestClient;
+import com.blacklabelops.crow.docker.client.test.IDockerClientTest;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.ContainerRenameConflictException;
@@ -31,28 +34,28 @@ public class DockerSingleContainerSmokeTest {
 
 	private Logger LOG = LoggerFactory.getLogger(DockerSingleContainerSmokeTest.class);
 
-	public DockerTestContainerFactory containerFactory;
+	public DockerClient dockerClient;
+	
+	public IDockerClientTest dockerTestClient;
 
 	public List<String> containers = new LinkedList<>();
 
-	public DockerClient dockerClient;
-
 	@Before
 	public void setupClass() throws DockerCertificateException, DockerException, InterruptedException {
-		dockerClient = DockerClientFactory.initializeDockerClient();
-		containerFactory = new DockerTestContainerFactory(dockerClient);
+		dockerTestClient = DockerTestClientFactory.initializeDockerClient();
+		dockerClient = ((SpotifyDockerTestClient) dockerTestClient).getDockerClient();
 	}
 
 	@After
 	public void tearDownClass() {
-		containerFactory.deleteContainers();
+		dockerTestClient.deleteContainers();
 	}
 
 	@Test
 	public void testExecution_ExecuteInCommandNamedContainer_OutputExecuted() throws InterruptedException,
 			IOException, DockerException {
 		String[] command = new String[] { "echo", "HelloWorld" };
-		containerFactory.runContainer(CONTAINER_NAME);
+		dockerTestClient.runContainer(CONTAINER_NAME);
 		ExecCreation execCreation = dockerClient.execCreate(CONTAINER_NAME, command, DockerClient.ExecCreateParam
 				.attachStdout(),
 				DockerClient.ExecCreateParam.attachStderr());
@@ -71,19 +74,19 @@ public class DockerSingleContainerSmokeTest {
 			IOException, DockerException {
 		Exception exc = null;
 		try {
-			containerFactory.runContainer(CONTAINER_NAME);
-			containerFactory.runContainer(CONTAINER_NAME);
+			dockerTestClient.runContainer(CONTAINER_NAME);
+			dockerTestClient.runContainer(CONTAINER_NAME);
 		} catch (Exception e) {
 			exc = e;
 		}
-		assertTrue(exc instanceof ContainerRenameConflictException || exc instanceof DockerRequestException);
+		assertTrue(exc.getCause() instanceof ContainerRenameConflictException || exc.getCause() instanceof DockerRequestException);
 	}
 
 	@Test
 	public void testExecution_CheckContainerRunning_Success() throws InterruptedException,
 			IOException, DockerException {
 
-		containerFactory.runContainer(CONTAINER_NAME);
+		dockerTestClient.runContainer(CONTAINER_NAME);
 		ContainerInfo inspect = dockerClient.inspectContainer(CONTAINER_NAME);
 
 		assertTrue(inspect.state().running());
@@ -94,7 +97,7 @@ public class DockerSingleContainerSmokeTest {
 			IOException, DockerException {
 		Map<String, String> envs = new HashMap<>();
 		envs.put("CROW_CRON", "* * * * *");
-		containerFactory.runContainer(CONTAINER_NAME, envs);
+		dockerTestClient.runContainer(CONTAINER_NAME, envs);
 		ContainerInfo inspect = dockerClient.inspectContainer(CONTAINER_NAME);
 
 		assertTrue(inspect.config().env().contains("CROW_CRON=* * * * *"));
